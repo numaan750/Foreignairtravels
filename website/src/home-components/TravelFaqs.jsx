@@ -47,7 +47,7 @@ const TravelFaqs = () => {
             id="faq-title"
             className="mt-5 text-[34px] font-semibold leading-[1.08] tracking-[-0.045em] text-[#003366] text-balance sm:text-[44px] lg:text-[50px]"
           >
-            Answers before you start planning.
+            Answers Before You Start Planning.
           </h2>
 
           <p className="mt-6 max-w-[500px] text-[15px] leading-[26px] text-slate-600 sm:text-[16px] sm:leading-[28px]">

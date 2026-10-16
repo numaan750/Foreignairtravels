@@ -90,13 +90,13 @@ const Services = () => {
           <div className="max-w-[760px]">
             <p className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#ff8a61] sm:text-[12px]">
               <span aria-hidden="true" className="h-px w-8 bg-[#ff8a61]" />
-              Everything in one place
+              SERVICES
             </p>
             <h2
               id="services-title"
               className="mt-4 max-w-[720px] text-[32px] font-semibold leading-[1.1] tracking-[-0.04em] text-balance sm:text-[42px] lg:text-[54px]"
             >
-              One journey. Every detail handled.
+              One Journey. Every Detail Handled.
             </h2>
           </div>
 

@@ -345,7 +345,7 @@ const Navbar = () => {
 
                 {/* Desktop right side */}
                 <div className="hidden items-center gap-5 lg:flex">
-                    <ul className="hidden flex-col gap-1 border-l border-slate-200 pl-5 text-[13px] text-[#003366] xl:flex">
+                    <ul className="hidden shrink-0 flex-row items-center gap-5 whitespace-nowrap border-l border-slate-200 pl-5 text-[13px] text-[#003366] xl:flex">
                         <li>
                             <a
                                 href={WHATSAPP_HREF}
@@ -370,7 +370,7 @@ const Navbar = () => {
 
                     <Link
                         href="/login"
-                        className="inline-flex h-[44px] items-center gap-2 rounded-full bg-[#FF6B35] px-5 text-[13px] font-semibold uppercase tracking-wide text-white shadow-sm shadow-teal-900/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-teal-900 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-700"
+                        className="inline-flex h-[44px] items-center gap-2 rounded-full bg-[#FF6B35] px-5 text-[13px] font-semibold uppercase tracking-wide text-white shadow-sm shadow-[#FF6B35]/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#003366] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6B35]"
                     >
                         <FiUser aria-hidden="true" className="size-[15px]" />
                         Login / Register
@@ -384,7 +384,7 @@ const Navbar = () => {
                         className="inline-flex h-[44px] items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50 px-4 text-[13px] font-semibold text-emerald-700 transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-100 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-600"
                     >
                         <FaWhatsapp aria-hidden="true" className="size-[18px]" />
-                        <span className="hidden xl:inline">WhatsApp</span>
+                        <span>WhatsApp</span>
                     </a>
                 </div>
 
@@ -471,7 +471,7 @@ const Navbar = () => {
                             <Link
                                 href="/login"
                                 onClick={close}
-                                className="inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-[#FF6B35] text-[14px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-teal-900 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                                className="inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-[#FF6B35] text-[14px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#003366] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]"
                             >
                                 <FiUser aria-hidden="true" className="size-[16px]" />
                                 Login / Register

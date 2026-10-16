@@ -85,7 +85,7 @@ const AirlinePartners = () => {
               id="airlines-title"
               className="mt-4 text-[32px] font-semibold leading-[1.1] tracking-[-0.04em] text-[#003366] text-balance sm:text-[42px] lg:text-[54px]"
             >
-              We work with these airlines
+              We Work With These Airlines
             </h2>
           </div>
 
@@ -138,7 +138,7 @@ const AirlinePartners = () => {
           ))}
         </ul>
 
-        <div className="mt-8 flex flex-col gap-5 rounded-[24px] bg-[#003366] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7 lg:px-9">
+        {/* <div className="mt-8 flex flex-col gap-5 rounded-[24px] bg-[#003366] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7 lg:px-9">
           <div className="flex min-w-0 items-start gap-4">
             <span className="flex size-[46px] shrink-0 items-center justify-center rounded-2xl bg-white/10 text-[#FF6B35]">
               <FiShield aria-hidden="true" className="size-[21px]" />
@@ -164,7 +164,7 @@ const AirlinePartners = () => {
               className="size-[16px] transition-transform duration-300 group-hover:translate-x-1"
             />
           </Link>
-        </div>
+        </div> */}
       </div>
     </section>
   )

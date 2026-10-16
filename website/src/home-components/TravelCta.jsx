@@ -42,9 +42,9 @@ const TravelCta = () => {
             </p>
             <h2
               id="contact-title"
-              className="mt-5 max-w-[760px] text-[34px] font-semibold leading-[1.08] tracking-[-0.045em] text-[#003366] text-balance sm:text-[44px] lg:text-[54px]"
+              className="mt-5 text-[34px] font-semibold leading-[1.08] tracking-[-0.045em] text-[#003366] text-balance sm:text-[44px] lg:text-[54px]"
             >
-              Let&apos;s talk about your next journey.
+              Let&apos;s Talk About Your Next Journey.
             </h2>
           </div>
 

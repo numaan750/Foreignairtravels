@@ -5,8 +5,8 @@ import AnnouncementBar from '@/mutual-componenst/AnnouncementBar'
 export default function SiteLayout({ children }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <Navbar />
       <AnnouncementBar />
+      <Navbar />
       {children}
       <Footer />
     </div>

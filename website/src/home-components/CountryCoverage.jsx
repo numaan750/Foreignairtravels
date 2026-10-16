@@ -101,7 +101,7 @@ const CountryCoverage = () => {
               id="countries-title"
               className="mt-4 text-[32px] font-semibold leading-[1.1] tracking-[-0.04em] sm:text-[42px] lg:whitespace-nowrap lg:text-[54px]"
             >
-              We work with these countries
+              We Work With These Countries
             </h2>
           </div>
 
@@ -170,7 +170,7 @@ const CountryCoverage = () => {
           ))}
         </ul>
 
-        <div className="mt-9 flex flex-col items-start justify-between gap-5 border-t border-white/15 pt-7 sm:flex-row sm:items-center">
+        {/* <div className="mt-9 flex flex-col items-start justify-between gap-5 border-t border-white/15 pt-7 sm:flex-row sm:items-center">
           <div>
             <p className="text-[16px] font-semibold text-white sm:text-[18px]">
               Your destination is not listed?
@@ -189,7 +189,7 @@ const CountryCoverage = () => {
               className="size-[16px] transition-transform duration-300 group-hover:translate-x-1"
             />
           </Link>
-        </div>
+        </div> */}
       </div>
     </section>
   )

@@ -57,7 +57,7 @@ const About = () => {
               id="about-title"
               className="mt-5 max-w-[680px] text-[34px] font-semibold leading-[1.08] tracking-[-0.045em] text-[#07324a] text-balance sm:text-[44px] lg:text-[52px] xl:text-[58px]"
             >
-              Your journey deserves more than a booking.
+              Your Journey Deserves More Than A Booking.
             </h2>
 
             <p className="mt-6 max-w-[620px] text-[15px] leading-[26px] text-slate-600 sm:text-[17px] sm:leading-[29px]">
