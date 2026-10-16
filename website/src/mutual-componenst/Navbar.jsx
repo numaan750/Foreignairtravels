@@ -43,6 +43,7 @@ const navItems = [
     { label: 'Home', href: '/', icon: FaHome },
     { label: 'Group Tickets', href: '/group-tickets', icon: FaPlane, children: groupTypes },
     { label: 'My Bookings', href: '/my-bookings', icon: FaFolderOpen },
+    { label: 'Packeges', href: '/packeges', icon: FaFolderOpen },
 ]
 
 /* ---------------------------- DESKTOP DROPDOWN ---------------------------- */

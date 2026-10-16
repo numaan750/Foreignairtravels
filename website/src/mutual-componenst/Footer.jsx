@@ -10,7 +10,7 @@ import {
   FiMapPin,
   FiPhone,
 } from 'react-icons/fi'
-import { FaWhatsapp } from 'react-icons/fa'
+import { FaFacebookF, FaInstagram, FaWhatsapp } from 'react-icons/fa'
 
 const exploreLinks = [
   { label: 'About us', target: 'about' },
@@ -26,6 +26,19 @@ const serviceLinks = [
   { label: 'Hotel reservations', target: 'services-title' },
   { label: 'Visa assistance', target: 'services-title' },
   { label: 'Umrah & Hajj', target: 'services-title' },
+]
+
+const socialLinks = [
+  {
+    label: 'Facebook',
+    href: ' https://www.facebook.com/share/19JTEp9KRK/?mibextid=wwXIfr',
+    icon: FaFacebookF,
+  },
+  {
+    label: 'Instagram',
+    href: 'https://www.instagram.com/foreignairtravel?obrf=MXJlYXZ1YW42eXc3',
+    icon: FaInstagram,
+  },
 ]
 
 const Footer = () => {
@@ -159,6 +172,14 @@ const Footer = () => {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link
+                  href="/packeges"
+                  className="inline-flex text-[14px] leading-[22px] text-white/65 transition-colors hover:text-white focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                >
+                  Packeges
+                </Link>
+              </li>
             </ul>
           </nav>
 
@@ -238,6 +259,21 @@ const Footer = () => {
                   Faisalabad, Pakistan
                 </Link>
               </li>
+            </ul>
+            <ul className="mt-6 flex flex-wrap items-center gap-3">
+              {socialLinks.map(({ label, href, icon: Icon }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Foreign Air Travel on ${label}`}
+                    className="flex size-10 items-center justify-center rounded-full border border-white/20 text-white/80 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#ff6b35] hover:bg-[#ff6b35] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  >
+                    <Icon aria-hidden="true" className="size-[16px]" />
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
