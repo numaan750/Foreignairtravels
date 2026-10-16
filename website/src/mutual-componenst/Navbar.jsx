@@ -107,7 +107,7 @@ const DesktopDropdown = ({ item, active, pathname }) => {
                         setPinnedClosed(false)
                     }
                 }}
-                className={`relative inline-flex h-full items-center gap-2 text-[14px] font-medium transition-colors after:absolute after:inset-x-0 after:bottom-[18px] after:h-[3px] after:origin-left after:rounded-t-full after:bg-[#FF6B35] after:transition-transform after:duration-300 hover:text-[#FF6B35] hover:after:scale-x-100 focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-teal-700 ${highlighted
+                className={`relative inline-flex h-full items-center gap-2 whitespace-nowrap text-[14px] font-medium transition-colors after:absolute after:inset-x-0 after:bottom-[18px] after:h-[3px] after:origin-left after:rounded-t-full after:bg-[#FF6B35] after:transition-transform after:duration-300 hover:text-[#FF6B35] hover:after:scale-x-100 focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-teal-700 ${highlighted
                     ? 'text-[#FF6B35] after:scale-x-100'
                     : 'text-[#003366] after:scale-x-0'
                     }`}
@@ -303,14 +303,14 @@ const Navbar = () => {
                         width={400}
                         height={120}
                         priority
-                        className="h-[56px] w-auto max-w-[200px] object-contain sm:h-[70px] sm:max-w-[240px]"
+                        className="h-[56px] w-auto max-w-[200px] object-contain sm:h-[60px] sm:max-w-[200px] xl:h-[70px] xl:max-w-[240px]"
                     />
                 </Link>
 
                 {/* Desktop links */}
                 <nav
                     aria-label="Main navigation"
-                    className="hidden h-full items-center gap-7 lg:flex xl:gap-10"
+                    className="hidden h-full items-center gap-4 lg:flex xl:gap-10"
                 >
                     {navItems.map((item) => {
                         const active = isActive(item.href)
@@ -332,7 +332,7 @@ const Navbar = () => {
                                 key={item.label}
                                 href={item.href}
                                 aria-current={active ? 'page' : undefined}
-                                className={`relative inline-flex h-full items-center gap-2 text-[14px] font-medium transition-colors after:absolute after:inset-x-0 after:bottom-[18px] after:h-[3px] after:origin-left after:rounded-t-full after:bg-[#FF6B35] after:transition-transform after:duration-300 hover:text-[#FF6B35] hover:after:scale-x-100 focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-teal-700 ${active
+                                className={`relative inline-flex h-full items-center gap-2 whitespace-nowrap text-[14px] font-medium transition-colors after:absolute after:inset-x-0 after:bottom-[18px] after:h-[3px] after:origin-left after:rounded-t-full after:bg-[#FF6B35] after:transition-transform after:duration-300 hover:text-[#FF6B35] hover:after:scale-x-100 focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-teal-700 ${active
                                     ? 'text-[#FF6B35] after:scale-x-100'
                                     : 'text-[#003366] after:scale-x-0'
                                     }`}
@@ -345,8 +345,8 @@ const Navbar = () => {
                 </nav>
 
                 {/* Desktop right side */}
-                <div className="hidden items-center gap-5 lg:flex">
-                    <ul className="hidden shrink-0 flex-row items-center gap-5 whitespace-nowrap border-l border-slate-200 pl-5 text-[13px] text-[#003366] xl:flex">
+                <div className="hidden shrink-0 items-center gap-3 lg:flex xl:gap-5">
+                    {/* <ul className="hidden shrink-0 flex-row items-center gap-5 whitespace-nowrap border-l border-slate-200 pl-5 text-[13px] text-[#003366] xl:flex">
                         <li>
                             <a
                                 href={WHATSAPP_HREF}
@@ -367,11 +367,11 @@ const Navbar = () => {
                                 {PHONE_NUMBER}
                             </a>
                         </li>
-                    </ul>
+                    </ul> */}
 
                     <Link
                         href="/login"
-                        className="inline-flex h-[44px] items-center gap-2 rounded-full bg-[#FF6B35] px-5 text-[13px] font-semibold uppercase tracking-wide text-white shadow-sm shadow-[#FF6B35]/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#003366] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6B35]"
+                        className="inline-flex h-[44px] items-center gap-2 whitespace-nowrap rounded-full bg-[#FF6B35] px-4 text-[12px] xl:px-5 xl:text-[13px] font-semibold uppercase tracking-wide text-white shadow-sm shadow-[#FF6B35]/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#003366] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6B35]"
                     >
                         <FiUser aria-hidden="true" className="size-[15px]" />
                         Login / Register
@@ -382,7 +382,7 @@ const Navbar = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="Chat on WhatsApp"
-                        className="inline-flex h-[44px] items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50 px-4 text-[13px] font-semibold text-emerald-700 transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-100 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-600"
+                        className="inline-flex h-[44px] items-center gap-2 whitespace-nowrap rounded-full border border-emerald-300 bg-emerald-50 px-3 xl:px-4 text-[13px] font-semibold text-emerald-700 transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-100 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-600"
                     >
                         <FaWhatsapp aria-hidden="true" className="size-[18px]" />
                         <span>WhatsApp</span>
