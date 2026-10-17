@@ -181,6 +181,10 @@ export default function AuthPanel() {
     if (result.ok) {
       setError('')
       setNotice(result.message || 'Your account approval request has been sent again.')
+      if (result.code === 'ACCOUNT_ALREADY_APPROVED') {
+        setUnverifiedEmail('')
+        setMode('login')
+      }
     } else {
       setError(result.message || 'Could not resend the account approval request.')
       setNotice('')

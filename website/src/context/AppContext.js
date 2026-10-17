@@ -153,7 +153,7 @@ export function AppProvider({ children }) {
         method: "POST",
         body: { email },
       });
-      return { ok, message: data.message };
+      return { ok, message: data.message, code: data.code };
     },
     [request]
   );

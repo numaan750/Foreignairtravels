@@ -242,7 +242,15 @@ export const resendVerification = async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    if (user && !user.isVerified) {
+    if (user?.isVerified) {
+      return res.status(200).json({
+        success: true,
+        code: "ACCOUNT_ALREADY_APPROVED",
+        message: "Your account has been approved. You can now sign in with your email and password.",
+      });
+    }
+
+    if (user) {
       try {
         await sendAdminApprovalEmail(user);
       } catch (mailError) {
@@ -259,7 +267,6 @@ export const resendVerification = async (req, res) => {
       }
     }
 
-    // Har haal mein same jawab, taake email ke maujood hone ka pata na chale
     res.status(200).json({
       success: true,
       message: "If this email is registered and awaiting approval, a new approval request has been sent.",
