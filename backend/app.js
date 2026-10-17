@@ -4,6 +4,7 @@ import express from 'express';
 import cors from 'cors';
 import connectDB from './config/db.js';
 import adminRoutes from './routers/adminRoutes.js';
+import loginuserrouters from './routers/loginuserrouters.js';
 
 
 
@@ -16,6 +17,8 @@ connectDB();
 
 
 app.use('/api/admin', adminRoutes);
+app.use('/api/user', loginuserrouters);
+
 
 // ap.get("/api", (req, res) => {
 //     res.send("API is running...");
