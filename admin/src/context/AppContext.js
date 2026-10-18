@@ -33,15 +33,17 @@ export function AppProvider({ children }) {
   const request = useCallback(
     async (path, { method = "GET", body } = {}) => {
       try {
+        const isForm = body instanceof FormData;
+
         const res = await fetch(`${API_URL}${path}`, {
           method,
           headers: {
-            "Content-Type": "application/json",
+            ...(isForm ? {} : { "Content-Type": "application/json" }),
             ...(tokenRef.current
               ? { Authorization: `Bearer ${tokenRef.current}` }
               : {}),
           },
-          body: body ? JSON.stringify(body) : undefined,
+          body: body ? (isForm ? body : JSON.stringify(body)) : undefined,
         });
 
         const data = await res.json().catch(() => ({}));
@@ -110,21 +112,36 @@ export function AppProvider({ children }) {
 
   const logout = useCallback(() => clearSession(), [clearSession]);
 
-  // ---------- TRIPS (example, abhi comment hai) ----------
-  // const getTrips = useCallback(() => request("/trips"), [request]);
-  // const createTrip = useCallback((body) => request("/trips", { method: "POST", body }), [request]);
-  // const updateTrip = useCallback((id, body) => request(`/trips/${id}`, { method: "PUT", body }), [request]);
-  // const deleteTrip = useCallback((id) => request(`/trips/${id}`, { method: "DELETE" }), [request]);
+
+    // ---------- PACKAGES ----------
+  const getPackages = useCallback(() => request("/api/packages?all=true"), [request]);
+  const createPackage = useCallback((body) => request("/api/packages", { method: "POST", body }), [request]);
+  const updatePackage = useCallback((id, body) => request(`/api/packages/${id}`, { method: "PUT", body }), [request]);
+  const deletePackage = useCallback((id) => request(`/api/packages/${id}`, { method: "DELETE" }), [request]);
+  
+  // ---------- UPLOAD ----------
+  const uploadImage = useCallback(
+    (file) => {
+      const formData = new FormData();
+      formData.append("image", file);
+      return request("/api/upload", { method: "POST", body: formData });
+    },
+    [request]
+  );
 
   const value = useMemo(
     () => ({
       admin,
       authLoading,
       login,
-      logout,
-      // getTrips, createTrip, updateTrip, deleteTrip,  (add karte jao)
+            logout,
+      getPackages,
+      createPackage,
+      updatePackage,
+      deletePackage,
+      uploadImage,
     }),
-    [admin, authLoading, login, logout]
+    [admin, authLoading, login, logout, getPackages, createPackage, updatePackage, deletePackage, uploadImage]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

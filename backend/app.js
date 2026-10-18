@@ -5,6 +5,8 @@ import cors from 'cors';
 import connectDB from './config/db.js';
 import adminRoutes from './routers/adminRoutes.js';
 import loginuserrouters from './routers/loginuserrouters.js';
+import packageRoutes from './routers/packegesrouters.js';
+import uploadRoutes from './routers/uploadroutes.js';
 
 const app = express();
 app.use(cors());
@@ -15,6 +17,8 @@ connectDB();
 
 app.use('/api/admin', adminRoutes);
 app.use('/api/user', loginuserrouters);
+app.use('/api/packages', packageRoutes);
+app.use('/api/upload', uploadRoutes);
 
 app.get("/", (req, res) => {
     res.send("API is running...");

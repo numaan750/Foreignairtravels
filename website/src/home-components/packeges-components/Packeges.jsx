@@ -1,44 +1,37 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { FiArrowUpRight, FiClock, FiMapPin, FiUsers } from 'react-icons/fi'
+import { useApp } from '@/context/AppContext'
 
-// Add every new package here. The card will be created automatically.
-const packages = [
-  {
-    title: 'Cappadocia Journey',
-    location: 'Cappadocia, T\u00fcrkiye',
-    image: '/cappadocia-journey.png',
-    description:
-      'Explore Cappadocia at an easy pace with time for its landscapes, local character and unforgettable views.',
-    label: 'Featured package',
-    duration: '6 Days / 5 Nights',
-    tripType: 'Private or group',
-    price: 'PKR 289,000',
-  },
-  {
-    title: 'Cappadocia Journey',
-    location: 'Cappadocia, T\u00fcrkiye',
-    image: '/cappadocia-journey.png',
-    description:
-      'Explore Cappadocia at an easy pace with time for its landscapes, local character and unforgettable views.',
-    label: 'Featured package',
-    duration: '6 Days / 5 Nights',
-    tripType: 'Private or group',
-    price: 'PKR 289,000',
-  },
-  {
-    title: 'Cappadocia Journey',
-    location: 'Cappadocia, T\u00fcrkiye',
-    image: '/cappadocia-journey.png',
-    description:
-      'Explore Cappadocia at an easy pace with time for its landscapes, local character and unforgettable views.',
-    label: 'Featured package',
-    duration: '6 Days / 5 Nights',
-    tripType: 'Private or group',
-    price: 'PKR 289,000',
-  },
-]
+// Backend ka data card ke format mein badalta hai
+const toCard = (pkg) => ({
+  id: pkg._id,
+  title: pkg.title,
+  location: pkg.location,
+  image: pkg.image,
+  description: pkg.description,
+  label: pkg.isFeatured ? 'Featured package' : 'Package',
+  duration: `${pkg.days} Days / ${pkg.nights} Nights`,
+  tripType: pkg.travelType,
+  price: `${pkg.currency} ${pkg.price.toLocaleString('en-US')}`,
+})
 
 const Packeges = () => {
+  const { getPackages } = useApp()
+  const [packages, setPackages] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const load = async () => {
+      const { ok, data } = await getPackages()
+      if (ok) setPackages(data.data.map(toCard))
+      setLoading(false)
+    }
+    load()
+  }, [getPackages])
+
   return (
     <section
       id="packages"
@@ -71,10 +64,15 @@ const Packeges = () => {
             </p>
           </div>
         </div>
+        {!loading && packages.length === 0 && (
+          <p className="mt-10 text-[15px] text-slate-600">
+            Packages are coming soon. Please check back shortly.
+          </p>
+        )}
 
         <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:mt-14 lg:grid-cols-3 lg:gap-6">
-          {packages.map((item, index) => (
-            <li key={`${item.title}-${index}`} className="min-w-0">
+           {packages.map((item) => (
+            <li key={item.id} className="min-w-0">
               <article className="group relative isolate flex min-h-[450px] h-full overflow-hidden rounded-[26px] bg-[#003366] shadow-[0_20px_55px_rgba(0,51,102,0.14)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_26px_65px_rgba(0,51,102,0.22)] focus-within:-translate-y-1 sm:rounded-[30px]">
                 <Image
                   src={item.image}

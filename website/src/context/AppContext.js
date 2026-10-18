@@ -189,6 +189,9 @@ export function AppProvider({ children }) {
   );
 
   const logout = useCallback(() => clearSession(), [clearSession]);
+  
+  // ---------- PACKAGES (public, token nahi chahiye) ----------
+  const getPackages = useCallback(() => request("/api/packages"), [request]);
 
   // ---------- Aage ki APIs yahan add hongi (bookings, profile wagera) ----------
 
@@ -205,8 +208,9 @@ export function AppProvider({ children }) {
       updateMe,
       deleteMe,
       logout,
+      getPackages,
     }),
-    [user, authLoading, register, login, verifyEmail, sendApprovalNotification, resendVerification, getMe, updateMe, deleteMe, logout]
+    [user, authLoading, register, login, verifyEmail, sendApprovalNotification, resendVerification, getMe, updateMe, deleteMe, logout, getPackages]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
