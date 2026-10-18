@@ -9,6 +9,7 @@ import packageRoutes from './routers/packegesrouters.js';
 import uploadRoutes from './routers/uploadroutes.js';
 import serviceRoutes from './routers/servicesrouters.js';
 import airlineRoutes from './routers/airlinesrouters.js';
+import countryRoutes from './routers/countriesrouters.js';
 
 const app = express();
 app.use(cors());
@@ -23,6 +24,7 @@ app.use('/api/packages', packageRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/airlines', airlineRoutes);
+app.use('/api/countries', countryRoutes);
 
 app.get("/", (req, res) => {
     res.send("API is running...");

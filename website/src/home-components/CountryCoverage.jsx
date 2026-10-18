@@ -1,5 +1,9 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useApp } from '@/context/AppContext'
 import { FiArrowRight, FiGlobe, FiMapPin } from 'react-icons/fi'
 
 const countries = [
@@ -76,6 +80,19 @@ const bgImages = {
 }
 
 const CountryCoverage = () => {
+  const { getCountries } = useApp()
+  const [countries, setCountries] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const load = async () => {
+      const { ok, data } = await getCountries()
+      if (ok) setCountries(data.data)
+      setLoading(false)
+    }
+    load()
+  }, [getCountries])
+
   return (
     <section
       aria-labelledby="countries-title"
@@ -110,15 +127,19 @@ const CountryCoverage = () => {
             plan practical connections to the places that matter most.
           </p>
         </div>
-
+        {!loading && countries.length === 0 && (
+          <p className="mt-10 text-[15px] text-white/65">
+            Countries are coming soon.
+          </p>
+        )}
         <ul className="mt-10 flex min-w-0 flex-wrap justify-center gap-4 lg:mt-14 lg:gap-5">
-          {countries.map(({ code, name, cities, note }, index) => (
+          {countries.map(({ _id, name, cities, note, flag, bgImage }) => (
             <li
-              key={code}
+              key={_id}
               className="group relative isolate w-full min-w-0 overflow-hidden rounded-[24px] border border-white/15 bg-white/[0.07] p-5 backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-[#FF6B35]/70 hover:bg-white/[0.11] sm:w-[calc((100%-1rem)/2)] sm:p-6 lg:w-[calc((100%-2.5rem)/3)]"
             >
               <Image
-                src={bgImages[code]}
+                src={bgImage}
                 alt=""
                 fill
                 sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
@@ -133,7 +154,7 @@ const CountryCoverage = () => {
               <div className="flex items-center justify-between gap-4">
                 <span className="relative h-[38px] w-[57px] shrink-0 overflow-hidden rounded-md border border-white/20">
                   <Image
-                    src={flags[code]}
+                    src={flag}
                     alt={`${name} flag`}
                     fill
                     sizes="57px"

@@ -199,6 +199,9 @@ export function AppProvider({ children }) {
   // ---------- AIRLINES (public, token nahi chahiye) ----------
   const getAirlines = useCallback(() => request("/api/airlines"), [request]);
 
+  // ---------- COUNTRIES (public, token nahi chahiye) ----------
+  const getCountries = useCallback(() => request("/api/countries"), [request]);
+
   // ---------- Aage ki APIs yahan add hongi (bookings, profile wagera) ----------
 
   const value = useMemo(
@@ -217,8 +220,9 @@ export function AppProvider({ children }) {
       getPackages,
       getServices,
       getAirlines,
+      getCountries,
     }),
-    [user, authLoading, register, login, verifyEmail, sendApprovalNotification, resendVerification, getMe, updateMe, deleteMe, logout, getPackages, getServices, getAirlines]
+    [user, authLoading, register, login, verifyEmail, sendApprovalNotification, resendVerification, getMe, updateMe, deleteMe, logout, getPackages, getServices, getAirlines, getCountries]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
