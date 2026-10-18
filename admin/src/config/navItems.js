@@ -6,12 +6,14 @@ import {
   FiMessageSquare,
   FiSettings,
   FiLayers,
+  FiSend,
 } from "react-icons/fi";
 
 export const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: FiGrid },
   { label: "Packages", href: "/dashboard/packages", icon: FiMap },
   { label: "Services", href: "/dashboard/services", icon: FiLayers },
+  { label: "Airlines", href: "/dashboard/airlines", icon: FiSend },
   { label: "Bookings", href: "/dashboard/bookings", icon: FiCalendar },
   { label: "Customers", href: "/dashboard/customers", icon: FiUsers },
   { label: "Inquiries", href: "/dashboard/inquiries", icon: FiMessageSquare },

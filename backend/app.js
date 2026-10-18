@@ -8,6 +8,7 @@ import loginuserrouters from './routers/loginuserrouters.js';
 import packageRoutes from './routers/packegesrouters.js';
 import uploadRoutes from './routers/uploadroutes.js';
 import serviceRoutes from './routers/servicesrouters.js';
+import airlineRoutes from './routers/airlinesrouters.js';
 
 const app = express();
 app.use(cors());
@@ -21,6 +22,7 @@ app.use('/api/user', loginuserrouters);
 app.use('/api/packages', packageRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/services', serviceRoutes);
+app.use('/api/airlines', airlineRoutes);
 
 app.get("/", (req, res) => {
     res.send("API is running...");

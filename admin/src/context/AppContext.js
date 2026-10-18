@@ -113,19 +113,24 @@ export function AppProvider({ children }) {
   const logout = useCallback(() => clearSession(), [clearSession]);
 
 
-    // ---------- PACKAGES ----------
+  // ---------- PACKAGES ----------
   const getPackages = useCallback(() => request("/api/packages?all=true"), [request]);
   const createPackage = useCallback((body) => request("/api/packages", { method: "POST", body }), [request]);
   const updatePackage = useCallback((id, body) => request(`/api/packages/${id}`, { method: "PUT", body }), [request]);
   const deletePackage = useCallback((id) => request(`/api/packages/${id}`, { method: "DELETE" }), [request]);
 
-
-    // ---------- SERVICES ----------
+  // ---------- SERVICES ----------
   const getServices = useCallback(() => request("/api/services"), [request]);
   const createService = useCallback((body) => request("/api/services", { method: "POST", body }), [request]);
   const updateService = useCallback((id, body) => request(`/api/services/${id}`, { method: "PUT", body }), [request]);
   const deleteService = useCallback((id) => request(`/api/services/${id}`, { method: "DELETE" }), [request]);
-  
+
+  // ---------- AIRLINES ----------
+  const getAirlines = useCallback(() => request("/api/airlines"), [request]);
+  const createAirline = useCallback((body) => request("/api/airlines", { method: "POST", body }), [request]);
+  const updateAirline = useCallback((id, body) => request(`/api/airlines/${id}`, { method: "PUT", body }), [request]);
+  const deleteAirline = useCallback((id) => request(`/api/airlines/${id}`, { method: "DELETE" }), [request]);
+
   // ---------- UPLOAD ----------
   const uploadImage = useCallback(
     (file) => {
@@ -141,7 +146,7 @@ export function AppProvider({ children }) {
       admin,
       authLoading,
       login,
-            logout,
+      logout,
       getPackages,
       createPackage,
       updatePackage,
@@ -151,8 +156,9 @@ export function AppProvider({ children }) {
       createService,
       updateService,
       deleteService,
+      getAirlines, createAirline, updateAirline, deleteAirline,
     }),
-    [admin, authLoading, login, logout, getPackages, createPackage, updatePackage, deletePackage, uploadImage, getServices, createService, updateService, deleteService,]
+    [admin, authLoading, login, logout, getPackages, createPackage, updatePackage, deletePackage, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline,]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

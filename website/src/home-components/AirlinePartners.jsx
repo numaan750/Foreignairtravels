@@ -1,5 +1,8 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
+import { useApp } from '@/context/AppContext'
 import { FiArrowRight, FiCheck, FiShield } from 'react-icons/fi'
 import { FaPlane } from 'react-icons/fa'
 
@@ -69,6 +72,19 @@ const logos = {
 }
 
 const AirlinePartners = () => {
+  const { getAirlines } = useApp()
+  const [airlines, setAirlines] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const load = async () => {
+      const { ok, data } = await getAirlines()
+      if (ok) setAirlines(data.data)
+      setLoading(false)
+    }
+    load()
+  }, [getAirlines])
+
   return (
     <section
       aria-labelledby="airlines-title"
@@ -95,10 +111,16 @@ const AirlinePartners = () => {
           </p>
         </div>
 
+        {!loading && airlines.length === 0 && (
+          <p className="mt-10 text-[15px] text-slate-600">
+            Airline partners are coming soon.
+          </p>
+        )}
+
         <ul className="mt-10 flex min-w-0 flex-wrap justify-center gap-4 lg:mt-14 lg:gap-5">
-          {airlines.map(({ code, name, network }, index) => (
+          {airlines.map(({ _id, name, network, logo }, index) => (
             <li
-              key={code}
+              key={_id}
               className="group relative w-full min-w-0 overflow-hidden rounded-[22px] border border-slate-200 bg-white p-5 shadow-[0_12px_36px_rgba(0,51,102,0.06)] transition duration-300 hover:-translate-y-1 hover:border-[#FF6B35]/40 hover:shadow-[0_22px_55px_rgba(0,51,102,0.13)] sm:w-[calc((100%-1rem)/2)] sm:p-6 lg:w-[calc((100%-3.75rem)/4)]"
             >
               <span
@@ -109,7 +131,7 @@ const AirlinePartners = () => {
               <div className="flex items-start justify-between gap-4">
                 <span className="relative h-[54px] w-[96px] shrink-0">
                   <Image
-                    src={logos[code]}
+                    src={logo}
                     alt={`${name} logo`}
                     fill
                     sizes="96px"
