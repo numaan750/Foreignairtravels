@@ -133,6 +133,11 @@ export function AppProvider({ children }) {
   const createCountry = useCallback((body) => request("/api/countries", { method: "POST", body }), [request]);
   const updateCountry = useCallback((id, body) => request(`/api/countries/${id}`, { method: "PUT", body }), [request]);
   const deleteCountry = useCallback((id) => request(`/api/countries/${id}`, { method: "DELETE" }), [request]);
+    // ---------- BANK ACCOUNTS ----------
+  const getBankAccounts = useCallback(() => request("/api/bank-accounts/admin"), [request]);
+  const createBankAccount = useCallback((body) => request("/api/bank-accounts", { method: "POST", body }), [request]);
+  const updateBankAccount = useCallback((id, body) => request(`/api/bank-accounts/${id}`, { method: "PUT", body }), [request]);
+  const deleteBankAccount = useCallback((id) => request(`/api/bank-accounts/${id}`, { method: "DELETE" }), [request]);
 
   // ---------- UPLOAD ----------
   const uploadImage = useCallback(
@@ -163,9 +168,13 @@ export function AppProvider({ children }) {
       createCountry,
       updateCountry,
       deleteCountry,
+      getBankAccounts,
+      createBankAccount,
+      updateBankAccount,
+      deleteBankAccount,
       getAirlines, createAirline, updateAirline, deleteAirline,
     }),
-    [admin, authLoading, login, logout, getPackages, createPackage, updatePackage, deletePackage, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry,]
+    [admin, authLoading, login, logout, getPackages, createPackage, updatePackage, deletePackage, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry,getBankAccounts, createBankAccount, updateBankAccount, deleteBankAccount,]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

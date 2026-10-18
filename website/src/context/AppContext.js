@@ -201,6 +201,9 @@ export function AppProvider({ children }) {
 
   // ---------- COUNTRIES (public, token nahi chahiye) ----------
   const getCountries = useCallback(() => request("/api/countries"), [request]);
+  
+  // ---------- BANK ACCOUNTS (logged-in user, token request() khud bhejta hai) ----------
+  const getBankAccounts = useCallback(() => request("/api/bank-accounts"), [request]);
 
   // ---------- Aage ki APIs yahan add hongi (bookings, profile wagera) ----------
 
@@ -221,8 +224,9 @@ export function AppProvider({ children }) {
       getServices,
       getAirlines,
       getCountries,
+      getBankAccounts,
     }),
-    [user, authLoading, register, login, verifyEmail, sendApprovalNotification, resendVerification, getMe, updateMe, deleteMe, logout, getPackages, getServices, getAirlines, getCountries]
+    [user, authLoading, register, login, verifyEmail, sendApprovalNotification, resendVerification, getMe, updateMe, deleteMe, logout, getPackages, getServices, getAirlines, getCountries, getBankAccounts]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
