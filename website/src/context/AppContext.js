@@ -192,6 +192,9 @@ export function AppProvider({ children }) {
   
   // ---------- PACKAGES (public, token nahi chahiye) ----------
   const getPackages = useCallback(() => request("/api/packages"), [request]);
+  
+  // ---------- SERVICES (public, token nahi chahiye) ----------
+  const getServices = useCallback(() => request("/api/services"), [request]);
 
   // ---------- Aage ki APIs yahan add hongi (bookings, profile wagera) ----------
 
@@ -209,8 +212,9 @@ export function AppProvider({ children }) {
       deleteMe,
       logout,
       getPackages,
+      getServices,
     }),
-    [user, authLoading, register, login, verifyEmail, sendApprovalNotification, resendVerification, getMe, updateMe, deleteMe, logout, getPackages]
+    [user, authLoading, register, login, verifyEmail, sendApprovalNotification, resendVerification, getMe, updateMe, deleteMe, logout, getPackages,getServices,]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -1,5 +1,9 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useApp } from '@/context/AppContext'
 import {
   FiArrowUpRight,
   FiFileText,
@@ -10,70 +14,44 @@ import {
   FiMoon,
 } from 'react-icons/fi'
 
-const services = [
-  {
-    icon: FiGlobe,
-    number: '01',
-    title: 'Flight reservations',
-    label: 'Worldwide routes',
-    text: 'Domestic and international options shaped around your route, timing and budget.',
-    image: '/images/services/flight-reservations.webp',
-    href: '/contact',
-    layout: 'lg:col-span-5',
-  },
-  {
-    icon: FiHome,
-    number: '02',
-    title: 'Hotel reservations',
-    label: 'City & resort stays',
-    text: 'Well-located stays across different budgets, selected for the way you plan to travel.',
-    image: '/images/services/hotel-reservations.webp',
-    href: '/contact',
-    layout: 'lg:col-span-3',
-  },
-  {
-    icon: FiFileText,
-    number: '03',
-    title: 'Visa assistance',
-    label: 'Clear guidance',
-    text: 'Step-by-step document checks and application support for a more organised process.',
-    image: '/images/services/visa-assistance.webp',
-    href: '/contact',
-    layout: 'lg:col-span-4',
-  },
-  {
-    icon: FiMoon,
-    number: '04',
-    title: 'Umrah & Hajj',
-    label: 'Travel with care',
-    text: 'Thoughtfully coordinated flights, accommodation and transport for your sacred journey.',
-    image: '/images/services/umrah-hajj.webp',
-    href: '/contact',
-    layout: 'lg:col-span-4',
-  },
-  {
-    icon: FiMap,
-    number: '05',
-    title: 'Holiday packages',
-    label: 'Built around you',
-    text: 'Flexible plans for city breaks, family holidays, nature escapes and group tours.',
-    image: '/images/services/holiday-packages.webp',
-    href: '/packages',
-    layout: 'lg:col-span-5',
-  },
-  {
-    icon: FiHeadphones,
-    number: '06',
-    title: 'After-sale support',
-    label: 'Here after booking',
-    text: 'Responsive help with schedule questions, updates and booking changes after confirmation.',
-    image: '/images/services/after-sale-support.webp',
-    href: '/contact',
-    layout: 'lg:col-span-3',
-  },
+// Ye cheezein DB mein nahi hain, position ke hisaab se lagti hain
+const icons = [FiGlobe, FiHome, FiFileText, FiMoon, FiMap, FiHeadphones]
+const layouts = [
+  'lg:col-span-5',
+  'lg:col-span-3',
+  'lg:col-span-4',
+  'lg:col-span-4',
+  'lg:col-span-5',
+  'lg:col-span-3',
 ]
 
+// Backend ka data card ke format mein badalta hai
+const toCard = (item, index) => ({
+  id: item._id,
+  icon: icons[index % icons.length],
+  number: String(index + 1).padStart(2, '0'),
+  title: item.title,
+  label: item.tagline,
+  text: item.description,
+  image: item.image,
+  href: '/contact',
+  layout: layouts[index % layouts.length],
+})
+
 const Services = () => {
+  const { getServices } = useApp()
+  const [services, setServices] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const load = async () => {
+      const { ok, data } = await getServices()
+      if (ok) setServices(data.data.map(toCard))
+      setLoading(false)
+    }
+    load()
+  }, [getServices])
+
   return (
     <section
       id="services"
@@ -110,11 +88,15 @@ const Services = () => {
             </p>
           </div>
         </div>
-
+ {!loading && services.length === 0 && (
+          <p className="mt-10 text-[15px] text-gray-600">
+            Services are coming soon. Please check back shortly.
+          </p>
+        )}
         <ul className="mt-10 grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-14 lg:grid-cols-12 lg:gap-5">
           {services.map(
-            ({ icon: Icon, number, title, label, text, image, href, layout }) => (
-              <li key={title} className={`min-w-0 ${layout}`}>
+           ({ id, icon: Icon, number, title, label, text, image, href, layout }) => (
+              <li key={id} className={`min-w-0 ${layout}`}>
                 <Link
                   href={href}
                   aria-label={`${title}: ${text}`}
@@ -154,7 +136,7 @@ const Services = () => {
                       </div>
 
                       <div className="mt-3 max-h-[120px] translate-y-0 overflow-hidden opacity-100 transition-all duration-500 ease-out lg:mt-0 lg:max-h-0 lg:translate-y-4 lg:opacity-0 lg:group-hover:mt-3 lg:group-hover:max-h-[120px] lg:group-hover:translate-y-0 lg:group-hover:opacity-100 lg:group-focus-visible:mt-3 lg:group-focus-visible:max-h-[120px] lg:group-focus-visible:translate-y-0 lg:group-focus-visible:opacity-100">
-                        <p className="max-w-[520px] text-[13px] leading-[21px] text-white/75 sm:text-[14px] sm:leading-[22px]">
+                         <p className="max-w-[520px] break-words text-[13px] leading-[21px] text-white/75 sm:text-[14px] sm:leading-[22px]">
                           {text}
                         </p>
                         <span className="mt-3 inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-white">

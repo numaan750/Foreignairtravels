@@ -118,6 +118,13 @@ export function AppProvider({ children }) {
   const createPackage = useCallback((body) => request("/api/packages", { method: "POST", body }), [request]);
   const updatePackage = useCallback((id, body) => request(`/api/packages/${id}`, { method: "PUT", body }), [request]);
   const deletePackage = useCallback((id) => request(`/api/packages/${id}`, { method: "DELETE" }), [request]);
+
+
+    // ---------- SERVICES ----------
+  const getServices = useCallback(() => request("/api/services"), [request]);
+  const createService = useCallback((body) => request("/api/services", { method: "POST", body }), [request]);
+  const updateService = useCallback((id, body) => request(`/api/services/${id}`, { method: "PUT", body }), [request]);
+  const deleteService = useCallback((id) => request(`/api/services/${id}`, { method: "DELETE" }), [request]);
   
   // ---------- UPLOAD ----------
   const uploadImage = useCallback(
@@ -140,8 +147,12 @@ export function AppProvider({ children }) {
       updatePackage,
       deletePackage,
       uploadImage,
+      getServices,
+      createService,
+      updateService,
+      deleteService,
     }),
-    [admin, authLoading, login, logout, getPackages, createPackage, updatePackage, deletePackage, uploadImage]
+    [admin, authLoading, login, logout, getPackages, createPackage, updatePackage, deletePackage, uploadImage, getServices, createService, updateService, deleteService,]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
