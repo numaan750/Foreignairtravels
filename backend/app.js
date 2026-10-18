@@ -11,6 +11,7 @@ import serviceRoutes from './routers/servicesrouters.js';
 import airlineRoutes from './routers/airlinesrouters.js';
 import countryRoutes from './routers/countriesrouters.js';
 import bankAccountRoutes from './routers/bankaccountsrouters.js';
+import announcementRoutes from './routers/announcementsrouters.js';
 
 const app = express();
 app.use(cors());
@@ -27,6 +28,7 @@ app.use('/api/services', serviceRoutes);
 app.use('/api/airlines', airlineRoutes);
 app.use('/api/countries', countryRoutes);
 app.use('/api/bank-accounts', bankAccountRoutes);
+app.use('/api/announcements', announcementRoutes);
 
 app.get("/", (req, res) => {
     res.send("API is running...");

@@ -9,6 +9,7 @@ import {
   FiSend,
   FiGlobe,
   FiCreditCard,
+  FiBell,
 } from "react-icons/fi";
 
 export const navItems = [
@@ -18,6 +19,7 @@ export const navItems = [
   { label: "Airlines", href: "/dashboard/airlines", icon: FiSend },
   { label: "Countries", href: "/dashboard/countries", icon: FiGlobe },
   { label: "Bank Accounts", href: "/dashboard/bank-accounts", icon: FiCreditCard },
+  { label: "Announcements", href: "/dashboard/announcements", icon: FiBell },
   { label: "Bookings", href: "/dashboard/bookings", icon: FiCalendar },
   { label: "Customers", href: "/dashboard/customers", icon: FiUsers },
   { label: "Inquiries", href: "/dashboard/inquiries", icon: FiMessageSquare },

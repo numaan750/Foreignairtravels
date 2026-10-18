@@ -133,11 +133,16 @@ export function AppProvider({ children }) {
   const createCountry = useCallback((body) => request("/api/countries", { method: "POST", body }), [request]);
   const updateCountry = useCallback((id, body) => request(`/api/countries/${id}`, { method: "PUT", body }), [request]);
   const deleteCountry = useCallback((id) => request(`/api/countries/${id}`, { method: "DELETE" }), [request]);
-    // ---------- BANK ACCOUNTS ----------
+  // ---------- BANK ACCOUNTS ----------
   const getBankAccounts = useCallback(() => request("/api/bank-accounts/admin"), [request]);
   const createBankAccount = useCallback((body) => request("/api/bank-accounts", { method: "POST", body }), [request]);
   const updateBankAccount = useCallback((id, body) => request(`/api/bank-accounts/${id}`, { method: "PUT", body }), [request]);
   const deleteBankAccount = useCallback((id) => request(`/api/bank-accounts/${id}`, { method: "DELETE" }), [request]);
+  // ---------- ANNOUNCEMENTS ----------
+  const getAnnouncements = useCallback(() => request("/api/announcements/admin"), [request]);
+  const createAnnouncement = useCallback((body) => request("/api/announcements", { method: "POST", body }), [request]);
+  const updateAnnouncement = useCallback((id, body) => request(`/api/announcements/${id}`, { method: "PUT", body }), [request]);
+  const deleteAnnouncement = useCallback((id) => request(`/api/announcements/${id}`, { method: "DELETE" }), [request]);
 
   // ---------- UPLOAD ----------
   const uploadImage = useCallback(
@@ -172,9 +177,15 @@ export function AppProvider({ children }) {
       createBankAccount,
       updateBankAccount,
       deleteBankAccount,
+      getAnnouncements,
+      createAnnouncement,
+      updateAnnouncement,
+      deleteAnnouncement,
       getAirlines, createAirline, updateAirline, deleteAirline,
     }),
-    [admin, authLoading, login, logout, getPackages, createPackage, updatePackage, deletePackage, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry,getBankAccounts, createBankAccount, updateBankAccount, deleteBankAccount,]
+    [admin, authLoading, login, logout, getPackages, createPackage, updatePackage, deletePackage, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry, getBankAccounts, createBankAccount, updateBankAccount, deleteBankAccount,
+      getAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement,
+    ]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

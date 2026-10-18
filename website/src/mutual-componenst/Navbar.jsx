@@ -257,7 +257,7 @@ const UserAccountMenu = ({ user, logout, menuId }) => {
     }
 
     return (
-        <div ref={ref} className="relative shrink-0">
+        <div ref={ref} className="shrink-0 lg:relative">
             <button
                 type="button"
                 aria-label={`Open account menu for ${displayName}`}
@@ -275,7 +275,7 @@ const UserAccountMenu = ({ user, logout, menuId }) => {
                 id={menuId}
                 role="menu"
                 aria-label="User account menu"
-                className={`absolute right-0 top-[calc(100%+12px)] z-[60] w-[min(288px,calc(100vw-24px))] origin-top-right overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.16)] transition-all duration-200 ${open
+                className={`fixed right-3 top-[84px] z-[60] w-[min(288px,calc(100vw-24px))] origin-top-right overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.16)] transition-all duration-200 lg:absolute lg:right-0 lg:top-[calc(100%+12px)] ${open
                     ? 'visible translate-y-0 scale-100 opacity-100'
                     : 'invisible -translate-y-1 scale-[0.98] opacity-0'
                     }`}
