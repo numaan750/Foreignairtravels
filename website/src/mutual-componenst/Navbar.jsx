@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { FiChevronDown, FiMenu, FiUser, FiX } from 'react-icons/fi'
+import { FiChevronDown, FiGrid, FiLogOut, FiMenu, FiUser, FiX } from 'react-icons/fi'
 import {
     FaFolderOpen,
     FaGlobeEurope,
@@ -20,6 +20,7 @@ import {
     FaUsers,
     FaWhatsapp,
 } from 'react-icons/fa'
+import { useApp } from '@/context/AppContext'
 
 /* ------------------------------ CONFIG ------------------------------ */
 
@@ -218,11 +219,135 @@ const MobileAccordion = ({ item, active, pathname, onNavigate }) => {
     )
 }
 
+/* ---------------------------- USER ACCOUNT MENU ---------------------------- */
+
+const UserAccountMenu = ({ user, logout, menuId }) => {
+    const pathname = usePathname()
+    const [open, setOpen] = useState(false)
+    const ref = useRef(null)
+    const displayName = user?.name?.trim() || user?.email?.split('@')[0] || 'Traveler'
+
+    useEffect(() => {
+        setOpen(false)
+    }, [pathname])
+
+    useEffect(() => {
+        if (!open) return
+
+        const onPointerDown = (event) => {
+            if (ref.current && !ref.current.contains(event.target)) setOpen(false)
+        }
+        const onKeyDown = (event) => {
+            if (event.key === 'Escape') setOpen(false)
+        }
+
+        document.addEventListener('pointerdown', onPointerDown)
+        window.addEventListener('keydown', onKeyDown)
+
+        return () => {
+            document.removeEventListener('pointerdown', onPointerDown)
+            window.removeEventListener('keydown', onKeyDown)
+        }
+    }, [open])
+
+    const closeMenu = () => setOpen(false)
+    const handleLogout = () => {
+        closeMenu()
+        logout()
+    }
+
+    return (
+        <div ref={ref} className="relative shrink-0">
+            <button
+                type="button"
+                aria-label={`Open account menu for ${displayName}`}
+                aria-haspopup="menu"
+                aria-expanded={open}
+                aria-controls={menuId}
+                onClick={() => setOpen((value) => !value)}
+                className={`flex size-[44px] cursor-pointer items-center justify-center rounded-full text-white shadow-sm shadow-[#FF6B35]/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#003366] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6B35] ${open ? 'bg-[#003366]' : 'bg-[#FF6B35]'
+                    }`}
+            >
+                <FiUser aria-hidden="true" className="size-[18px]" />
+            </button>
+
+            <div
+                id={menuId}
+                role="menu"
+                aria-label="User account menu"
+                className={`absolute right-0 top-[calc(100%+12px)] z-[60] w-[min(288px,calc(100vw-24px))] origin-top-right overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.16)] transition-all duration-200 ${open
+                    ? 'visible translate-y-0 scale-100 opacity-100'
+                    : 'invisible -translate-y-1 scale-[0.98] opacity-0'
+                    }`}
+            >
+                <div className="border-b border-slate-200 bg-slate-50 px-4 py-4">
+                    <div className="flex items-center gap-3">
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#003366] text-white">
+                            <FiUser aria-hidden="true" className="size-[18px]" />
+                        </span>
+                        <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-[#003366]">{displayName}</p>
+                            <p className="mt-0.5 truncate text-xs text-slate-500">{user?.email}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-2">
+                    <Link
+                        href="/dashboard"
+                        role="menuitem"
+                        tabIndex={open ? 0 : -1}
+                        onClick={closeMenu}
+                        className="flex min-h-[44px] items-center gap-3 rounded-xl px-3 text-sm font-medium text-[#003366] transition-colors hover:bg-slate-50 hover:text-[#FF6B35] focus-visible:outline-2 focus-visible:outline-[#FF6B35]"
+                    >
+                        <FiGrid aria-hidden="true" className="size-[16px] text-[#FF6B35]" />
+                        Dashboard
+                    </Link>
+                    <Link
+                        href="/dashboard/bookings"
+                        role="menuitem"
+                        tabIndex={open ? 0 : -1}
+                        onClick={closeMenu}
+                        className="flex min-h-[44px] items-center gap-3 rounded-xl px-3 text-sm font-medium text-[#003366] transition-colors hover:bg-slate-50 hover:text-[#FF6B35] focus-visible:outline-2 focus-visible:outline-[#FF6B35]"
+                    >
+                        <FaFolderOpen aria-hidden="true" className="size-[15px] text-[#FF6B35]" />
+                        My Bookings
+                    </Link>
+                    <Link
+                        href="/dashboard/profile"
+                        role="menuitem"
+                        tabIndex={open ? 0 : -1}
+                        onClick={closeMenu}
+                        className="flex min-h-[44px] items-center gap-3 rounded-xl px-3 text-sm font-medium text-[#003366] transition-colors hover:bg-slate-50 hover:text-[#FF6B35] focus-visible:outline-2 focus-visible:outline-[#FF6B35]"
+                    >
+                        <FiUser aria-hidden="true" className="size-[16px] text-[#FF6B35]" />
+                        My Profile
+                    </Link>
+                </div>
+
+                <div className="border-t border-slate-200 p-2">
+                    <button
+                        type="button"
+                        role="menuitem"
+                        tabIndex={open ? 0 : -1}
+                        onClick={handleLogout}
+                        className="flex min-h-[44px] w-full cursor-pointer items-center gap-3 rounded-xl px-3 text-sm font-semibold text-[#FF6B35] transition-colors hover:bg-[#FF6B35]/10 focus-visible:outline-2 focus-visible:outline-[#FF6B35]"
+                    >
+                        <FiLogOut aria-hidden="true" className="size-[16px]" />
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
 /* -------------------------------- NAVBAR -------------------------------- */
 
 const Navbar = () => {
     const pathname = usePathname()
     const router = useRouter()
+    const { user, authLoading, logout } = useApp()
     const [open, setOpen] = useState(false)
     const [scrolled, setScrolled] = useState(false)
     const pendingHomeScroll = useRef(false)
@@ -369,14 +494,6 @@ const Navbar = () => {
                         </li>
                     </ul> */}
 
-                    <Link
-                        href="/login"
-                        className="inline-flex h-[44px] items-center gap-2 whitespace-nowrap rounded-full bg-[#FF6B35] px-4 text-[12px] xl:px-5 xl:text-[13px] font-semibold uppercase tracking-wide text-white shadow-sm shadow-[#FF6B35]/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#003366] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6B35]"
-                    >
-                        <FiUser aria-hidden="true" className="size-[15px]" />
-                        Login / Register
-                    </Link>
-
                     <a
                         href={WHATSAPP_HREF}
                         target="_blank"
@@ -387,23 +504,54 @@ const Navbar = () => {
                         <FaWhatsapp aria-hidden="true" className="size-[18px]" />
                         <span>WhatsApp</span>
                     </a>
+
+                    {authLoading ? (
+                        <span
+                            aria-hidden="true"
+                            className="size-[44px] animate-pulse rounded-full bg-slate-100"
+                        />
+                    ) : user ? (
+                        <UserAccountMenu
+                            user={user}
+                            logout={logout}
+                            menuId="desktop-user-account-menu"
+                        />
+                    ) : (
+                        <Link
+                            href="/login"
+                            className="inline-flex h-[44px] items-center gap-2 whitespace-nowrap rounded-full bg-[#FF6B35] px-4 text-[12px] font-semibold uppercase tracking-wide text-white shadow-sm shadow-[#FF6B35]/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#003366] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF6B35] xl:px-5 xl:text-[13px]"
+                        >
+                            <FiUser aria-hidden="true" className="size-[15px]" />
+                            Login / Register
+                        </Link>
+                    )}
                 </div>
 
                 {/* Mobile toggle */}
-                <button
-                    type="button"
-                    aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
-                    aria-expanded={open}
-                    aria-controls="mobile-navigation"
-                    onClick={() => setOpen((v) => !v)}
-                    className="flex size-[44px] shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-800 transition-colors hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 lg:hidden"
-                >
-                    {open ? (
-                        <FiX aria-hidden="true" className="size-[22px]" />
-                    ) : (
-                        <FiMenu aria-hidden="true" className="size-[22px]" />
+                <div className="flex shrink-0 items-center gap-2 lg:hidden">
+                    {!authLoading && user && (
+                        <UserAccountMenu
+                            user={user}
+                            logout={logout}
+                            menuId="mobile-user-account-menu"
+                        />
                     )}
-                </button>
+
+                    <button
+                        type="button"
+                        aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
+                        aria-expanded={open}
+                        aria-controls="mobile-navigation"
+                        onClick={() => setOpen((v) => !v)}
+                        className="flex size-[44px] shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-800 transition-colors hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                    >
+                        {open ? (
+                            <FiX aria-hidden="true" className="size-[22px]" />
+                        ) : (
+                            <FiMenu aria-hidden="true" className="size-[22px]" />
+                        )}
+                    </button>
+                </div>
             </div>
 
             {/* Mobile panel */}
@@ -469,15 +617,6 @@ const Navbar = () => {
                                 </li>
                             </ul>
 
-                            <Link
-                                href="/login"
-                                onClick={close}
-                                className="inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-[#FF6B35] text-[14px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#003366] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]"
-                            >
-                                <FiUser aria-hidden="true" className="size-[16px]" />
-                                Login / Register
-                            </Link>
-
                             <a
                                 href={WHATSAPP_HREF}
                                 target="_blank"
@@ -487,6 +626,31 @@ const Navbar = () => {
                                 <FaWhatsapp aria-hidden="true" className="size-[18px]" />
                                 WhatsApp
                             </a>
+
+                            {authLoading ? (
+                                <div
+                                    aria-hidden="true"
+                                    className="h-[50px] w-full animate-pulse rounded-full bg-slate-100"
+                                />
+                            ) : user ? (
+                                <Link
+                                    href="/dashboard"
+                                    onClick={close}
+                                    className="inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-[#FF6B35] text-[14px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#003366] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]"
+                                >
+                                    <FiGrid aria-hidden="true" className="size-[16px]" />
+                                    Dashboard
+                                </Link>
+                            ) : (
+                                <Link
+                                    href="/login"
+                                    onClick={close}
+                                    className="inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-[#FF6B35] text-[14px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#003366] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]"
+                                >
+                                    <FiUser aria-hidden="true" className="size-[16px]" />
+                                    Login / Register
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </div>
