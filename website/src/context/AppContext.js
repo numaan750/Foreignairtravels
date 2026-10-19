@@ -207,6 +207,9 @@ export function AppProvider({ children }) {
 
   // ---------- ANNOUNCEMENTS (public, token nahi chahiye) ----------
   const getAnnouncements = useCallback(() => request("/api/announcements"), [request]);
+  
+  // ---------- POPUP IMAGES (public, token nahi chahiye) ----------
+  const getPopupImages = useCallback(() => request("/api/popup-images"), [request]);
 
   // ---------- Aage ki APIs yahan add hongi (bookings, profile wagera) ----------
 
@@ -229,9 +232,10 @@ export function AppProvider({ children }) {
       getCountries,
       getBankAccounts,
       getAnnouncements,
+      getPopupImages,
     }),
     [user, authLoading, register, login, verifyEmail, sendApprovalNotification, resendVerification, getMe, updateMe, deleteMe, logout, getPackages, getServices, getAirlines, getCountries, getBankAccounts,
-      getAnnouncements
+      getAnnouncements, getPopupImages,
     ]
   );
 

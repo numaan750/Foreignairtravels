@@ -78,7 +78,7 @@ export default function LoginForm() {
                             Admin Login
                         </h1>
                         <p className="mt-2 text-sm text-[#EDEEE9]/80">
-                            TravelNetWorth admin panel sign in
+                            ForeignAirTravel admin panel sign in
                         </p>
                     </div>
 
@@ -166,7 +166,7 @@ export default function LoginForm() {
                     </form>
 
                     <p className="mt-6 text-center text-xs text-[#EDEEE9]/60">
-                        @2024 TravelNetWorth. All rights reserved.
+                        @2024 ForeignAirTravel. All rights reserved.
                     </p>
                 </div>
             </div>

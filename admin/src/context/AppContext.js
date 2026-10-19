@@ -144,6 +144,11 @@ export function AppProvider({ children }) {
   const updateAnnouncement = useCallback((id, body) => request(`/api/announcements/${id}`, { method: "PUT", body }), [request]);
   const deleteAnnouncement = useCallback((id) => request(`/api/announcements/${id}`, { method: "DELETE" }), [request]);
 
+    // ---------- POPUP IMAGES ----------
+  const getPopupImages = useCallback(() => request("/api/popup-images"), [request]);
+  const createPopupImage = useCallback((body) => request("/api/popup-images", { method: "POST", body }), [request]);
+  const deletePopupImage = useCallback((id) => request(`/api/popup-images/${id}`, { method: "DELETE" }), [request]);
+
   // ---------- UPLOAD ----------
   const uploadImage = useCallback(
     (file) => {
@@ -181,10 +186,13 @@ export function AppProvider({ children }) {
       createAnnouncement,
       updateAnnouncement,
       deleteAnnouncement,
+       getPopupImages,
+      createPopupImage,
+      deletePopupImage,
       getAirlines, createAirline, updateAirline, deleteAirline,
     }),
     [admin, authLoading, login, logout, getPackages, createPackage, updatePackage, deletePackage, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry, getBankAccounts, createBankAccount, updateBankAccount, deleteBankAccount,
-      getAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement,
+      getAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement,getPopupImages, createPopupImage, deletePopupImage,
     ]
   );
 

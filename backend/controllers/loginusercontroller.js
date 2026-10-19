@@ -64,7 +64,7 @@ const sendAdminApprovalEmail = async (user) => {
 
   await sendEmail({
     to: ownerEmail,
-    subject: "TravelNetWorth: new user account approval required",
+    subject: "ForeignAirTravel: new user account approval required",
     html: `
       <div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;padding:24px;color:#003366">
         <h2>New account awaiting your approval</h2>
@@ -207,11 +207,11 @@ export const sendApprovalNotification = async (req, res) => {
 
     await sendEmail({
       to: user.email,
-      subject: "TravelNetWorth: your account has been approved",
+      subject: "ForeignAirTravel: your account has been approved",
       html: `
         <div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;padding:24px;color:#003366">
           <h2>Hello ${escapeHtml(user.name)},</h2>
-          <p>Your TravelNetWorth account has been approved. You can now sign in with your email and password.</p>
+          <p>Your ForeignAirTravel account has been approved. You can now sign in with your email and password.</p>
         </div>
       `,
     });

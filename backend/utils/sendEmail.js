@@ -17,7 +17,7 @@ export const sendEmail = async ({ to, subject, html }) => {
   });
 
   await transporter.sendMail({
-    from: { name: "TravelNetWorth", address: GMAIL_USER },
+    from: { name: "ForeignAirTravel", address: GMAIL_USER },
     to,
     subject,
     html,

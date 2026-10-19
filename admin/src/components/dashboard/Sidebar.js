@@ -41,7 +41,7 @@ export default function Sidebar({ open, onClose }) {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FF6B35] text-base text-white">
               <FaPlaneDeparture />
             </div>
-            <span className="text-lg font-bold tracking-tight">TravelNetWorth</span>
+            <span className="text-lg font-bold tracking-tight">ForeignAirTravel</span>
           </div>
 
           <button
@@ -54,7 +54,7 @@ export default function Sidebar({ open, onClose }) {
         </div>
 
         {/* Links */}
-        <nav className="flex-1 space-y-1 overflow-y-auto p-4">
+        <nav className="flex-1 space-y-1 overflow-y-auto p-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActivePath(item.href, pathname);

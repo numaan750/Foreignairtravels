@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useApp } from '@/context/AppContext'
 import Sidebar from '@/components/dashboard/Sidebar'
 import Topbar from '@/components/dashboard/Topbar'
+import WelcomePopup from '@/components/dashboard/WelcomePopup'
 
 export default function DashboardLayout({ children }) {
   const router = useRouter()
@@ -25,6 +26,7 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-[#e8e5df] text-[#12314e]">
+       <WelcomePopup />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="min-w-0 lg:pl-64">
