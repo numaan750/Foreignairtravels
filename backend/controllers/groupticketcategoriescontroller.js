@@ -18,7 +18,7 @@ const uniqueSlug = async (name, ignoreId = null) => {
 
 const categoryFields = (body) => {
   const fields = {};
-  ['name', 'logo', 'sortOrder', 'isActive'].forEach((key) => {
+  ['name', 'logo'].forEach((key) => {
     if (body[key] !== undefined) fields[key] = body[key];
   });
   return fields;
@@ -26,8 +26,7 @@ const categoryFields = (body) => {
 
 export const getGroupTicketCategories = async (req, res) => {
   try {
-    const filter = req.query.all === 'true' ? {} : { isActive: true };
-    const categories = await GroupTicketCategory.find(filter).sort({ sortOrder: 1, name: 1 });
+    const categories = await GroupTicketCategory.find().sort({ createdAt: 1 });
     res.json({ success: true, data: categories });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

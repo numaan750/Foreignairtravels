@@ -78,9 +78,8 @@ export default function GroupTicketCategoriesPage() {
                     {category.logo ? <img src={category.logo} alt="" className="size-12 rounded-xl border border-[#003366]/10 object-contain p-1" /> : <span className="flex size-12 items-center justify-center rounded-xl bg-[#FF6B35]/10 text-[#FF6B35]"><FiLayers /></span>}
                     <div className="min-w-0 flex-1">
                       <h2 className="font-semibold text-[#003366]">{category.name}</h2>
-                      <p className="text-xs text-[#003366]/60">/{category.slug} · Order {category.sortOrder}</p>
+                      <p className="text-xs text-[#003366]/60">/{category.slug}</p>
                     </div>
-                    <span className={`rounded-full px-3 py-1 text-xs font-medium ${category.isActive ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-600"}`}>{category.isActive ? "Active" : "Hidden"}</span>
                     <div className="flex gap-2">
                       <button onClick={() => openForm(category)} aria-label={`Edit ${category.name}`} className="rounded-lg bg-[#EDEEE9] p-2.5 text-[#003366] hover:bg-[#003366] hover:text-white"><FiEdit2 /></button>
                       <button onClick={() => handleDelete(category)} aria-label={`Delete ${category.name}`} className="rounded-lg bg-red-50 p-2.5 text-red-600 hover:bg-red-600 hover:text-white"><FiTrash2 /></button>

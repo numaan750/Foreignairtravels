@@ -12,8 +12,6 @@ export default function GroupTicketCategoryForm({ initial, saving, error, onSubm
   const [form, setForm] = useState({
     name: initial?.name || "",
     logo: initial?.logo || "",
-    sortOrder: initial?.sortOrder ?? 0,
-    isActive: initial?.isActive ?? true,
   });
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
@@ -35,7 +33,7 @@ export default function GroupTicketCategoryForm({ initial, saving, error, onSubm
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    onSubmit({ ...form, name: form.name.trim(), sortOrder: Number(form.sortOrder) });
+    onSubmit({ ...form, name: form.name.trim() });
   };
 
   return (
@@ -50,11 +48,6 @@ export default function GroupTicketCategoryForm({ initial, saving, error, onSubm
           Category name
           <input value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} required className={`${inputClass} mt-1.5`} placeholder="KSA to Pakistan" />
         </label>
-        <label className="mb-4 block text-sm font-medium text-[#003366]">
-          Display order
-          <input type="number" min="0" value={form.sortOrder} onChange={(event) => setForm((current) => ({ ...current, sortOrder: event.target.value }))} className={`${inputClass} mt-1.5`} />
-        </label>
-
         <div className="mb-4">
           <span className="mb-1.5 block text-sm font-medium text-[#003366]">Optional category logo</span>
           <div className="flex items-center gap-4">
@@ -67,11 +60,6 @@ export default function GroupTicketCategoryForm({ initial, saving, error, onSubm
           </div>
           {uploadError && <p className="mt-2 text-sm text-red-600">{uploadError}</p>}
         </div>
-
-        <label className="flex items-center gap-2 text-sm text-[#003366]">
-          <input type="checkbox" checked={form.isActive} onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))} className="size-4 accent-[#FF6B35]" />
-          Show this category on the website
-        </label>
 
         {error && <p className="mt-4 rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-600">{error}</p>}
         <div className="mt-6 flex justify-end gap-3">

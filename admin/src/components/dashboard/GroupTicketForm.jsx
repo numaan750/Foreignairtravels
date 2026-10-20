@@ -97,7 +97,7 @@ export default function GroupTicketForm({ initial, categories, saving, error, on
           <Field label="Category">
             <select name="category" value={form.category} onChange={setValue} required className={inputClass}>
               <option value="">Select category</option>
-              {categories.map((category) => <option key={category._id} value={category._id}>{category.name}{category.isActive ? "" : " (hidden)"}</option>)}
+              {categories.map((category) => <option key={category._id} value={category._id}>{category.name}</option>)}
             </select>
           </Field>
           <Field label="Airline name"><input name="airline" value={form.airline} onChange={setValue} required className={inputClass} placeholder="Saudi Airline" /></Field>

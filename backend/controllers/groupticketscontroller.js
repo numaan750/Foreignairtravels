@@ -38,7 +38,7 @@ export const getGroupTickets = async (req, res) => {
       } else {
         categoryItem = await GroupTicketCategory.findOne({ slug: category });
       }
-      if (!categoryItem || (all !== 'true' && !categoryItem.isActive)) {
+      if (!categoryItem) {
         return res.json({ success: true, data: [] });
       }
       filter.category = categoryItem._id;
