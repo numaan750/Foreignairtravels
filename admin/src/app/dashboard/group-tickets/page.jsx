@@ -46,8 +46,14 @@ export default function GroupTicketsPage() {
     setLoading(false);
   }, [categoryFilter, getGroupTickets]);
 
-  useEffect(() => { loadCategories(); }, [loadCategories]);
-  useEffect(() => { loadTickets(); }, [loadTickets]);
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => { void loadCategories(); });
+    return () => window.cancelAnimationFrame(frame);
+  }, [loadCategories]);
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => { void loadTickets(); });
+    return () => window.cancelAnimationFrame(frame);
+  }, [loadTickets]);
 
   const openForm = (ticket = null) => {
     setEditing(ticket);

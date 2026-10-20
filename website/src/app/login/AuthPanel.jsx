@@ -14,6 +14,13 @@ import {
   FiUser,
 } from 'react-icons/fi'
 
+const getPostLoginPath = () => {
+  const returnTo = new URLSearchParams(window.location.search).get('returnTo')
+  return returnTo?.startsWith('/dashboard/') && !returnTo.startsWith('//')
+    ? returnTo
+    : '/dashboard'
+}
+
 function Field({ icon: Icon, label, id, ...inputProps }) {
   return (
     <div className="grid min-w-0 gap-2">
@@ -115,7 +122,7 @@ export default function AuthPanel() {
 
   // Pehle se login ho to dashboard par bhejo
   useEffect(() => {
-    if (!authLoading && user) router.replace('/dashboard')
+    if (!authLoading && user) router.replace(getPostLoginPath())
   }, [authLoading, user, router])
 
   const handleLogin = async (event) => {
@@ -131,7 +138,7 @@ export default function AuthPanel() {
 
     const result = await login(email, password)
 
-    // Kamyab hone par user set hota hai aur upar wala effect dashboard par bhej deta hai
+    // Kamyab hone par user set hota hai aur auth effect saved destination kholta hai
     if (!result.ok) {
       setError(result.message)
       if (result.code === 'EMAIL_NOT_VERIFIED') setUnverifiedEmail(email)

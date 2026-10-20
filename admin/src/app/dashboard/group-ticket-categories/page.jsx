@@ -26,7 +26,10 @@ export default function GroupTicketCategoriesPage() {
     setLoading(false);
   }, [getGroupTicketCategories]);
 
-  useEffect(() => { loadCategories(); }, [loadCategories]);
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => { void loadCategories(); });
+    return () => window.cancelAnimationFrame(frame);
+  }, [loadCategories]);
 
   const openForm = (category = null) => {
     setEditing(category);

@@ -32,7 +32,8 @@ const DesktopDropdown = ({ item, active, pathname }) => {
     const Icon = item.icon
 
     useEffect(() => {
-        setOpen(false)
+        const frame = window.requestAnimationFrame(() => setOpen(false))
+        return () => window.cancelAnimationFrame(frame)
     }, [pathname])
 
     useEffect(() => {
@@ -208,7 +209,8 @@ const UserAccountMenu = ({ user, logout, menuId }) => {
     const displayName = user?.name?.trim() || user?.email?.split('@')[0] || 'Traveler'
 
     useEffect(() => {
-        setOpen(false)
+        const frame = window.requestAnimationFrame(() => setOpen(false))
+        return () => window.cancelAnimationFrame(frame)
     }, [pathname])
 
     useEffect(() => {
@@ -374,7 +376,8 @@ const Navbar = () => {
     }, [])
 
     useEffect(() => {
-        setOpen(false)
+        const frame = window.requestAnimationFrame(() => setOpen(false))
+        return () => window.cancelAnimationFrame(frame)
     }, [pathname])
 
     const close = () => setOpen(false)

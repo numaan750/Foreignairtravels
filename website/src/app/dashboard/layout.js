@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useApp } from '@/context/AppContext'
 import Sidebar from '@/components/dashboard/Sidebar'
 import Topbar from '@/components/dashboard/Topbar'
@@ -9,6 +9,7 @@ import WelcomePopup from '@/components/dashboard/WelcomePopup'
 
 export default function DashboardLayout({ children }) {
   const router = useRouter()
+  const pathname = usePathname()
   const { user, authLoading } = useApp()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -31,7 +32,7 @@ export default function DashboardLayout({ children }) {
 
       <div className="min-w-0 lg:pl-64">
         <Topbar onMenuClick={() => setSidebarOpen(true)} />
-        <main className="p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className={`p-4 sm:p-6 lg:p-8 ${pathname === '/dashboard/group-bookings' ? 'pt-0' : ''}`}>{children}</main>
       </div>
     </div>
   )
