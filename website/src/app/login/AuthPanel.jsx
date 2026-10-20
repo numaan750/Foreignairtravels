@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useId, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { useApp } from '@/context/AppContext'
 import {
@@ -106,13 +107,30 @@ export default function AuthPanel() {
   const isLogin = mode === 'login'
 
   const router = useRouter()
-  const { user, authLoading, login, register, resendVerification } = useApp()
+  const {
+    user,
+    authLoading,
+    login,
+    register,
+    resendVerification,
+    requestPasswordReset,
+    verifyPasswordResetCode,
+    resetPassword,
+  } = useApp()
 
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [resending, setResending] = useState(false)
   const [unverifiedEmail, setUnverifiedEmail] = useState('')
+  const [forgotOpen, setForgotOpen] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [resetCode, setResetCode] = useState('')
+  const [passwordResetToken, setPasswordResetToken] = useState('')
+  const [forgotStep, setForgotStep] = useState('email')
+  const [forgotError, setForgotError] = useState('')
+  const [forgotNotice, setForgotNotice] = useState('')
+  const [forgotSubmitting, setForgotSubmitting] = useState(false)
 
   const resetFeedback = () => {
     setError('')
@@ -199,8 +217,94 @@ export default function AuthPanel() {
     setResending(false)
   }
 
+  const handlePasswordResetRequest = async (event) => {
+    event.preventDefault()
+    if (forgotSubmitting) return
+
+    const email = String(new FormData(event.currentTarget).get('resetEmail')).trim()
+    setForgotError('')
+    setForgotNotice('')
+    setResetCode('')
+    setPasswordResetToken('')
+    setForgotSubmitting(true)
+
+    const result = await requestPasswordReset(email)
+    if (result.ok) {
+      setForgotEmail(email)
+      setForgotStep('code')
+      setForgotNotice(result.message || 'A verification code has been sent to your registered email.')
+    } else {
+      setForgotError(result.message || 'Could not send a verification code.')
+    }
+    setForgotSubmitting(false)
+  }
+
+  const handlePasswordResetCodeVerification = async (event) => {
+    event.preventDefault()
+    if (forgotSubmitting) return
+
+    const code = resetCode.trim()
+    setForgotError('')
+    setForgotNotice('')
+    setForgotSubmitting(true)
+
+    const result = await verifyPasswordResetCode(forgotEmail, code)
+    if (result.ok) {
+      setPasswordResetToken(result.resetToken)
+      setForgotStep('password')
+      setForgotNotice(result.message || 'Code verified. You can now choose a new password.')
+    } else {
+      setForgotError(result.message || 'The verification code is invalid or expired.')
+    }
+    setForgotSubmitting(false)
+  }
+
+  const handlePasswordReset = async (event) => {
+    event.preventDefault()
+    if (forgotSubmitting) return
+
+    const form = new FormData(event.currentTarget)
+    const newPassword = String(form.get('resetNewPassword'))
+    const confirmPassword = String(form.get('resetConfirmPassword'))
+
+    setForgotError('')
+    setForgotNotice('')
+    if (newPassword !== confirmPassword) {
+      setForgotError('Passwords do not match.')
+      return
+    }
+
+    setForgotSubmitting(true)
+    const result = await resetPassword({
+      email: forgotEmail,
+      resetToken: passwordResetToken,
+      newPassword,
+    })
+    if (result.ok) {
+      setForgotOpen(false)
+      setForgotStep('email')
+      setResetCode('')
+      setPasswordResetToken('')
+      setForgotNotice('')
+      setNotice('Password reset successfully. You can now sign in.')
+    } else {
+      setForgotError(result.message || 'Could not reset your password.')
+    }
+    setForgotSubmitting(false)
+  }
+
+  const closeForgotPassword = () => {
+    setForgotOpen(false)
+    setForgotStep('email')
+    setResetCode('')
+    setPasswordResetToken('')
+    setForgotError('')
+    setForgotNotice('')
+  }
+
   const switchMode = (nextMode) => {
     setMode(nextMode)
+    closeForgotPassword()
     resetFeedback()
     requestAnimationFrame(() => {
       document.getElementById('auth-heading')?.focus({ preventScroll: true })
@@ -314,7 +418,16 @@ export default function AuthPanel() {
 
               <div className="flex items-start justify-between gap-4 sm:items-center">
                 <CheckBox id={`${id}-remember`}>Remember me</CheckBox>
-                <button type="button" className={`${textButton} shrink-0 text-xs`}>
+                <button
+                  type="button"
+                  className={`${textButton} shrink-0 text-xs`}
+                  onClick={() => {
+                    setForgotError('')
+                    setForgotNotice('')
+                    setForgotStep('email')
+                    setForgotOpen(true)
+                  }}
+                >
                   Forgot password?
                 </button>
               </div>
@@ -428,6 +541,133 @@ export default function AuthPanel() {
           </p>
         </section>
       </div>
+
+      {forgotOpen && typeof document !== 'undefined' && createPortal((
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto overscroll-contain bg-slate-950/55 p-3 sm:p-5"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeForgotPassword()
+          }}
+        >
+          <section
+            aria-labelledby="forgot-password-title"
+            aria-modal="true"
+            className="my-auto max-h-[calc(100dvh-1.5rem)] w-full max-w-md overflow-y-auto overscroll-contain rounded-2xl bg-white p-5 shadow-2xl sm:max-h-[calc(100dvh-2.5rem)] sm:p-7"
+            role="dialog"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 id="forgot-password-title" className="text-xl font-semibold text-[#102f4c]">
+                  Reset your password
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-slate-500">
+                  {forgotStep === 'email'
+                    ? 'Enter your approved account email and we will send you a verification code.'
+                    : forgotStep === 'code'
+                      ? `Enter the verification code sent to ${forgotEmail}.`
+                      : 'Your code is verified. Choose a new password.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                aria-label="Close password reset"
+                className="grid size-9 shrink-0 place-items-center rounded-lg text-xl text-slate-500 hover:bg-slate-100"
+                onClick={closeForgotPassword}
+              >
+                ×
+              </button>
+            </div>
+
+            {forgotError && (
+              <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-5 text-red-700" role="alert">
+                {forgotError}
+              </p>
+            )}
+            {forgotNotice && (
+              <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-5 text-emerald-800" role="status">
+                {forgotNotice}
+              </p>
+            )}
+
+            {forgotStep === 'email' ? (
+              <form className="mt-5 grid gap-4" onSubmit={handlePasswordResetRequest}>
+                <Field
+                  id={`${id}-reset-email`}
+                  icon={FiMail}
+                  label="Account email"
+                  type="email"
+                  name="resetEmail"
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  required
+                />
+                <button className={submitButton} type="submit" disabled={forgotSubmitting}>
+                  {forgotSubmitting ? 'Sending code...' : 'Send verification code'}
+                </button>
+              </form>
+            ) : forgotStep === 'code' ? (
+              <form className="mt-5 grid gap-4" onSubmit={handlePasswordResetCodeVerification}>
+                <Field
+                  id={`${id}-reset-code`}
+                  icon={FiLock}
+                  label="6-digit verification code"
+                  type="tel"
+                  name="verificationCode"
+                  placeholder="Enter code"
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
+                  maxLength={6}
+                  autoComplete="one-time-code"
+                  value={resetCode}
+                  onChange={(event) => setResetCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+                  required
+                />
+                <button className={submitButton} type="submit" disabled={forgotSubmitting || resetCode.length !== 6}>
+                  {forgotSubmitting ? 'Verifying code...' : 'Verify code'}
+                </button>
+                <button
+                  className={`${textButton} justify-self-center text-xs`}
+                  type="button"
+                  disabled={forgotSubmitting}
+                  onClick={() => {
+                    setForgotError('')
+                    setForgotNotice('')
+                    setResetCode('')
+                    setPasswordResetToken('')
+                    setForgotStep('email')
+                  }}
+                >
+                  Use a different email
+                </button>
+              </form>
+            ) : (
+              <form className="mt-5 grid gap-4" onSubmit={handlePasswordReset}>
+                <PasswordField
+                  id={`${id}-reset-new-password`}
+                  label="New password"
+                  name="resetNewPassword"
+                  placeholder="At least 8 characters"
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                />
+                <PasswordField
+                  id={`${id}-reset-confirm-password`}
+                  label="Confirm new password"
+                  name="resetConfirmPassword"
+                  placeholder="Enter it again"
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                />
+                <button className={submitButton} type="submit" disabled={forgotSubmitting}>
+                  {forgotSubmitting ? 'Updating password...' : 'Reset password'}
+                </button>
+              </form>
+            )}
+          </section>
+        </div>
+      ), document.body)}
     </main>
   )
 }

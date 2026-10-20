@@ -11,6 +11,11 @@ const userSchema = new mongoose.Schema(
         isVerified: { type: Boolean, default: false },
         verificationTokenHash: { type: String, select: false },
         verificationTokenExpires: { type: Date, select: false },
+        passwordResetCodeHash: { type: String, select: false },
+        passwordResetCodeExpires: { type: Date, select: false },
+        passwordResetAttempts: { type: Number, default: 0, select: false },
+        passwordResetTokenHash: { type: String, select: false },
+        passwordResetTokenExpires: { type: Date, select: false },
     },
     { timestamps: true }
 );

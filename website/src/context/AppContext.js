@@ -125,6 +125,50 @@ export function AppProvider({ children }) {
     [request]
   );
 
+  const requestPasswordReset = useCallback(
+    async (email) => {
+      const { ok, data } = await request("/api/user/forgot-password", {
+        method: "POST",
+        body: { email },
+      });
+      return { ok, message: data.message };
+    },
+    [request]
+  );
+
+  const verifyPasswordResetCode = useCallback(
+    async (email, code) => {
+      const { ok, data } = await request("/api/user/verify-password-reset-code", {
+        method: "POST",
+        body: { email, code },
+      });
+      return { ok, resetToken: data.resetToken, message: data.message };
+    },
+    [request]
+  );
+
+  const resetPassword = useCallback(
+    async ({ email, resetToken, newPassword }) => {
+      const { ok, data } = await request("/api/user/reset-password", {
+        method: "POST",
+        body: { email, resetToken, newPassword },
+      });
+      return { ok, message: data.message };
+    },
+    [request]
+  );
+
+  const updatePassword = useCallback(
+    async (currentPassword, newPassword) => {
+      const { ok, data } = await request("/api/user/me/password", {
+        method: "PUT",
+        body: { currentPassword, newPassword },
+      });
+      return { ok, message: data.message };
+    },
+    [request]
+  );
+
   const verifyEmail = useCallback(
     async (token) => {
       const { ok, data } = await request("/api/user/verify-email", {
@@ -226,6 +270,10 @@ export function AppProvider({ children }) {
       authLoading,
       register,
       login,
+      requestPasswordReset,
+      verifyPasswordResetCode,
+      resetPassword,
+      updatePassword,
       verifyEmail,
       sendApprovalNotification,
       resendVerification,
@@ -243,7 +291,7 @@ export function AppProvider({ children }) {
       getAnnouncements,
       getPopupImages,
     }),
-    [user, authLoading, register, login, verifyEmail, sendApprovalNotification, resendVerification, getMe, updateMe, deleteMe, logout, getPackages, getGroupTicketCategories, getGroupTickets, getServices, getAirlines, getCountries, getBankAccounts,
+    [user, authLoading, register, login, requestPasswordReset, verifyPasswordResetCode, resetPassword, updatePassword, verifyEmail, sendApprovalNotification, resendVerification, getMe, updateMe, deleteMe, logout, getPackages, getGroupTicketCategories, getGroupTickets, getServices, getAirlines, getCountries, getBankAccounts,
       getAnnouncements, getPopupImages,
     ]
   );

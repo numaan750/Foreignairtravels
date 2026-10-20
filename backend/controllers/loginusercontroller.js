@@ -313,6 +313,188 @@ export const login = async (req, res) => {
   }
 };
 
+// POST /api/user/forgot-password
+export const requestPasswordReset = async (req, res) => {
+  try {
+    const email = String(req.body.email || "").trim().toLowerCase();
+    if (!EMAIL_REGEX.test(email)) {
+      return res.status(400).json({ success: false, message: "Enter a valid email address." });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user || !user.isVerified) {
+      return res.status(403).json({
+        success: false,
+        message: "This email is not registered with an administrator-approved account. Please contact the site owner.",
+      });
+    }
+
+    const code = crypto.randomInt(100000, 1000000).toString();
+    user.passwordResetCodeHash = hashToken(code);
+    user.passwordResetCodeExpires = new Date(Date.now() + 10 * 60 * 1000);
+    user.passwordResetAttempts = 0;
+    user.passwordResetTokenHash = undefined;
+    user.passwordResetTokenExpires = undefined;
+    await user.save();
+
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "ForeignAirTravel password reset code",
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;padding:24px;color:#003366">
+            <h2>Password reset request</h2>
+            <p>Enter this verification code to reset your password:</p>
+            <p style="font-size:28px;font-weight:bold;letter-spacing:6px">${code}</p>
+            <p>This code expires in 10 minutes. If you did not request a password reset, you can ignore this email.</p>
+          </div>
+        `,
+      });
+    } catch (emailError) {
+      user.passwordResetCodeHash = undefined;
+      user.passwordResetCodeExpires = undefined;
+      user.passwordResetAttempts = 0;
+      user.passwordResetTokenHash = undefined;
+      user.passwordResetTokenExpires = undefined;
+      await user.save();
+      console.error("Password reset email failed:", {
+        code: emailError.code,
+        responseCode: emailError.responseCode,
+        message: emailError.message,
+      });
+      throw emailError;
+    }
+
+    res.status(200).json({ success: true, message: "A verification code has been sent to your registered email." });
+  } catch (error) {
+    res.status(500).json({ success: false, message: getEmailErrorMessage(error) });
+  }
+};
+
+// POST /api/user/verify-password-reset-code
+export const verifyPasswordResetCode = async (req, res) => {
+  try {
+    const email = String(req.body.email || "").trim().toLowerCase();
+    const code = String(req.body.code || "").trim();
+
+    if (!EMAIL_REGEX.test(email) || !/^\d{6}$/.test(code)) {
+      return res.status(400).json({ success: false, message: "Enter the registered email and 6-digit verification code." });
+    }
+
+    const user = await User.findOneAndUpdate({
+      email,
+      isVerified: true,
+      passwordResetCodeExpires: { $gt: new Date() },
+      passwordResetAttempts: { $lt: 5 },
+    }, {
+      $inc: { passwordResetAttempts: 1 },
+    }, {
+      new: true,
+    }).select("+passwordResetCodeHash +passwordResetCodeExpires +passwordResetAttempts");
+
+    if (!user || user.passwordResetCodeHash !== hashToken(code)) {
+      return res.status(400).json({ success: false, message: "The verification code is invalid or expired. Request a new code." });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const verifiedUser = await User.findOneAndUpdate({
+      _id: user._id,
+      passwordResetCodeHash: user.passwordResetCodeHash,
+      passwordResetCodeExpires: { $gt: new Date() },
+      passwordResetAttempts: { $lte: 5 },
+    }, {
+      $set: {
+        passwordResetTokenHash: hashToken(resetToken),
+        passwordResetTokenExpires: new Date(Date.now() + 10 * 60 * 1000),
+      },
+      $unset: {
+        passwordResetCodeHash: 1,
+        passwordResetCodeExpires: 1,
+        passwordResetAttempts: 1,
+      },
+    }, { new: true });
+
+    if (!verifiedUser) {
+      return res.status(400).json({ success: false, message: "The verification code is invalid or expired. Request a new code." });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Code verified. You can now choose a new password.",
+      resetToken,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// POST /api/user/reset-password
+export const resetPassword = async (req, res) => {
+  try {
+    const email = String(req.body.email || "").trim().toLowerCase();
+    const resetToken = String(req.body.resetToken || "");
+    const newPassword = String(req.body.newPassword || "");
+
+    if (!EMAIL_REGEX.test(email) || !resetToken) {
+      return res.status(400).json({ success: false, message: "A verified password reset session is required." });
+    }
+    if (newPassword.length < 8) {
+      return res.status(400).json({ success: false, message: "Password must be at least 8 characters long." });
+    }
+
+    const password = await bcrypt.hash(newPassword, 12);
+    const updatedUser = await User.findOneAndUpdate({
+      email,
+      isVerified: true,
+      passwordResetTokenHash: hashToken(resetToken),
+      passwordResetTokenExpires: { $gt: new Date() },
+    }, {
+      $set: { password },
+      $unset: {
+        passwordResetCodeHash: 1,
+        passwordResetCodeExpires: 1,
+        passwordResetAttempts: 1,
+        passwordResetTokenHash: 1,
+        passwordResetTokenExpires: 1,
+      },
+    }, { new: true });
+
+    if (!updatedUser) {
+      return res.status(400).json({ success: false, message: "Password reset verification has expired. Request a new code." });
+    }
+
+    res.status(200).json({ success: true, message: "Password reset successfully. You can now sign in." });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// PUT /api/user/me/password
+export const updatePassword = async (req, res) => {
+  try {
+    const currentPassword = String(req.body.currentPassword || "");
+    const newPassword = String(req.body.newPassword || "");
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: "Enter your current and new password." });
+    }
+    if (newPassword.length < 8) {
+      return res.status(400).json({ success: false, message: "Password must be at least 8 characters long." });
+    }
+
+    const user = await User.findById(req.user.id).select("+password");
+    if (!user) return res.status(404).json({ success: false, message: "User account not found." });
+    if (!(await bcrypt.compare(currentPassword, user.password))) {
+      return res.status(401).json({ success: false, message: "Current password is incorrect." });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 12);
+    await user.save();
+    res.status(200).json({ success: true, message: "Password updated successfully." });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // GET /api/user/me
 export const getMe = async (req, res) => {
   res.status(200).json({ success: true, user: toUserPayload(req.user) });
