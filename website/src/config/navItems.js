@@ -1,6 +1,6 @@
 import {
   FiGrid,
-  FiSend,
+//   FiSend,
   FiCalendar,
   FiUser,
   FiCreditCard,
@@ -9,7 +9,7 @@ import {
 
 export const navItems = [
     { label: 'Dashboard', href: '/dashboard', icon: FiGrid },
-    { label: 'Air Line Booking', href: '/dashboard/air-line-booking', icon: FiSend },
+    // { label: 'Air Line Booking', href: '/dashboard/air-line-booking', icon: FiSend },
     { label: 'Group Bookings', href: '/dashboard/group-bookings', icon: FiUsers },
     { label: 'My Bookings', href: '/dashboard/bookings', icon: FiCalendar },
     { label: 'Bank Account', href: '/dashboard/bank-account', icon: FiCreditCard },
