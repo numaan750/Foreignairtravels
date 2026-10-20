@@ -13,6 +13,8 @@ import countryRoutes from './routers/countriesrouters.js';
 import bankAccountRoutes from './routers/bankaccountsrouters.js';
 import announcementRoutes from './routers/announcementsrouters.js';
 import popupImageRoutes from './routers/popupimagesrouters.js';
+import groupTicketCategoryRoutes from './routers/groupticketcategoriesroutes.js';
+import groupTicketRoutes from './routers/groupticketsroutes.js';
 
 const app = express();
 app.use(cors());
@@ -31,6 +33,9 @@ app.use('/api/countries', countryRoutes);
 app.use('/api/bank-accounts', bankAccountRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/popup-images', popupImageRoutes);
+app.use('/api/group-ticket-categories', groupTicketCategoryRoutes);
+app.use('/api/group-tickets', groupTicketRoutes);
+
 
 app.get("/", (req, res) => {
     res.send("API is running...");

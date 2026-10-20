@@ -13,6 +13,8 @@ import {
   FiImage,
 } from "react-icons/fi";
 
+import { LuPlane } from "react-icons/lu";
+
 export const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: FiGrid },
   { label: "Packages", href: "/dashboard/packages", icon: FiMap },
@@ -22,13 +24,14 @@ export const navItems = [
   { label: "Bank Accounts", href: "/dashboard/bank-accounts", icon: FiCreditCard },
   { label: "Announcements", href: "/dashboard/announcements", icon: FiBell },
   { label: "Popup Images", href: "/dashboard/popup-images", icon: FiImage },
+  { label: "Group Ticket Categories", href: "/dashboard/group-ticket-categories", icon: FiLayers },
+  { label: "Group Tickets", href: "/dashboard/group-tickets", icon: LuPlane },
   { label: "Bookings", href: "/dashboard/bookings", icon: FiCalendar },
   { label: "Customers", href: "/dashboard/customers", icon: FiUsers },
   { label: "Inquiries", href: "/dashboard/inquiries", icon: FiMessageSquare },
   { label: "Settings", href: "/dashboard/settings", icon: FiSettings },
 ];
 
-// /dashboard sirf apne exact path par active ho, baqi nested pages par bhi active rahen
 export const isActivePath = (href, pathname) =>
   href === "/dashboard"
     ? pathname === href

@@ -7,17 +7,11 @@ import { useEffect, useRef, useState } from 'react'
 import { FiChevronDown, FiGrid, FiLogOut, FiMenu, FiUser, FiX } from 'react-icons/fi'
 import {
     FaFolderOpen,
-    FaGlobeEurope,
     FaHome,
-    FaKaaba,
-    FaLayerGroup,
-    FaMapMarkedAlt,
     FaPhoneAlt,
     FaPlane,
-    FaPlaneArrival,
     FaPlaneDeparture,
     FaThLarge,
-    FaUsers,
     FaWhatsapp,
 } from 'react-icons/fa'
 import { useApp } from '@/context/AppContext'
@@ -28,24 +22,6 @@ const WHATSAPP_NUMBER = '+966 59 638 2847'
 const WHATSAPP_HREF = 'https://wa.me/966596382847'
 const PHONE_NUMBER = '0301 7075427'
 const PHONE_HREF = 'tel:+9663017075427'
-
-const groupTypes = [
-    { label: 'All Types', href: '/group-tickets', icon: FaThLarge },
-    { label: 'KSA TO PAK', href: '/group-tickets/ksa-to-pak', icon: FaPlaneDeparture },
-    { label: 'KSA ONE WAY', href: '/group-tickets/ksa-one-way', icon: FaPlaneArrival },
-    { label: 'UAE ONE WAY', href: '/group-tickets/uae-one-way', icon: FaLayerGroup },
-    { label: 'OMAN ONE WAY', href: '/group-tickets/oman-one-way', icon: FaMapMarkedAlt },
-    { label: 'UK ONE WAY', href: '/group-tickets/uk-one-way', icon: FaGlobeEurope },
-    { label: 'UMRAH', href: '/group-tickets/umrah', icon: FaKaaba },
-    { label: 'TBA GROUPS', href: '/group-tickets/tba-groups', icon: FaUsers },
-]
-
-const navItems = [
-    { label: 'Home', href: '/', icon: FaHome },
-    { label: 'Group Tickets', href: '/group-tickets', icon: FaPlane, children: groupTypes },
-    { label: 'My Bookings', href: '/my-bookings', icon: FaFolderOpen },
-    { label: 'Packeges', href: '/packeges', icon: FaFolderOpen },
-]
 
 /* ---------------------------- DESKTOP DROPDOWN ---------------------------- */
 
@@ -135,7 +111,7 @@ const DesktopDropdown = ({ item, active, pathname }) => {
                     className="absolute top-[18px] left-10 size-3 rotate-45 border-l border-t border-slate-200 bg-gray-100"
                 />
                 <ul className="relative rounded-2xl border border-slate-200 bg-gray-100 p-2 shadow-[0_16px_40px_rgba(15,23,42,0.12)]">
-                    {item.children.map(({ label, href, icon: ChildIcon }) => {
+                    {item.children.map(({ label, href, icon: ChildIcon, logo }) => {
                         const current = pathname === href
                         return (
                             <li key={label} role="none">
@@ -146,7 +122,9 @@ const DesktopDropdown = ({ item, active, pathname }) => {
                                     className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium uppercase tracking-wide transition-colors hover:bg-white hover:text-[#FF6B35] focus-visible:outline-2 focus-visible:outline-teal-700 ${current ? 'bg-white text-[#FF6B35]' : 'text-[#003366]'
                                         }`}
                                 >
-                                    <ChildIcon aria-hidden="true" className="size-[16px] shrink-0 text-[#FF6B35]" />
+                                    {logo
+                                        ? <img src={logo} alt="" className="size-[16px] shrink-0 object-contain" />
+                                        : <ChildIcon aria-hidden="true" className="size-[16px] shrink-0 text-[#FF6B35]" />}
                                     {label}
                                 </Link>
                             </li>
@@ -195,7 +173,7 @@ const MobileAccordion = ({ item, active, pathname, onNavigate }) => {
                 <ul className="overflow-hidden">
                     <li className="pb-2">
                         <ul className="space-y-1 rounded-2xl bg-slate-50 p-2">
-                            {item.children.map(({ label, href, icon: ChildIcon }) => {
+                            {item.children.map(({ label, href, icon: ChildIcon, logo }) => {
                                 const current = pathname === href
                                 return (
                                     <li key={label}>
@@ -205,7 +183,9 @@ const MobileAccordion = ({ item, active, pathname, onNavigate }) => {
                                             className={`flex min-h-[44px] items-center gap-3 rounded-xl px-3 text-[14px] font-medium uppercase tracking-wide transition-colors hover:bg-white hover:text-[#FF6B35] focus-visible:outline-2 focus-visible:outline-teal-700 ${current ? 'bg-white text-[#FF6B35]' : 'text-[#003366]'
                                                 }`}
                                         >
-                                            <ChildIcon aria-hidden="true" className="size-[15px] shrink-0 text-[#FF6B35]" />
+                                            {logo
+                                                ? <img src={logo} alt="" className="size-[15px] shrink-0 object-contain" />
+                                                : <ChildIcon aria-hidden="true" className="size-[15px] shrink-0 text-[#FF6B35]" />}
                                             {label}
                                         </Link>
                                     </li>
@@ -347,10 +327,36 @@ const UserAccountMenu = ({ user, logout, menuId }) => {
 const Navbar = () => {
     const pathname = usePathname()
     const router = useRouter()
-    const { user, authLoading, logout } = useApp()
+    const { user, authLoading, logout, getGroupTicketCategories } = useApp()
     const [open, setOpen] = useState(false)
     const [scrolled, setScrolled] = useState(false)
+    const [groupCategories, setGroupCategories] = useState([])
     const pendingHomeScroll = useRef(false)
+    const groupTypes = [
+        { label: 'All Types', href: '/group-tickets', icon: FaThLarge },
+        ...groupCategories.map((category) => ({
+            label: category.name,
+            href: `/group-tickets/${category.slug}`,
+            icon: FaPlaneDeparture,
+            logo: category.logo,
+        })),
+    ]
+    const navItems = [
+        { label: 'Home', href: '/', icon: FaHome },
+        { label: 'Group Tickets', href: '/group-tickets', icon: FaPlane, children: groupTypes },
+        { label: 'My Bookings', href: '/my-bookings', icon: FaFolderOpen },
+        { label: 'Packeges', href: '/packeges', icon: FaFolderOpen },
+    ]
+
+    useEffect(() => {
+        let isCurrent = true
+        getGroupTicketCategories().then(({ ok, data }) => {
+            if (!isCurrent) return
+            if (ok) setGroupCategories(data.data)
+            else console.error('Group ticket categories could not be loaded:', data.message)
+        })
+        return () => { isCurrent = false }
+    }, [getGroupTicketCategories])
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 8)

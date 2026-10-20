@@ -193,6 +193,13 @@ export function AppProvider({ children }) {
   // ---------- PACKAGES (public, token nahi chahiye) ----------
   const getPackages = useCallback(() => request("/api/packages"), [request]);
 
+  // ---------- GROUP TICKETS (public, token nahi chahiye) ----------
+  const getGroupTicketCategories = useCallback(() => request("/api/group-ticket-categories"), [request]);
+  const getGroupTickets = useCallback(
+    (category) => request(`/api/group-tickets${category ? `?category=${encodeURIComponent(category)}` : ""}`),
+    [request]
+  );
+
   // ---------- SERVICES (public, token nahi chahiye) ----------
   const getServices = useCallback(() => request("/api/services"), [request]);
 
@@ -227,6 +234,8 @@ export function AppProvider({ children }) {
       deleteMe,
       logout,
       getPackages,
+      getGroupTicketCategories,
+      getGroupTickets,
       getServices,
       getAirlines,
       getCountries,
@@ -234,7 +243,7 @@ export function AppProvider({ children }) {
       getAnnouncements,
       getPopupImages,
     }),
-    [user, authLoading, register, login, verifyEmail, sendApprovalNotification, resendVerification, getMe, updateMe, deleteMe, logout, getPackages, getServices, getAirlines, getCountries, getBankAccounts,
+    [user, authLoading, register, login, verifyEmail, sendApprovalNotification, resendVerification, getMe, updateMe, deleteMe, logout, getPackages, getGroupTicketCategories, getGroupTickets, getServices, getAirlines, getCountries, getBankAccounts,
       getAnnouncements, getPopupImages,
     ]
   );

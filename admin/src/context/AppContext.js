@@ -148,6 +148,16 @@ export function AppProvider({ children }) {
   const getPopupImages = useCallback(() => request("/api/popup-images"), [request]);
   const createPopupImage = useCallback((body) => request("/api/popup-images", { method: "POST", body }), [request]);
   const deletePopupImage = useCallback((id) => request(`/api/popup-images/${id}`, { method: "DELETE" }), [request]);
+    // ---------- GROUP TICKET CATEGORIES ----------
+  const getGroupTicketCategories = useCallback(() => request("/api/group-ticket-categories?all=true"), [request]);
+  const createGroupTicketCategory = useCallback((body) => request("/api/group-ticket-categories", { method: "POST", body }), [request]);
+  const updateGroupTicketCategory = useCallback((id, body) => request(`/api/group-ticket-categories/${id}`, { method: "PUT", body }), [request]);
+  const deleteGroupTicketCategory = useCallback((id) => request(`/api/group-ticket-categories/${id}`, { method: "DELETE" }), [request]);
+  // ---------- GROUP TICKETS ----------
+  const getGroupTickets = useCallback((category) => request(`/api/group-tickets?all=true${category ? `&category=${category}` : ""}`), [request]);
+  const createGroupTicket = useCallback((body) => request("/api/group-tickets", { method: "POST", body }), [request]);
+  const updateGroupTicket = useCallback((id, body) => request(`/api/group-tickets/${id}`, { method: "PUT", body }), [request]);
+  const deleteGroupTicket = useCallback((id) => request(`/api/group-tickets/${id}`, { method: "DELETE" }), [request]);
 
   // ---------- UPLOAD ----------
   const uploadImage = useCallback(
@@ -169,6 +179,14 @@ export function AppProvider({ children }) {
       createPackage,
       updatePackage,
       deletePackage,
+      getGroupTicketCategories,
+      createGroupTicketCategory,
+      updateGroupTicketCategory,
+      deleteGroupTicketCategory,
+      getGroupTickets,
+      createGroupTicket,
+      updateGroupTicket,
+      deleteGroupTicket,
       uploadImage,
       getServices,
       createService,
@@ -191,7 +209,7 @@ export function AppProvider({ children }) {
       deletePopupImage,
       getAirlines, createAirline, updateAirline, deleteAirline,
     }),
-    [admin, authLoading, login, logout, getPackages, createPackage, updatePackage, deletePackage, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry, getBankAccounts, createBankAccount, updateBankAccount, deleteBankAccount,
+    [admin, authLoading, login, logout, getPackages, createPackage, updatePackage, deletePackage, getGroupTicketCategories, createGroupTicketCategory, updateGroupTicketCategory, deleteGroupTicketCategory, getGroupTickets, createGroupTicket, updateGroupTicket, deleteGroupTicket, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry, getBankAccounts, createBankAccount, updateBankAccount, deleteBankAccount,
       getAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement,getPopupImages, createPopupImage, deletePopupImage,
     ]
   );
