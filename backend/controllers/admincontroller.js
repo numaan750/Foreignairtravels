@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import User from "../models/loginuser.js";
 
 // Timing attack se bachne ke liye safe comparison
 const safeEqual = (a, b) => {
@@ -50,4 +51,17 @@ export const loginAdmin = async (req, res) => {
 // Current admin ki info (token se)
 export const getAdminProfile = async (req, res) => {
   res.status(200).json({ success: true, admin: req.admin });
+};
+
+export const getCustomers = async (req, res) => {
+  try {
+    const customers = await User.find()
+      .select("agencyname name email number city isVerified createdAt")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.status(200).json({ success: true, data: customers });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };

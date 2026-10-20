@@ -1,10 +1,8 @@
 import {
   FiGrid,
   FiMap,
-  // FiCalendar,
   FiUsers,
   FiMessageSquare,
-  FiSettings,
   FiLayers,
   FiSend,
   FiGlobe,
@@ -26,10 +24,8 @@ export const navItems = [
   { label: "Popup Images", href: "/dashboard/popup-images", icon: FiImage },
   { label: "Group Ticket Categories", href: "/dashboard/group-ticket-categories", icon: FiLayers },
   { label: "Group Tickets", href: "/dashboard/group-tickets", icon: LuPlane },
-  // { label: "Bookings", href: "/dashboard/bookings", icon: FiCalendar },
   { label: "Customers", href: "/dashboard/customers", icon: FiUsers },
   { label: "Inquiries", href: "/dashboard/inquiries", icon: FiMessageSquare },
-  { label: "Settings", href: "/dashboard/settings", icon: FiSettings },
 ];
 
 export const isActivePath = (href, pathname) =>

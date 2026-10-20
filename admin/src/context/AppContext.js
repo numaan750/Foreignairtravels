@@ -112,6 +112,8 @@ export function AppProvider({ children }) {
 
   const logout = useCallback(() => clearSession(), [clearSession]);
 
+  // ---------- CUSTOMERS ----------
+  const getCustomers = useCallback(() => request("/api/admin/customers"), [request]);
 
   // ---------- PACKAGES ----------
   const getPackages = useCallback(() => request("/api/packages?all=true"), [request]);
@@ -175,6 +177,7 @@ export function AppProvider({ children }) {
       authLoading,
       login,
       logout,
+      getCustomers,
       getPackages,
       createPackage,
       updatePackage,
@@ -209,7 +212,7 @@ export function AppProvider({ children }) {
       deletePopupImage,
       getAirlines, createAirline, updateAirline, deleteAirline,
     }),
-    [admin, authLoading, login, logout, getPackages, createPackage, updatePackage, deletePackage, getGroupTicketCategories, createGroupTicketCategory, updateGroupTicketCategory, deleteGroupTicketCategory, getGroupTickets, createGroupTicket, updateGroupTicket, deleteGroupTicket, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry, getBankAccounts, createBankAccount, updateBankAccount, deleteBankAccount,
+    [admin, authLoading, login, logout, getCustomers, getPackages, createPackage, updatePackage, deletePackage, getGroupTicketCategories, createGroupTicketCategory, updateGroupTicketCategory, deleteGroupTicketCategory, getGroupTickets, createGroupTicket, updateGroupTicket, deleteGroupTicket, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry, getBankAccounts, createBankAccount, updateBankAccount, deleteBankAccount,
       getAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement,getPopupImages, createPopupImage, deletePopupImage,
     ]
   );
