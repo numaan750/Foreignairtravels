@@ -507,17 +507,6 @@ const Navbar = () => {
                         </li>
                     </ul> */}
 
-                    <a
-                        href={WHATSAPP_HREF}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Chat on WhatsApp"
-                        className="inline-flex h-[44px] items-center gap-2 whitespace-nowrap rounded-full border border-emerald-300 bg-emerald-50 px-3 xl:px-4 text-[13px] font-semibold text-emerald-700 transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-100 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-600"
-                    >
-                        <FaWhatsapp aria-hidden="true" className="size-[18px]" />
-                        <span>WhatsApp</span>
-                    </a>
-
                     {authLoading ? (
                         <span
                             aria-hidden="true"
