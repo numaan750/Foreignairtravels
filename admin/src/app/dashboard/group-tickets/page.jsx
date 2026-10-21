@@ -17,34 +17,47 @@ export default function GroupTicketsPage() {
   const {
     getGroupTickets,
     getGroupTicketCategories,
+    getAirlines,
     createGroupTicket,
     updateGroupTicket,
     deleteGroupTicket,
   } = useApp();
   const [tickets, setTickets] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [airlines, setAirlines] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [airlineFilter, setAirlineFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [listError, setListError] = useState("");
+  const [referenceError, setReferenceError] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
 
   const loadCategories = useCallback(async () => {
-    const { ok, data } = await getGroupTicketCategories();
-    if (ok) setCategories(data.data);
-    else setListError(data.message || "Categories load nahi ho sakin");
-  }, [getGroupTicketCategories]);
+    const [categoryResult, airlineResult] = await Promise.all([
+      getGroupTicketCategories(),
+      getAirlines(),
+    ]);
+    if (categoryResult.ok) setCategories(categoryResult.data.data);
+    else setReferenceError(categoryResult.data.message || "Categories load nahi ho sakin");
+    if (airlineResult.ok) setAirlines(airlineResult.data.data);
+    else setReferenceError(airlineResult.data.message || "Airlines load nahi ho sakin");
+  }, [getAirlines, getGroupTicketCategories]);
 
   const loadTickets = useCallback(async () => {
     const { ok, data } = await getGroupTickets(categoryFilter);
     if (ok) {
-      setTickets(data.data);
-      setListError("");
+      setTickets(airlineFilter
+        ? data.data.filter((ticket) => {
+          const ticketAirlineId = typeof ticket.airlineId === "object" ? ticket.airlineId?._id : ticket.airlineId;
+          return ticketAirlineId === airlineFilter;
+        })
+        : data.data);
     } else setListError(data.message || "Group tickets load nahi ho sake");
     setLoading(false);
-  }, [categoryFilter, getGroupTickets]);
+  }, [airlineFilter, categoryFilter, getGroupTickets]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => { void loadCategories(); });
@@ -89,72 +102,89 @@ export default function GroupTicketsPage() {
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <PageHeader title="Group Tickets" description="Har ticket ko save karte waqt uski category select karein." />
-        <button onClick={() => openForm()} disabled={!categories.length} className="flex items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"><FiPlus /> Add ticket</button>
+        <button onClick={() => openForm()} disabled={!categories.length || !airlines.length} className="flex items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"><FiPlus /> Add ticket</button>
       </div>
 
-      <label className="mb-5 block max-w-sm text-sm font-medium text-[#003366]">
-        Filter by category
+      {referenceError && <p role="alert" className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{referenceError}</p>}
+      {!referenceError && !airlines.length && <p className="mb-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">Pehle Airlines tab mein airline add karein, phir us airline ke group tickets bana sakenge.</p>}
 
-        <div className="relative mt-1.5">
-          <select
-            value={categoryFilter}
-            onChange={(event) => {
-              setLoading(true);
-              setCategoryFilter(event.target.value);
-            }}
-            className="w-full appearance-none rounded-xl border border-[#003366]/15 bg-white px-4 py-2.5 pr-12 text-sm outline-none focus:border-[#FF6B35]"
-          >
-            <option value="">All categories</option>
-            {categories.map((category) => (
-              <option key={category._id} value={category._id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#003366]">
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
+      <div className="mb-5 grid max-w-3xl gap-4 sm:grid-cols-2">
+        <label className="block text-sm font-medium text-[#003366]">
+          Filter by category
+          <div className="relative mt-1.5">
+            <select
+              value={categoryFilter}
+              onChange={(event) => {
+                setLoading(true);
+                setCategoryFilter(event.target.value);
+              }}
+              className="w-full appearance-none rounded-xl border border-[#003366]/15 bg-white px-4 py-2.5 pr-12 text-sm outline-none focus:border-[#FF6B35]"
             >
-              <path d="m6 9 6 6 6-6" />
-            </svg>
-          </span>
-        </div>
-      </label>
+              <option value="">All categories</option>
+              {categories.map((category) => (
+                <option key={category._id} value={category._id}>{category.name}</option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#003366]">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </span>
+          </div>
+        </label>
+
+        <label className="block text-sm font-medium text-[#003366]">
+          Filter by airline
+          <div className="relative mt-1.5">
+            <select
+              value={airlineFilter}
+              onChange={(event) => {
+                setLoading(true);
+                setAirlineFilter(event.target.value);
+              }}
+              className="w-full appearance-none rounded-xl border border-[#003366]/15 bg-white px-4 py-2.5 pr-12 text-sm outline-none focus:border-[#FF6B35]"
+            >
+              <option value="">All airlines</option>
+              {airlines.map((airline) => (
+                <option key={airline._id} value={airline._id}>{airline.name}</option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#003366]">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </span>
+          </div>
+        </label>
+      </div>
 
       {loading ? <p className="text-sm text-[#003366]/60">Loading...</p>
         : listError ? <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{listError}</p>
           : tickets.length === 0 ? <EmptyState icon={LuPlane} title="Abhi koi group ticket nahi" text={categories.length ? "Add ticket se pehla group ticket banayein." : "Pehle Group Ticket Categories mein category banayein."} />
-            : <div className="grid gap-4 xl:grid-cols-2">
+            : <div className="grid grid-cols-1 gap-3">
               {tickets.map((ticket) => (
-                <article key={ticket._id} className="rounded-2xl bg-white p-4 shadow-sm sm:p-5">
-                  <div className="flex flex-wrap items-start gap-3">
-                    {ticket.airlineLogo ? <img src={ticket.airlineLogo} alt="" className="size-12 rounded-xl border border-[#003366]/10 object-contain p-1" /> : <span className="flex size-12 items-center justify-center rounded-xl bg-[#003366]/5 text-[#003366]"><LuPlane /></span>}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-medium text-[#FF6B35]">{ticket.category?.name || "Category missing"}</p>
-                      <h2 className="mt-1 font-semibold text-[#003366]">{ticket.groupName}</h2>
-                      <p className="text-sm text-[#003366]/70">{ticket.airline} · {formatDate(ticket.departureDate)}</p>
+                <article key={ticket._id} className="grid min-w-0 gap-3 rounded-xl bg-white p-3 shadow-sm sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1.5fr)_minmax(0,1fr)_auto] sm:items-center sm:gap-4">
+                  <div className="flex min-w-0 items-center gap-3">
+                    {ticket.airlineId?.logo || ticket.airlineLogo ? <img src={ticket.airlineId?.logo || ticket.airlineLogo} alt="" className="size-10 shrink-0 rounded-lg border border-[#003366]/10 object-contain p-1" /> : <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#003366]/5 text-[#003366]"><LuPlane /></span>}
+                    <div className="min-w-0">
+                      <p className="truncate text-[11px] font-medium text-[#FF6B35]">{ticket.category?.name || "Category missing"}</p>
+                      <h2 className="truncate text-sm font-semibold text-[#003366]">{ticket.groupName}</h2>
+                      <p className="truncate text-xs text-[#003366]/70">{ticket.airlineId?.name || ticket.airline} · {formatDate(ticket.departureDate)}</p>
                     </div>
-                    <span className={`rounded-full px-3 py-1 text-xs font-medium ${ticket.isActive ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-600"}`}>{ticket.isActive ? "Active" : "Hidden"}</span>
                   </div>
-                  <div className="mt-4 space-y-1 text-sm text-[#003366]/75">
-                    {ticket.segments.map((segment, index) => <p key={`${segment.flightNumber}-${index}`}>{segment.from} → {segment.to} · {segment.flightNumber} · {segment.departureTime || "Time TBA"}</p>)}
+                  <div className="min-w-0 space-y-0.5 text-xs text-[#003366]/75">
+                    {ticket.segments.map((segment, index) => <p key={`${segment.flightNumber}-${index}`} className="truncate">{segment.from} → {segment.to} · {segment.flightNumber} · {segment.departureTime || "Time TBA"}</p>)}
                   </div>
-                  <p className="mt-3 text-sm font-semibold text-[#003366]">{ticket.currency} {Number(ticket.adultFare).toLocaleString()} adult · {ticket.baggage} baggage</p>
-                  <div className="mt-4 flex gap-2">
-                    <button onClick={() => openForm(ticket)} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#EDEEE9] py-2 text-sm font-medium text-[#003366] hover:bg-[#003366] hover:text-white"><FiEdit2 /> Edit</button>
-                    <button onClick={() => handleDelete(ticket)} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-50 py-2 text-sm font-medium text-red-600 hover:bg-red-600 hover:text-white"><FiTrash2 /> Delete</button>
+                  <p className="truncate text-xs font-semibold text-[#003366]">{ticket.currency} {Number(ticket.adultFare).toLocaleString()} adult · {ticket.baggage} baggage</p>
+                  <div className="flex gap-2 sm:w-40">
+                    <button onClick={() => openForm(ticket)} className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#EDEEE9] px-3 py-2 text-xs font-medium text-[#003366] hover:bg-[#003366] hover:text-white"><FiEdit2 /> Edit</button>
+                    <button onClick={() => handleDelete(ticket)} className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-600 hover:text-white"><FiTrash2 /> Delete</button>
                   </div>
                 </article>
               ))}
             </div>}
 
-      {formOpen && <GroupTicketForm key={editing?._id || `new-${categories.length}`} initial={editing} categories={categories} saving={saving} error={formError} onSubmit={handleSubmit} onClose={() => setFormOpen(false)} />}
+      {formOpen && <GroupTicketForm key={editing?._id || `new-${categories.length}-${airlines.length}`} initial={editing} categories={categories} airlines={airlines} saving={saving} error={formError} onSubmit={handleSubmit} onClose={() => setFormOpen(false)} />}
     </div>
   );
 }

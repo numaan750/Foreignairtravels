@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FiPlus, FiUploadCloud, FiX } from "react-icons/fi";
-import { useApp } from "@/context/AppContext";
+import { FiPlus, FiX } from "react-icons/fi";
 
 const emptySegment = { from: "", to: "", flightNumber: "", departureTime: "", arrivalTime: "" };
 const inputClass =
@@ -18,12 +17,13 @@ function toDateInput(value) {
   return Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 10);
 }
 
-export default function GroupTicketForm({ initial, categories, saving, error, onSubmit, onClose }) {
-  const { uploadImage } = useApp();
+export default function GroupTicketForm({ initial, categories, airlines, saving, error, onSubmit, onClose }) {
+  const existingAirlineId = initial?.airlineId?._id || initial?.airlineId || airlines.find((airline) => airline.name === initial?.airline)?._id || "";
   const [form, setForm] = useState({
     category: initial?.category?._id || initial?.category || categories[0]?._id || "",
-    airline: initial?.airline || "",
-    airlineLogo: initial?.airlineLogo || "",
+    airlineId: existingAirlineId,
+    airline: initial?.airlineId?.name || initial?.airline || "",
+    airlineLogo: initial?.airlineId?.logo || initial?.airlineLogo || "",
     groupName: initial?.groupName || "",
     departureDate: toDateInput(initial?.departureDate),
     segments: initial?.segments?.length ? initial.segments.map((segment) => ({ ...segment })) : [{ ...emptySegment }],
@@ -34,14 +34,20 @@ export default function GroupTicketForm({ initial, categories, saving, error, on
     infantFare: initial?.infantFare ?? "",
     infantPriceOnCall: initial?.infantPriceOnCall ?? false,
     currency: initial?.currency || "SAR",
-    bookingUrl: initial?.bookingUrl || "",
-    isActive: initial?.isActive ?? true,
   });
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState("");
 
   const setValue = (event) => {
     const { name, value, type, checked } = event.target;
+    if (name === "airlineId") {
+      const selectedAirline = airlines.find((airline) => airline._id === value);
+      setForm((current) => ({
+        ...current,
+        airlineId: value,
+        airline: selectedAirline?.name || "",
+        airlineLogo: selectedAirline?.logo || "",
+      }));
+      return;
+    }
     setForm((current) => ({ ...current, [name]: type === "checkbox" ? checked : value }));
   };
 
@@ -51,21 +57,6 @@ export default function GroupTicketForm({ initial, categories, saving, error, on
       ...current,
       segments: current.segments.map((segment, position) => position === index ? { ...segment, [name]: value } : segment),
     }));
-  };
-
-  const handleLogoChange = async (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    setUploadError("");
-    const { ok, data } = await uploadImage(file);
-    setUploading(false);
-    event.target.value = "";
-    if (!ok) {
-      setUploadError(data.message || "Airline logo upload nahi ho saka");
-      return;
-    }
-    setForm((current) => ({ ...current, airlineLogo: data.url }));
   };
 
   const handleSubmit = (event) => {
@@ -100,21 +91,21 @@ export default function GroupTicketForm({ initial, categories, saving, error, on
               {categories.map((category) => <option key={category._id} value={category._id}>{category.name}</option>)}
             </select>
           </Field>
-          <Field label="Airline name"><input name="airline" value={form.airline} onChange={setValue} required className={inputClass} placeholder="Saudi Airline" /></Field>
+          <Field label="Airline">
+            <select name="airlineId" value={form.airlineId} onChange={setValue} required className={inputClass}>
+              <option value="">Select airline</option>
+              {airlines.map((airline) => <option key={airline._id} value={airline._id}>{airline.name}</option>)}
+            </select>
+          </Field>
           <Field label="Group / route name"><input name="groupName" value={form.groupName} onChange={setValue} required className={inputClass} placeholder="Dammam to Peshawar" /></Field>
           <Field label="Departure date"><input name="departureDate" type="date" value={form.departureDate} onChange={setValue} required className={inputClass} /></Field>
 
-          <div className="sm:col-span-2">
-            <span className="mb-2 block text-sm font-medium text-[#003366]">Airline logo (optional)</span>
-            <div className="flex items-center gap-4">
-              {form.airlineLogo && <img src={form.airlineLogo} alt="Airline logo preview" className="size-14 rounded-xl border border-[#003366]/10 object-contain p-1" />}
-              <label className="flex min-h-14 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#003366]/20 px-4 py-3 text-center text-sm text-[#003366]/70 hover:border-[#FF6B35] hover:text-[#FF6B35]">
-                <FiUploadCloud />{uploading ? "Uploading..." : form.airlineLogo ? "Change airline logo" : "Choose airline logo (max 4MB)"}
-                <input type="file" accept="image/*" onChange={handleLogoChange} disabled={uploading} className="hidden" />
-              </label>
+          {form.airlineLogo && (
+            <div className="flex items-center gap-3 sm:col-span-2">
+              <img src={form.airlineLogo} alt={`${form.airline} logo preview`} className="size-14 rounded-xl border border-[#003366]/10 object-contain p-1" />
+              <p className="text-sm text-[#003366]/70">Logo from the selected airline.</p>
             </div>
-            {uploadError && <p className="mt-2 text-sm text-red-600">{uploadError}</p>}
-          </div>
+          )}
 
           <div className="sm:col-span-2">
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -142,19 +133,16 @@ export default function GroupTicketForm({ initial, categories, saving, error, on
           <Field label="Adult fare"><input name="adultFare" type="number" min="0" step="0.01" value={form.adultFare} onChange={setValue} required className={inputClass} /></Field>
           <Field label="Child fare"><input name="childFare" type="number" min="0" step="0.01" value={form.childFare} onChange={setValue} className={inputClass} /></Field>
           <Field label="Price"><input name="infantFare" type="number" min="0" step="0.01" value={form.infantFare} onChange={setValue} disabled={form.infantPriceOnCall} className={inputClass} /></Field>
-          <Field label="Booking URL (optional)"><input name="bookingUrl" type="url" value={form.bookingUrl} onChange={setValue} className={inputClass} placeholder="https://..." /></Field>
-
           <div className="flex flex-wrap gap-x-6 gap-y-3 sm:col-span-2">
             <label className="flex items-center gap-2 text-sm text-[#003366]"><input type="checkbox" name="mealAvailable" checked={form.mealAvailable} onChange={setValue} className="size-4 accent-[#FF6B35]" />Meal included</label>
             <label className="flex items-center gap-2 text-sm text-[#003366]"><input type="checkbox" name="infantPriceOnCall" checked={form.infantPriceOnCall} onChange={setValue} className="size-4 accent-[#FF6B35]" />Infant price on call</label>
-            <label className="flex items-center gap-2 text-sm text-[#003366]"><input type="checkbox" name="isActive" checked={form.isActive} onChange={setValue} className="size-4 accent-[#FF6B35]" />Show ticket on website</label>
           </div>
         </div>
 
         {error && <p className="mt-4 rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-600">{error}</p>}
         <div className="mt-6 flex justify-end gap-3">
           <button type="button" onClick={onClose} className="rounded-xl px-5 py-2.5 text-sm font-medium text-[#003366] hover:bg-[#EDEEE9]">Cancel</button>
-          <button type="submit" disabled={saving || uploading || categories.length === 0} className="rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60">{saving ? "Saving..." : initial ? "Update ticket" : "Create ticket"}</button>
+          <button type="submit" disabled={saving || categories.length === 0 || airlines.length === 0} className="rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60">{saving ? "Saving..." : initial ? "Update ticket" : "Create ticket"}</button>
         </div>
       </form>
     </div>

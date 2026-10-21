@@ -19,6 +19,11 @@ const groupTicketSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    airlineId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Airline',
+      index: true,
+    },
     airline: { type: String, required: true, trim: true },
     airlineLogo: { type: String, default: '' },
     groupName: { type: String, required: true, trim: true },
