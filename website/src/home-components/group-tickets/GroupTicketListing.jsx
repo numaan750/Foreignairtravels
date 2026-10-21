@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FiCalendar, FiClock, FiMapPin, FiShoppingCart } from 'react-icons/fi'
 import { useApp } from '@/context/AppContext'
+import GroupTicketBookingModal from './GroupTicketBookingModal'
 
 const formatDate = (value) => {
   const date = new Date(value)
@@ -61,24 +62,10 @@ function FilterSelect({ value, onChange, label, children }) {
   )
 }
 
-function TicketGroupCard({ tickets, user, dashboardMode, selectedTicketId }) {
-  const router = useRouter()
+function TicketGroupCard({ tickets, dashboardMode, selectedTicketId, onBook }) {
   const firstTicket = tickets[0]
   const airlineName = firstTicket.airlineId?.name || firstTicket.airline
   const airlineLogo = firstTicket.airlineId?.logo || firstTicket.airlineLogo
-
-  const handleBook = (ticket) => {
-    const bookingUrl = ticket.bookingUrl && /^https?:\/\//i.test(ticket.bookingUrl)
-      ? ticket.bookingUrl
-      : `https://wa.me/966596382847?text=${encodeURIComponent(`Hello, I would like to book ${ticket.groupName} on ${formatDate(ticket.departureDate)}.`)}`
-    const loginDestination = `/dashboard/group-bookings?ticketId=${encodeURIComponent(ticket._id)}`
-
-    if (dashboardMode) {
-      window.open(bookingUrl, '_blank', 'noopener,noreferrer')
-      return
-    }
-    router.push(user ? loginDestination : `/login?returnTo=${encodeURIComponent(loginDestination)}`)
-  }
 
   return (
     <article className={`overflow-hidden rounded-2xl border bg-white shadow-[0_8px_24px_rgba(0,51,102,0.06)] ${tickets.some((ticket) => ticket._id === selectedTicketId) ? 'border-[#FF6B35] ring-2 ring-[#FF6B35]/15' : 'border-slate-200'}`}>
@@ -144,7 +131,7 @@ function TicketGroupCard({ tickets, user, dashboardMode, selectedTicketId }) {
                 <p className="truncate text-[10px] text-slate-500">Infant · {ticket.infantPriceOnCall ? 'Price on call' : fare(ticket.currency, ticket.infantFare)}</p>
               </div>
               <div className="col-span-2 flex items-center px-4 py-2.5 md:col-span-4 xl:col-span-1 sm:px-5">
-                <button type="button" onClick={() => handleBook(ticket)} className="inline-flex min-h-9 w-full cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[#FF6B35] px-4 text-xs font-semibold text-white transition hover:bg-[#003366] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]">
+                <button type="button" onClick={() => onBook(ticket)} className="inline-flex min-h-9 w-full cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[#FF6B35] px-4 text-xs font-semibold text-white transition hover:bg-[#003366] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]">
                   <FiShoppingCart aria-hidden="true" />{dashboardMode ? 'Contact to book' : 'Book Now'}
                 </button>
               </div>
@@ -158,12 +145,14 @@ function TicketGroupCard({ tickets, user, dashboardMode, selectedTicketId }) {
 
 export default function GroupTicketListing({ slug = '', dashboardMode = false }) {
   const { getGroupTickets, getGroupTicketCategories, getAirlines, user } = useApp()
+  const router = useRouter()
   const [categories, setCategories] = useState([])
   const [airlines, setAirlines] = useState([])
   const [tickets, setTickets] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedTicketId, setSelectedTicketId] = useState('')
+  const [bookingTicketId, setBookingTicketId] = useState('')
   const [dashboardCategory, setDashboardCategory] = useState('')
   const [websiteCategory, setWebsiteCategory] = useState(slug)
   const [selectedAirlineId, setSelectedAirlineId] = useState('')
@@ -205,10 +194,27 @@ export default function GroupTicketListing({ slug = '', dashboardMode = false })
   useEffect(() => {
     if (!dashboardMode) return
     const frame = window.requestAnimationFrame(() => {
-      setSelectedTicketId(new URLSearchParams(window.location.search).get('ticketId') || '')
+      const params = new URLSearchParams(window.location.search)
+      const ticketId = params.get('ticketId') || ''
+      setSelectedTicketId(ticketId)
+      if (params.get('book') === 'true') setBookingTicketId(ticketId)
     })
     return () => window.cancelAnimationFrame(frame)
   }, [dashboardMode])
+
+  const handleBook = (ticket) => {
+    if (user) {
+      setBookingTicketId(ticket._id)
+      return
+    }
+    const destination = `/dashboard/group-bookings?book=true&ticketId=${encodeURIComponent(ticket._id)}`
+    router.push(`/login?returnTo=${encodeURIComponent(destination)}`)
+  }
+
+  const closeBooking = () => {
+    setBookingTicketId('')
+    if (dashboardMode && window.location.search) router.replace('/dashboard/group-bookings')
+  }
 
   const selectedCategory = categories.find((category) => category.slug === categoryFilter)
   const airlineFilteredTickets = selectedAirlineId
@@ -312,13 +318,21 @@ export default function GroupTicketListing({ slug = '', dashboardMode = false })
                   <TicketGroupCard
                     key={group.key}
                     tickets={group.tickets}
-                    user={user}
                     dashboardMode={dashboardMode}
                     selectedTicketId={selectedTicketId}
+                    onBook={handleBook}
                   />
                 ))}
         </section>
       </div>
+      {bookingTicketId && user && tickets.some((ticket) => ticket._id === bookingTicketId) && (
+        <GroupTicketBookingModal
+          ticket={tickets.find((ticket) => ticket._id === bookingTicketId)}
+          user={user}
+          onClose={closeBooking}
+          onBooked={() => router.push('/dashboard/bookings')}
+        />
+      )}
     </main>
   )
 }

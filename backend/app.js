@@ -15,6 +15,7 @@ import announcementRoutes from './routers/announcementsrouters.js';
 import popupImageRoutes from './routers/popupimagesrouters.js';
 import groupTicketCategoryRoutes from './routers/groupticketcategoriesroutes.js';
 import groupTicketRoutes from './routers/groupticketsroutes.js';
+import groupBookingRoutes from './routers/groupbookingsroutes.js';
 
 const app = express();
 app.use(cors());
@@ -35,6 +36,7 @@ app.use('/api/announcements', announcementRoutes);
 app.use('/api/popup-images', popupImageRoutes);
 app.use('/api/group-ticket-categories', groupTicketCategoryRoutes);
 app.use('/api/group-tickets', groupTicketRoutes);
+app.use('/api/group-bookings', groupBookingRoutes);
 
 
 app.get("/", (req, res) => {

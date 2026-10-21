@@ -243,6 +243,15 @@ export function AppProvider({ children }) {
     (category) => request(`/api/group-tickets${category ? `?category=${encodeURIComponent(category)}` : ""}`),
     [request]
   );
+  const createGroupBooking = useCallback(
+    (body) => request("/api/group-bookings", { method: "POST", body }),
+    [request]
+  );
+  const getMyGroupBookings = useCallback(() => request("/api/group-bookings/me"), [request]);
+  const updateMyGroupBookingStatus = useCallback(
+    (id, status) => request(`/api/group-bookings/me/${id}/status`, { method: "PATCH", body: { status } }),
+    [request]
+  );
 
   // ---------- SERVICES (public, token nahi chahiye) ----------
   const getServices = useCallback(() => request("/api/services"), [request]);
@@ -284,6 +293,9 @@ export function AppProvider({ children }) {
       getPackages,
       getGroupTicketCategories,
       getGroupTickets,
+      createGroupBooking,
+      getMyGroupBookings,
+      updateMyGroupBookingStatus,
       getServices,
       getAirlines,
       getCountries,
@@ -291,7 +303,7 @@ export function AppProvider({ children }) {
       getAnnouncements,
       getPopupImages,
     }),
-    [user, authLoading, register, login, requestPasswordReset, verifyPasswordResetCode, resetPassword, updatePassword, verifyEmail, sendApprovalNotification, resendVerification, getMe, updateMe, deleteMe, logout, getPackages, getGroupTicketCategories, getGroupTickets, getServices, getAirlines, getCountries, getBankAccounts,
+    [user, authLoading, register, login, requestPasswordReset, verifyPasswordResetCode, resetPassword, updatePassword, verifyEmail, sendApprovalNotification, resendVerification, getMe, updateMe, deleteMe, logout, getPackages, getGroupTicketCategories, getGroupTickets, createGroupBooking, getMyGroupBookings, updateMyGroupBookingStatus, getServices, getAirlines, getCountries, getBankAccounts,
       getAnnouncements, getPopupImages,
     ]
   );

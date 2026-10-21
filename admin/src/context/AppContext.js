@@ -114,6 +114,11 @@ export function AppProvider({ children }) {
 
   // ---------- CUSTOMERS ----------
   const getCustomers = useCallback(() => request("/api/admin/customers"), [request]);
+  const getInquiries = useCallback(() => request("/api/admin/inquiries"), [request]);
+  const updateInquiryStatus = useCallback(
+    (id, status) => request(`/api/admin/inquiries/${id}/status`, { method: "PATCH", body: { status } }),
+    [request]
+  );
 
   // ---------- PACKAGES ----------
   const getPackages = useCallback(() => request("/api/packages?all=true"), [request]);
@@ -178,6 +183,8 @@ export function AppProvider({ children }) {
       login,
       logout,
       getCustomers,
+      getInquiries,
+      updateInquiryStatus,
       getPackages,
       createPackage,
       updatePackage,
@@ -212,7 +219,7 @@ export function AppProvider({ children }) {
       deletePopupImage,
       getAirlines, createAirline, updateAirline, deleteAirline,
     }),
-    [admin, authLoading, login, logout, getCustomers, getPackages, createPackage, updatePackage, deletePackage, getGroupTicketCategories, createGroupTicketCategory, updateGroupTicketCategory, deleteGroupTicketCategory, getGroupTickets, createGroupTicket, updateGroupTicket, deleteGroupTicket, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry, getBankAccounts, createBankAccount, updateBankAccount, deleteBankAccount,
+    [admin, authLoading, login, logout, getCustomers, getInquiries, updateInquiryStatus, getPackages, createPackage, updatePackage, deletePackage, getGroupTicketCategories, createGroupTicketCategory, updateGroupTicketCategory, deleteGroupTicketCategory, getGroupTickets, createGroupTicket, updateGroupTicket, deleteGroupTicket, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry, getBankAccounts, createBankAccount, updateBankAccount, deleteBankAccount,
       getAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement,getPopupImages, createPopupImage, deletePopupImage,
     ]
   );
