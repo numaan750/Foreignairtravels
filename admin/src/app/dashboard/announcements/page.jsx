@@ -80,8 +80,8 @@ export default function AnnouncementsPage() {
 
     return (
         <div>
-            <div className="flex flex-wrap items-start justify-between gap-4">
-                <PageHeader title="Announcements" description="Website ki announcement bar yahan se manage hogi." />
+            <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
+                <PageHeader title="Announcements" description="Website ki announcement bar yahan se manage hogi." className="mb-0" />
                 <button
                     onClick={openCreate}
                     className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
@@ -103,14 +103,14 @@ export default function AnnouncementsPage() {
                         return (
                             <div
                                 key={item._id}
-                                className="flex flex-wrap items-center gap-3 rounded-2xl bg-white p-4 shadow-sm sm:flex-nowrap"
+                                className="grid min-w-0 grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-3 rounded-2xl bg-white p-4 shadow-sm sm:flex"
                             >
                                 <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#FF6B35]/10 text-lg text-[#FF6B35]">
                                     <Icon />
                                 </span>
 
-                                <div className="min-w-0 flex-1">
-                                    <p className="break-words text-sm font-medium text-[#003366]">{item.text}</p>
+                                <div className="min-w-0 sm:flex-1">
+                                    <p className="break-words text-sm font-medium leading-5 text-[#003366]">{item.text}</p>
                                     {!item.isActive && (
                                         <span className="mt-1 inline-block rounded-full bg-gray-200 px-3 py-0.5 text-xs font-medium text-gray-600">
                                             Hidden
@@ -118,7 +118,7 @@ export default function AnnouncementsPage() {
                                     )}
                                 </div>
 
-                                <div className="flex shrink-0 gap-2">
+                                <div className="col-span-2 flex justify-end gap-3 sm:col-span-1 sm:shrink-0">
                                     <button
                                         onClick={() => openEdit(item)}
                                         className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#EDEEE9] px-4 py-2 text-sm font-medium text-[#003366] transition hover:bg-[#003366] hover:text-white"

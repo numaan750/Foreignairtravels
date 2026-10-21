@@ -193,14 +193,14 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
                       <legend className="px-2 text-sm font-semibold text-[#153750]">{typeLabel} {number}</legend>
                       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                         <Field label="Title">
-                          <select className={inputClass} value={passenger.title} onChange={(event) => updatePassenger(index, 'title', event.target.value)} required>
+                          <select className={`dropdown-select ${inputClass}`} value={passenger.title} onChange={(event) => updatePassenger(index, 'title', event.target.value)} required>
                             {(passenger.type === 'adult' ? ['Mr', 'Mrs', 'Ms'] : ['Master', 'Miss']).map((title) => <option key={title}>{title}</option>)}
                           </select>
                         </Field>
                         <Field label="Given name"><input className={inputClass} value={passenger.firstName} onChange={(event) => updatePassenger(index, 'firstName', event.target.value)} autoComplete="given-name" required /></Field>
                         <Field label="Surname"><input className={inputClass} value={passenger.lastName} onChange={(event) => updatePassenger(index, 'lastName', event.target.value)} autoComplete="family-name" required /></Field>
                         <Field label="Gender">
-                          <select className={inputClass} value={passenger.gender} onChange={(event) => updatePassenger(index, 'gender', event.target.value)} required>
+                          <select className={`dropdown-select ${inputClass}`} value={passenger.gender} onChange={(event) => updatePassenger(index, 'gender', event.target.value)} required>
                             {['Male', 'Female', 'Other'].map((gender) => <option key={gender}>{gender}</option>)}
                           </select>
                         </Field>

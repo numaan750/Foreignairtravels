@@ -100,8 +100,8 @@ export default function GroupTicketsPage() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <PageHeader title="Group Tickets" description="Har ticket ko save karte waqt uski category select karein." />
+      <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
+        <PageHeader title="Group Tickets" description="Har ticket ko save karte waqt uski category select karein." className="mb-0" />
         <button onClick={() => openForm()} disabled={!categories.length || !airlines.length} className="flex items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"><FiPlus /> Add ticket</button>
       </div>
 
@@ -118,18 +118,13 @@ export default function GroupTicketsPage() {
                 setLoading(true);
                 setCategoryFilter(event.target.value);
               }}
-              className="w-full appearance-none rounded-xl border border-[#003366]/15 bg-white px-4 py-2.5 pr-12 text-sm outline-none focus:border-[#FF6B35]"
+              className="dropdown-select w-full appearance-none rounded-xl border border-[#003366]/15 bg-white px-4 py-2.5 pr-12 text-sm outline-none focus:border-[#FF6B35]"
             >
               <option value="">All categories</option>
               {categories.map((category) => (
                 <option key={category._id} value={category._id}>{category.name}</option>
               ))}
             </select>
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#003366]">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-            </span>
           </div>
         </label>
 
@@ -142,18 +137,13 @@ export default function GroupTicketsPage() {
                 setLoading(true);
                 setAirlineFilter(event.target.value);
               }}
-              className="w-full appearance-none rounded-xl border border-[#003366]/15 bg-white px-4 py-2.5 pr-12 text-sm outline-none focus:border-[#FF6B35]"
+              className="dropdown-select w-full appearance-none rounded-xl border border-[#003366]/15 bg-white px-4 py-2.5 pr-12 text-sm outline-none focus:border-[#FF6B35]"
             >
               <option value="">All airlines</option>
               {airlines.map((airline) => (
                 <option key={airline._id} value={airline._id}>{airline.name}</option>
               ))}
             </select>
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#003366]">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-            </span>
           </div>
         </label>
       </div>
@@ -176,7 +166,7 @@ export default function GroupTicketsPage() {
                     {ticket.segments.map((segment, index) => <p key={`${segment.flightNumber}-${index}`} className="truncate">{segment.from} → {segment.to} · {segment.flightNumber} · {segment.departureTime || "Time TBA"}</p>)}
                   </div>
                   <p className="truncate text-xs font-semibold text-[#003366]">{ticket.currency} {Number(ticket.adultFare).toLocaleString()} adult · {ticket.baggage} baggage</p>
-                  <div className="flex gap-2 sm:w-40">
+                  <div className="flex gap-3 sm:w-40">
                     <button onClick={() => openForm(ticket)} className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#EDEEE9] px-3 py-2 text-xs font-medium text-[#003366] hover:bg-[#003366] hover:text-white"><FiEdit2 /> Edit</button>
                     <button onClick={() => handleDelete(ticket)} className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-600 hover:text-white"><FiTrash2 /> Delete</button>
                   </div>

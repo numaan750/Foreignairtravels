@@ -63,8 +63,8 @@ export default function GroupTicketCategoriesPage() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <PageHeader title="Group Ticket Categories" description="Categories website ke Group Tickets menu mein dikhengi." />
+      <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
+        <PageHeader title="Group Ticket Categories" description="Categories website ke Group Tickets menu mein dikhengi." className="mb-0" />
         <button onClick={() => openForm()} className="flex items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"><FiPlus /> Add category</button>
       </div>
 
@@ -80,7 +80,7 @@ export default function GroupTicketCategoriesPage() {
                       <h2 className="font-semibold text-[#003366]">{category.name}</h2>
                       <p className="text-xs text-[#003366]/60">/{category.slug}</p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                       <button onClick={() => openForm(category)} aria-label={`Edit ${category.name}`} className="rounded-lg bg-[#EDEEE9] p-2.5 text-[#003366] hover:bg-[#003366] hover:text-white"><FiEdit2 /></button>
                       <button onClick={() => handleDelete(category)} aria-label={`Delete ${category.name}`} className="rounded-lg bg-red-50 p-2.5 text-red-600 hover:bg-red-600 hover:text-white"><FiTrash2 /></button>
                     </div>

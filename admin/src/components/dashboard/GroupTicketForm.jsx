@@ -86,13 +86,13 @@ export default function GroupTicketForm({ initial, categories, airlines, saving,
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Category">
-            <select name="category" value={form.category} onChange={setValue} required className={inputClass}>
+            <select name="category" value={form.category} onChange={setValue} required className={`dropdown-select ${inputClass}`}>
               <option value="">Select category</option>
               {categories.map((category) => <option key={category._id} value={category._id}>{category.name}</option>)}
             </select>
           </Field>
           <Field label="Airline">
-            <select name="airlineId" value={form.airlineId} onChange={setValue} required className={inputClass}>
+            <select name="airlineId" value={form.airlineId} onChange={setValue} required className={`dropdown-select ${inputClass}`}>
               <option value="">Select airline</option>
               {airlines.map((airline) => <option key={airline._id} value={airline._id}>{airline.name}</option>)}
             </select>

@@ -80,8 +80,8 @@ export default function PackagesPage() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <PageHeader title="Packages" description="Travel packages yahan manage honge." />
+      <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
+        <PageHeader title="Packages" description="Travel packages yahan manage honge." className="mb-0" />
         <button
           onClick={openCreate}
           className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
@@ -122,7 +122,7 @@ export default function PackagesPage() {
                   {pkg.days} Days / {pkg.nights} Nights · {pkg.travelType}
                 </p>
 
-                <div className="mt-4 flex gap-2">
+                <div className="mt-4 flex gap-3">
                   <button
                     onClick={() => openEdit(pkg)}
                     className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#EDEEE9] py-2 text-sm font-medium text-[#003366] transition hover:bg-[#003366] hover:text-white"

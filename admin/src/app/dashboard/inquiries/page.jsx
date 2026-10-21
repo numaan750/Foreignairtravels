@@ -79,7 +79,7 @@ export default function InquiriesPage() {
         <select
           value={statusFilter}
           onChange={(event) => setStatusFilter(event.target.value)}
-          className="mt-1.5 w-full rounded-xl border border-[#003366]/15 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#FF6B35]"
+          className="dropdown-select mt-1.5 w-full rounded-xl border border-[#003366]/15 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#FF6B35]"
         >
           <option value="">All statuses</option>
           {bookingStatuses.map((status) => (
@@ -135,7 +135,7 @@ export default function InquiriesPage() {
                       value={inquiry.status}
                       onChange={(event) => { void changeStatus(inquiry._id, event.target.value); }}
                       disabled={savingId === inquiry._id}
-                      className="min-w-32 rounded-lg border border-[#003366]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#FF6B35] disabled:opacity-60"
+                      className="dropdown-select min-w-32 rounded-lg border border-[#003366]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#FF6B35] disabled:opacity-60"
                     >
                       {bookingStatuses.map((status) => (
                         <option key={status.value} value={status.value}>{status.label}</option>

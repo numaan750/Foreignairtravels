@@ -80,8 +80,8 @@ export default function AirlinesPage() {
 
     return (
         <div>
-            <div className="flex flex-wrap items-start justify-between gap-4">
-                <PageHeader title="Airlines" description="Partner airlines yahan manage hongi." />
+            <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
+                <PageHeader title="Airlines" description="Partner airlines yahan manage hongi." className="mb-0" />
                 <button
                     onClick={openCreate}
                     className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
@@ -106,7 +106,7 @@ export default function AirlinesPage() {
                             <h3 className="mt-4 truncate text-base font-semibold text-[#003366]">{item.name}</h3>
                             <p className="mt-1 line-clamp-2 text-sm text-[#003366]/70">{item.network}</p>
 
-                            <div className="mt-4 flex gap-2">
+                            <div className="mt-4 flex gap-3">
                                 <button
                                     onClick={() => openEdit(item)}
                                     className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#EDEEE9] py-2 text-sm font-medium text-[#003366] transition hover:bg-[#003366] hover:text-white"

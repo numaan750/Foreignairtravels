@@ -68,8 +68,8 @@ export default function PopupImagesPage() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <PageHeader title="Popup Images" description="Login ke baad dashboard pe ye images popup mein dikhengi." />
+      <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
+        <PageHeader title="Popup Images" description="Login ke baad dashboard pe ye images popup mein dikhengi." className="mb-0" />
 
         <label
           className={`flex items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 ${

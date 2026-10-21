@@ -48,15 +48,10 @@ function FilterSelect({ value, onChange, label, children }) {
           value={value}
           onChange={onChange}
           aria-label={label}
-          className={`${filterControlClass} appearance-none pr-12`}
+          className={`dropdown-select ${filterControlClass} appearance-none pr-12`}
         >
           {children}
         </select>
-        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#003366]">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="m6 9 6 6 6-6" />
-          </svg>
-        </span>
       </span>
     </FilterField>
   )
@@ -66,6 +61,7 @@ function TicketGroupCard({ tickets, dashboardMode, selectedTicketId, onBook }) {
   const firstTicket = tickets[0]
   const airlineName = firstTicket.airlineId?.name || firstTicket.airline
   const airlineLogo = firstTicket.airlineId?.logo || firstTicket.airlineLogo
+  const detailsPadding = dashboardMode ? 'px-4 py-4 sm:px-5 sm:py-5' : 'px-4 py-2.5 sm:px-5'
 
   return (
     <article className={`overflow-hidden rounded-2xl border bg-white shadow-[0_8px_24px_rgba(0,51,102,0.06)] ${tickets.some((ticket) => ticket._id === selectedTicketId) ? 'border-[#FF6B35] ring-2 ring-[#FF6B35]/15' : 'border-slate-200'}`}>
@@ -88,7 +84,7 @@ function TicketGroupCard({ tickets, dashboardMode, selectedTicketId, onBook }) {
         const selected = ticket._id === selectedTicketId
         return (
           <div key={ticket._id} className={ticketIndex > 0 ? 'border-t border-slate-200' : ''}>
-            <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-5 gap-y-1 px-4 py-2.5 sm:px-5">
+            <div className={`flex min-w-0 flex-wrap items-center justify-between gap-x-5 gap-y-1 px-4 ${dashboardMode ? 'py-3 sm:py-4' : 'py-2.5'} sm:px-5`}>
               <div className="flex min-w-0 items-center gap-2">
                 <p className="truncate text-[13px] font-semibold text-[#003366]">{ticket.groupName}</p>
                 {selected && <span className="shrink-0 rounded-full bg-[#FF6B35]/10 px-2.5 py-1 text-[10px] font-semibold text-[#FF6B35]">Selected ticket</span>}
@@ -97,9 +93,9 @@ function TicketGroupCard({ tickets, dashboardMode, selectedTicketId, onBook }) {
             </div>
 
             <div className="grid min-w-0 grid-cols-2 divide-x divide-y divide-slate-100 border-t border-slate-100 md:grid-cols-4 md:divide-y-0 xl:grid-cols-[1.35fr_1fr_1fr_1.15fr_auto]">
-              <div className="min-w-0 px-4 py-2.5 sm:px-5">
+              <div className={`min-w-0 ${detailsPadding}`}>
                 <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-500">Flight</p>
-                <div className="mt-1 space-y-1">
+                <div className={`mt-1 ${dashboardMode ? 'space-y-2' : 'space-y-1'}`}>
                   {ticket.segments.map((segment, index) => (
                     <div key={`${segment.flightNumber}-${index}`} className="min-w-0 text-[11px] leading-4 text-[#003366]">
                       <p className="flex min-w-0 items-center gap-1 font-medium"><FiMapPin aria-hidden="true" className="shrink-0 text-[#FF6B35]" /><span className="truncate">{segment.from} → {segment.to}</span></p>
@@ -108,9 +104,9 @@ function TicketGroupCard({ tickets, dashboardMode, selectedTicketId, onBook }) {
                   ))}
                 </div>
               </div>
-              <div className="min-w-0 px-4 py-2.5 sm:px-5">
+              <div className={`min-w-0 ${detailsPadding}`}>
                 <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-500">Time</p>
-                <div className="mt-1 space-y-1">
+                <div className={`mt-1 ${dashboardMode ? 'space-y-2' : 'space-y-1'}`}>
                   {ticket.segments.map((segment, index) => (
                     <p key={`${segment.flightNumber}-time-${index}`} className="flex min-w-0 items-center gap-1 text-[11px] text-[#003366]">
                       <FiClock aria-hidden="true" className="shrink-0 text-[#FF6B35]" />
@@ -119,18 +115,18 @@ function TicketGroupCard({ tickets, dashboardMode, selectedTicketId, onBook }) {
                   ))}
                 </div>
               </div>
-              <div className="min-w-0 px-4 py-2.5 sm:px-5">
+              <div className={`min-w-0 ${detailsPadding}`}>
                 <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-500">Baggage & meal</p>
                 <p className="mt-1 truncate text-[11px] font-medium text-[#003366]">{ticket.baggage}</p>
                 <p className={`mt-0.5 text-[11px] font-medium ${ticket.mealAvailable ? 'text-emerald-600' : 'text-slate-500'}`}>Meal {ticket.mealAvailable ? 'yes' : 'no'}</p>
               </div>
-              <div className="min-w-0 px-4 py-2.5 sm:px-5">
+              <div className={`min-w-0 ${detailsPadding}`}>
                 <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-500">Fare</p>
                 <p className="mt-1 truncate text-[11px] font-semibold text-[#003366]">Adult · {fare(ticket.currency, ticket.adultFare)}</p>
                 <p className="truncate text-[10px] text-slate-500">Child · {fare(ticket.currency, ticket.childFare)}</p>
                 <p className="truncate text-[10px] text-slate-500">Infant · {ticket.infantPriceOnCall ? 'Price on call' : fare(ticket.currency, ticket.infantFare)}</p>
               </div>
-              <div className="col-span-2 flex items-center px-4 py-2.5 md:col-span-4 xl:col-span-1 sm:px-5">
+              <div className={`col-span-2 flex items-center px-4 md:col-span-4 xl:col-span-1 sm:px-5 ${dashboardMode ? 'py-3 sm:py-4' : 'py-2.5'}`}>
                 <button type="button" onClick={() => onBook(ticket)} className="inline-flex min-h-9 w-full cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[#FF6B35] px-4 text-xs font-semibold text-white transition hover:bg-[#003366] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]">
                   <FiShoppingCart aria-hidden="true" />{dashboardMode ? 'Contact to book' : 'Book Now'}
                 </button>

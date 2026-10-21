@@ -72,7 +72,7 @@ export default function AnnouncementForm({ initial, saving, error, onSubmit, onC
                     </Field>
 
                     <Field label="Icon type">
-                        <select name="type" value={form.type} onChange={setValue} className={inputClass}>
+                        <select name="type" value={form.type} onChange={setValue} className={`dropdown-select ${inputClass}`}>
                             <option value="warning">Warning (triangle icon)</option>
                             <option value="info">Info (circle icon)</option>
                         </select>

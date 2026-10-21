@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }) {
 
       <div className="min-w-0 lg:pl-64">
         <Topbar onMenuClick={() => setSidebarOpen(true)} />
-        <main className={`p-4 sm:p-6 lg:p-8 ${pathname === '/dashboard/group-bookings' ? 'pt-0' : ''}`}>{children}</main>
+        <main className={`p-4 sm:p-6 lg:p-8 ${pathname === '/dashboard/group-bookings' ? 'pt-4 sm:pt-4 lg:pt-10' : ''}`}>{children}</main>
       </div>
     </div>
   )

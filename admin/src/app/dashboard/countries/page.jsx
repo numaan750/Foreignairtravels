@@ -80,8 +80,8 @@ export default function CountriesPage() {
 
     return (
         <div>
-            <div className="flex flex-wrap items-start justify-between gap-4">
-                <PageHeader title="Countries" description="Website ke countries yahan manage honge." />
+            <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
+                <PageHeader title="Countries" description="Website ke countries yahan manage honge." className="mb-0" />
                 <button
                     onClick={openCreate}
                     className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
@@ -116,16 +116,16 @@ export default function CountriesPage() {
                                 <p className="mt-1 line-clamp-1 text-sm text-[#003366]/70">{item.cities}</p>
                                 <p className="mt-1 line-clamp-1 text-xs text-[#003366]/60">{item.note}</p>
 
-                                <div className="mt-4 flex gap-2">
+                                <div className="mt-4 flex gap-3">
                                     <button
                                         onClick={() => openEdit(item)}
-                                        className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#EDEEE9] py-2 text-sm font-medium text-[#003366] transition hover:bg-[#003366] hover:text-white"
+                                        className="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#EDEEE9] px-2 py-2 text-sm font-medium text-[#003366] transition hover:bg-[#003366] hover:text-white"
                                     >
                                         <FiEdit2 /> Edit
                                     </button>
                                     <button
                                         onClick={() => handleDelete(item)}
-                                        className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-red-50 py-2 text-sm font-medium text-red-600 transition hover:bg-red-600 hover:text-white"
+                                        className="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-red-50 px-2 py-2 text-sm font-medium text-red-600 transition hover:bg-red-600 hover:text-white"
                                     >
                                         <FiTrash2 /> Delete
                                     </button>

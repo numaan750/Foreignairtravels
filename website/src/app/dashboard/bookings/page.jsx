@@ -486,7 +486,7 @@ export default function BookingsPage() {
         <select
           value={statusFilter}
           onChange={(event) => setStatusFilter(event.target.value)}
-          className="mt-1.5 h-11 w-full rounded-xl border border-[#003366]/15 bg-white px-3 text-sm outline-none focus:border-[#FF6B35]"
+          className="dropdown-select mt-1.5 h-11 w-full rounded-xl border border-[#003366]/15 bg-white px-3 text-sm outline-none focus:border-[#FF6B35]"
         >
           <option value="">All statuses</option>
           {bookingStatuses.map((status) => (
@@ -570,14 +570,14 @@ export default function BookingsPage() {
                     <FiMapPin aria-hidden="true" className="shrink-0 text-[#FF6B35]" />
                     <span className="truncate">{details.segments.map((segment) => `${segment.from} → ${segment.to}`).join(", ")}</span>
                   </div>
-                  <div className="truncate text-[#003366]/75">
+                  <div className="min-w-0 truncate text-[#003366]/75">
                     <span className="font-medium text-[#003366]">Passengers:</span>{" "}
                     {booking.passengerCounts.adults}A · {booking.passengerCounts.children}C · {booking.passengerCounts.infants}I
                   </div>
-                  <div className="truncate text-[#003366]/75">
+                  <div className="min-w-0 truncate text-[#003366]/75">
                     <span className="font-medium text-[#003366]">Contact:</span> {booking.contactPhone}
                   </div>
-                  <div className="truncate font-semibold text-[#003366]">
+                  <div className="min-w-0 truncate font-semibold text-[#003366]">
                     <span className="font-medium">Total:</span>{" "}
                     {formatFare(details.currency, booking.totalPrice)}
                     {booking.infantPriceOnCall && booking.passengerCounts.infants > 0 && (
@@ -587,7 +587,7 @@ export default function BookingsPage() {
                 </div>
 
                 {(canManage || booking.status === "confirmed") && (
-                  <div className="mt-3 flex flex-wrap justify-end gap-2 border-t border-[#003366]/10 pt-3">
+                  <div className="mt-3 grid grid-cols-1 gap-2 border-t border-[#003366]/10 pt-3 sm:flex sm:flex-wrap sm:justify-end">
                     {booking.status === "confirmed" && (
                       <button
                         type="button"
