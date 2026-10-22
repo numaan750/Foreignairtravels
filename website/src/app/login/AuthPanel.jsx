@@ -8,6 +8,7 @@ import {
   FiCheck,
   FiEye,
   FiEyeOff,
+  FiLoader,
   FiLock,
   FiMapPin,
   FiMail,
@@ -433,10 +434,19 @@ export default function AuthPanel() {
               </div>
 
               <button className={submitButton} type="submit" disabled={submitting}>
-                Sign in
-                <span aria-hidden="true" className="text-lg leading-none transition-transform group-hover:translate-x-1">
-                  →
-                </span>
+                {submitting ? (
+                  <>
+                    <FiLoader aria-hidden="true" className="animate-spin text-lg" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    Sign in
+                    <span aria-hidden="true" className="text-lg leading-none transition-transform group-hover:translate-x-1">
+                      →
+                    </span>
+                  </>
+                )}
               </button>
             </form>
           ) : (
@@ -527,10 +537,19 @@ export default function AuthPanel() {
               </CheckBox>
 
               <button className={submitButton} type="submit" disabled={submitting}>
-                Create account
-                <span aria-hidden="true" className="text-lg leading-none transition-transform group-hover:translate-x-1">
-                  →
-                </span>
+                {submitting ? (
+                  <>
+                    <FiLoader aria-hidden="true" className="animate-spin text-lg" />
+                    Creating account...
+                  </>
+                ) : (
+                  <>
+                    Create account
+                    <span aria-hidden="true" className="text-lg leading-none transition-transform group-hover:translate-x-1">
+                      →
+                    </span>
+                  </>
+                )}
               </button>
             </form>
           )}
