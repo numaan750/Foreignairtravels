@@ -28,7 +28,7 @@ export default function CustomersPage() {
       setCustomers(data.data);
       setError("");
     } else {
-      setError(data.message || "Customers load nahi ho sake.");
+      setError(data.message || "Unable to load customers.");
     }
     setLoading(false);
   }, [getCustomers]);
@@ -42,12 +42,12 @@ export default function CustomersPage() {
     <div>
       <PageHeader
         title="Customers"
-        description="Website par registered users."
+        description="Users registered on the website."
       />
 
       {loading ? (
         <div role="status" className="rounded-2xl bg-white p-6 text-sm text-[#003366]/60 shadow-sm">
-          Customers load ho rahe hain...
+          Loading customers...
         </div>
       ) : error ? (
         <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
@@ -56,8 +56,8 @@ export default function CustomersPage() {
       ) : customers.length === 0 ? (
         <EmptyState
           icon={FiUsers}
-          title="Abhi koi customer nahi"
-          text="Website par sign up karne wale users yahan dikhai denge."
+          title="No customers yet"
+          text="Users who sign up on the website will appear here."
         />
       ) : (
         <section aria-label={`${customers.length} registered customers`}>

@@ -25,7 +25,7 @@ export default function CountriesPage() {
             setCountries(data.data);
             setListError("");
         } else {
-            setListError(data.message || "Countries load nahi ho saki");
+            setListError(data.message || "Unable to load countries.");
         }
         setLoading(false);
     }, [getCountries]);
@@ -59,7 +59,7 @@ export default function CountriesPage() {
         setSaving(false);
 
         if (!ok) {
-            setFormError(data.message || "Save nahi ho saka");
+            setFormError(data.message || "Unable to save the country.");
             return;
         }
 
@@ -68,11 +68,11 @@ export default function CountriesPage() {
     };
 
     const handleDelete = async (item) => {
-        if (!window.confirm(`"${item.name}" delete karna hai?`)) return;
+        if (!window.confirm(`Are you sure you want to delete "${item.name}"?`)) return;
 
         const { ok, data } = await deleteCountry(item._id);
         if (!ok) {
-            alert(data.message || "Delete nahi ho saka");
+            alert(data.message || "Unable to delete the country.");
             return;
         }
         loadCountries();
@@ -81,7 +81,7 @@ export default function CountriesPage() {
     return (
         <div>
             <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
-                <PageHeader title="Countries" description="Website ke countries yahan manage honge." className="mb-0" />
+                <PageHeader title="Countries" description="Manage the countries displayed on the website." className="mb-0" />
                 <button
                     onClick={openCreate}
                     className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
@@ -95,7 +95,7 @@ export default function CountriesPage() {
             ) : listError ? (
                 <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{listError}</p>
             ) : countries.length === 0 ? (
-                <EmptyState icon={FiGlobe} title="Abhi koi country nahi" text="Upar Add country se pehla country banao." />
+                <EmptyState icon={FiGlobe} title="No countries yet" text="Select Add country above to add your first country." />
             ) : (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     {countries.map((item) => (

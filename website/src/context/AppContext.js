@@ -58,7 +58,7 @@ export function AppProvider({ children }) {
         return {
           ok: false,
           status: 0,
-          data: { message: "Server se connect nahi ho pa raha. Thori der baad try karein." },
+          data: { message: "Unable to connect to the server. Please try again shortly." },
         };
       }
     },
@@ -120,7 +120,7 @@ export function AppProvider({ children }) {
       }
 
       // code === "EMAIL_NOT_VERIFIED" ho to UI "dobara email bhejo" dikha sakti hai
-      return { ok: false, message: data.message || "Login fail ho gaya", code: data.code };
+      return { ok: false, message: data.message || "Login failed.", code: data.code };
     },
     [request]
   );
@@ -313,6 +313,6 @@ export function AppProvider({ children }) {
 
 export function useApp() {
   const context = useContext(AppContext);
-  if (!context) throw new Error("useApp ko AppProvider ke andar use karo");
+  if (!context) throw new Error("useApp must be used within an AppProvider.");
   return context;
 }

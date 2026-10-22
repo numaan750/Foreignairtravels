@@ -40,7 +40,7 @@ function ImageField({ label, value, uploading, onChange, previewClass }) {
 
                 <label className="flex min-h-20 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#003366]/20 px-4 py-4 text-center text-sm text-[#003366]/70 transition hover:border-[#FF6B35] hover:text-[#FF6B35]">
                     <FiUploadCloud className="shrink-0 text-lg" />
-                    {uploading ? "Uploading..." : value ? "Image badlo" : "Image select karo (max 4MB)"}
+                    {uploading ? "Uploading..." : value ? "Change image" : "Choose an image (max 4 MB)"}
                     <input
                         type="file"
                         accept="image/*"
@@ -79,7 +79,7 @@ export default function CountryForm({ initial, saving, error, onSubmit, onClose 
         e.target.value = "";
 
         if (!ok) {
-            setUploadError(data.message || "Image upload nahi ho saki");
+            setUploadError(data.message || "Image upload failed.");
             return;
         }
         setForm((prev) => ({ ...prev, [field]: data.url }));
@@ -88,7 +88,7 @@ export default function CountryForm({ initial, saving, error, onSubmit, onClose 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!form.flag || !form.bgImage) {
-            setUploadError("Flag aur background image dono upload karo");
+            setUploadError("Upload both the flag and background image.");
             return;
         }
         onSubmit({
@@ -108,12 +108,12 @@ export default function CountryForm({ initial, saving, error, onSubmit, onClose 
             >
                 <div className="mb-5 flex items-center justify-between">
                     <h2 className="text-lg font-semibold text-[#003366]">
-                        {initial ? "Country edit karo" : "Naya country"}
+                        {initial ? "Edit country" : "New country"}
                     </h2>
                     <button
                         type="button"
                         onClick={onClose}
-                        aria-label="Band karo"
+                        aria-label="Close"
                         className="cursor-pointer rounded-lg p-2 text-xl text-[#003366] transition hover:bg-[#EDEEE9]"
                     >
                         <FiX />
@@ -129,7 +129,7 @@ export default function CountryForm({ initial, saving, error, onSubmit, onClose 
                         <input name="cities" value={form.cities} onChange={setValue} required className={inputClass} placeholder="Jeddah · Riyadh · Madinah" />
                     </Field>
 
-                    <Field label="Note (neeche wali line)">
+                    <Field label="Note (displayed below)">
                         <input name="note" value={form.note} onChange={setValue} required className={inputClass} placeholder="Umrah, family and business travel" />
                     </Field>
 

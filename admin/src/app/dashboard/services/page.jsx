@@ -25,7 +25,7 @@ export default function ServicesPage() {
       setServices(data.data);
       setListError("");
     } else {
-      setListError(data.message || "Services load nahi ho saki");
+      setListError(data.message || "Unable to load services.");
     }
     setLoading(false);
   }, [getServices]);
@@ -59,7 +59,7 @@ export default function ServicesPage() {
     setSaving(false);
 
     if (!ok) {
-      setFormError(data.message || "Save nahi ho saka");
+      setFormError(data.message || "Unable to save the service.");
       return;
     }
 
@@ -68,11 +68,11 @@ export default function ServicesPage() {
   };
 
   const handleDelete = async (item) => {
-    if (!window.confirm(`"${item.title}" delete karna hai?`)) return;
+    if (!window.confirm(`Are you sure you want to delete "${item.title}"?`)) return;
 
     const { ok, data } = await deleteService(item._id);
     if (!ok) {
-      alert(data.message || "Delete nahi ho saka");
+      alert(data.message || "Unable to delete the service.");
       return;
     }
     loadServices();
@@ -81,7 +81,7 @@ export default function ServicesPage() {
   return (
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
-        <PageHeader title="Services" description="Website ki services yahan manage hongi." className="mb-0" />
+        <PageHeader title="Services" description="Manage the services displayed on the website." className="mb-0" />
         <button
           onClick={openCreate}
           className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
@@ -95,7 +95,7 @@ export default function ServicesPage() {
       ) : listError ? (
         <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{listError}</p>
       ) : services.length === 0 ? (
-        <EmptyState icon={FiLayers} title="Abhi koi service nahi" text="Upar Add service se pehli service banao." />
+        <EmptyState icon={FiLayers} title="No services yet" text="Select Add service above to create your first service." />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {services.map((item) => (

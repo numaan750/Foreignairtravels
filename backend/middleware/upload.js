@@ -7,7 +7,7 @@ const upload = multer({
   limits: { fileSize: MAX_SIZE },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) return cb(null, true);
-    cb(new Error('Sirf image file allowed hai'));
+    cb(new Error('Only image files are allowed.'));
   },
 });
 
@@ -17,7 +17,7 @@ export const uploadSingleImage = (req, res, next) => {
     if (!err) return next();
 
     const message =
-      err.code === 'LIMIT_FILE_SIZE' ? 'Image 4MB se chhoti honi chahiye' : err.message;
+      err.code === 'LIMIT_FILE_SIZE' ? 'Images must be smaller than 4 MB.' : err.message;
     res.status(400).json({ success: false, message });
   });
 };

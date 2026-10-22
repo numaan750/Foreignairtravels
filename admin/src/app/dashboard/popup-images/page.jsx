@@ -20,7 +20,7 @@ export default function PopupImagesPage() {
       setImages(data.data);
       setError("");
     } else {
-      setError(data.message || "Images load nahi ho saki");
+      setError(data.message || "Unable to load images.");
     }
     setLoading(false);
   }, [getPopupImages]);
@@ -41,7 +41,7 @@ export default function PopupImagesPage() {
 
     if (!upload.ok) {
       setUploading(false);
-      setError(upload.data.message || "Image upload nahi ho saki");
+      setError(upload.data.message || "Image upload failed.");
       return;
     }
 
@@ -49,18 +49,18 @@ export default function PopupImagesPage() {
     setUploading(false);
 
     if (!saved.ok) {
-      setError(saved.data.message || "Save nahi ho saka");
+      setError(saved.data.message || "Unable to save the image.");
       return;
     }
     loadImages();
   };
 
   const handleDelete = async (item) => {
-    if (!window.confirm("Ye image delete karni hai?")) return;
+    if (!window.confirm("Are you sure you want to delete this image?")) return;
 
     const { ok, data } = await deletePopupImage(item._id);
     if (!ok) {
-      alert(data.message || "Delete nahi ho saka");
+      alert(data.message || "Unable to delete the image.");
       return;
     }
     loadImages();
@@ -69,7 +69,7 @@ export default function PopupImagesPage() {
   return (
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
-        <PageHeader title="Popup Images" description="Login ke baad dashboard pe ye images popup mein dikhengi." className="mb-0" />
+        <PageHeader title="Popup Images" description="These images appear in a dashboard popup after login." className="mb-0" />
 
         <label
           className={`flex items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 ${
@@ -94,7 +94,7 @@ export default function PopupImagesPage() {
       {loading ? (
         <p className="text-sm text-[#003366]/60">Loading...</p>
       ) : images.length === 0 ? (
-        <EmptyState icon={FiImage} title="Abhi koi popup image nahi" text="Upar Add image se pehli image upload karo." />
+        <EmptyState icon={FiImage} title="No popup images yet" text="Select Add image above to upload your first image." />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {images.map((item, index) => (

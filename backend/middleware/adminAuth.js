@@ -5,7 +5,7 @@ export const protectAdmin = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ success: false, message: "Token nahi mila" });
+      return res.status(401).json({ success: false, message: "Authentication token is required." });
     }
 
     const token = authHeader.split(" ")[1];
@@ -22,6 +22,6 @@ export const protectAdmin = (req, res, next) => {
     req.admin = { email: decoded.email, role: decoded.role };
     next();
   } catch (error) {
-    res.status(401).json({ success: false, message: "Token invalid ya expire ho gaya" });
+    res.status(401).json({ success: false, message: "Authentication token is invalid or expired." });
   }
 };

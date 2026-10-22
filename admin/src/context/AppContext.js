@@ -56,7 +56,7 @@ export function AppProvider({ children }) {
         return {
           ok: false,
           status: 0,
-          data: { message: "Server se connect nahi ho pa raha. Backend chal raha hai?" },
+          data: { message: "Unable to connect to the server. Please try again shortly." },
         };
       }
     },
@@ -105,7 +105,7 @@ export function AppProvider({ children }) {
         setAdmin(data.admin);
         return { ok: true };
       }
-      return { ok: false, message: data.message || "Login fail ho gaya" };
+      return { ok: false, message: data.message || "Login failed." };
     },
     [request]
   );
@@ -229,6 +229,6 @@ export function AppProvider({ children }) {
 
 export function useApp() {
   const context = useContext(AppContext);
-  if (!context) throw new Error("useApp ko AppProvider ke andar use karo");
+  if (!context) throw new Error("useApp must be used within an AppProvider.");
   return context;
 }

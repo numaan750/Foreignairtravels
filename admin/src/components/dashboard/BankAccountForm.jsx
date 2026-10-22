@@ -50,7 +50,7 @@ export default function BankAccountForm({ initial, saving, error, onSubmit, onCl
     e.target.value = "";
 
     if (!ok) {
-      setUploadError(data.message || "Logo upload nahi ho saka");
+      setUploadError(data.message || "Logo upload failed.");
       return;
     }
     setForm((prev) => ({ ...prev, logo: data.url }));
@@ -59,7 +59,7 @@ export default function BankAccountForm({ initial, saving, error, onSubmit, onCl
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.logo) {
-      setUploadError("Pehle logo upload karo");
+      setUploadError("Upload a logo first.");
       return;
     }
     onSubmit({
@@ -81,12 +81,12 @@ export default function BankAccountForm({ initial, saving, error, onSubmit, onCl
       >
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-[#003366]">
-            {initial ? "Bank account edit karo" : "Naya bank account"}
+            {initial ? "Edit bank account" : "New bank account"}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Band karo"
+            aria-label="Close"
             className="cursor-pointer rounded-lg p-2 text-xl text-[#003366] transition hover:bg-[#EDEEE9]"
           >
             <FiX />
@@ -133,7 +133,7 @@ export default function BankAccountForm({ initial, saving, error, onSubmit, onCl
 
               <label className="flex min-h-20 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#003366]/20 px-4 py-4 text-center text-sm text-[#003366]/70 transition hover:border-[#FF6B35] hover:text-[#FF6B35]">
                 <FiUploadCloud className="shrink-0 text-lg" />
-                {uploading ? "Uploading..." : form.logo ? "Logo badlo" : "Logo select karo (max 4MB)"}
+                {uploading ? "Uploading..." : form.logo ? "Change logo" : "Choose a logo (max 4 MB)"}
                 <input
                   type="file"
                   accept="image/*"

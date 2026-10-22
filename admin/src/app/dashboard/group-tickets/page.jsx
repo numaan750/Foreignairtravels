@@ -41,9 +41,9 @@ export default function GroupTicketsPage() {
       getAirlines(),
     ]);
     if (categoryResult.ok) setCategories(categoryResult.data.data);
-    else setReferenceError(categoryResult.data.message || "Categories load nahi ho sakin");
+    else setReferenceError(categoryResult.data.message || "Unable to load categories.");
     if (airlineResult.ok) setAirlines(airlineResult.data.data);
-    else setReferenceError(airlineResult.data.message || "Airlines load nahi ho sakin");
+    else setReferenceError(airlineResult.data.message || "Unable to load airlines.");
   }, [getAirlines, getGroupTicketCategories]);
 
   const loadTickets = useCallback(async () => {
@@ -55,7 +55,7 @@ export default function GroupTicketsPage() {
           return ticketAirlineId === airlineFilter;
         })
         : data.data);
-    } else setListError(data.message || "Group tickets load nahi ho sake");
+    } else setListError(data.message || "Unable to load group tickets.");
     setLoading(false);
   }, [airlineFilter, categoryFilter, getGroupTickets]);
 
@@ -81,7 +81,7 @@ export default function GroupTicketsPage() {
       : await createGroupTicket(body);
     setSaving(false);
     if (!ok) {
-      setFormError(data.message || "Ticket save nahi ho saka");
+      setFormError(data.message || "Unable to save the ticket.");
       return;
     }
     setFormOpen(false);
@@ -89,10 +89,10 @@ export default function GroupTicketsPage() {
   };
 
   const handleDelete = async (ticket) => {
-    if (!window.confirm(`"${ticket.groupName}" group ticket delete karna hai?`)) return;
+    if (!window.confirm(`Are you sure you want to delete the "${ticket.groupName}" group ticket?`)) return;
     const { ok, data } = await deleteGroupTicket(ticket._id);
     if (!ok) {
-      window.alert(data.message || "Ticket delete nahi ho saka");
+      window.alert(data.message || "Unable to delete the ticket.");
       return;
     }
     await loadTickets();
@@ -101,12 +101,12 @@ export default function GroupTicketsPage() {
   return (
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
-        <PageHeader title="Group Tickets" description="Har ticket ko save karte waqt uski category select karein." className="mb-0" />
+        <PageHeader title="Group Tickets" description="Select a category when saving each ticket." className="mb-0" />
         <button onClick={() => openForm()} disabled={!categories.length || !airlines.length} className="flex items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"><FiPlus /> Add ticket</button>
       </div>
 
       {referenceError && <p role="alert" className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{referenceError}</p>}
-      {!referenceError && !airlines.length && <p className="mb-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">Pehle Airlines tab mein airline add karein, phir us airline ke group tickets bana sakenge.</p>}
+      {!referenceError && !airlines.length && <p className="mb-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">Add an airline in the Airlines tab before creating group tickets for it.</p>}
 
       <div className="mb-5 grid max-w-3xl gap-4 sm:grid-cols-2">
         <label className="block text-sm font-medium text-[#003366]">
@@ -150,7 +150,7 @@ export default function GroupTicketsPage() {
 
       {loading ? <p className="text-sm text-[#003366]/60">Loading...</p>
         : listError ? <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{listError}</p>
-          : tickets.length === 0 ? <EmptyState icon={LuPlane} title="Abhi koi group ticket nahi" text={categories.length ? "Add ticket se pehla group ticket banayein." : "Pehle Group Ticket Categories mein category banayein."} />
+          : tickets.length === 0 ? <EmptyState icon={LuPlane} title="No group tickets yet" text={categories.length ? "Select Add ticket to create your first group ticket." : "Add a category in Group Ticket Categories first."} />
             : <div className="grid grid-cols-1 gap-3">
               {tickets.map((ticket) => (
                 <article key={ticket._id} className="grid min-w-0 gap-3 rounded-xl bg-white p-3 shadow-sm sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1.5fr)_minmax(0,1fr)_auto] sm:items-center sm:gap-4">

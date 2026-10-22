@@ -140,7 +140,7 @@ export default function LoginForm() {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword((prev) => !prev)}
-                                    aria-label={showPassword ? "Password chhupao" : "Password dikhao"}
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
                                     className="absolute cursor-pointer right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-lg text-[#FF6B35] transition hover:text-[#e85a26]"
                                 >
                                     {showPassword ? <FiEyeOff /> : <FiEye />}
@@ -157,7 +157,7 @@ export default function LoginForm() {
                             {submitting ? (
                                 <>
                                     <FiLoader className="animate-spin text-lg" />
-                                    Login ho raha hai...
+                                    Signing in...
                                 </>
                             ) : (
                                 "Login"

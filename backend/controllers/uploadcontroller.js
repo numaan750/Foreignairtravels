@@ -3,7 +3,7 @@ import { v2 as cloudinary } from 'cloudinary';
 // POST /api/upload
 export const uploadImage = (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ success: false, message: 'Image select karo' });
+    return res.status(400).json({ success: false, message: 'Select an image.' });
   }
 
   // Config yahan hai kyunke dotenv imports ke baad load hota hai

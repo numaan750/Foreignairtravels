@@ -25,7 +25,7 @@ export default function AnnouncementsPage() {
             setItems(data.data);
             setListError("");
         } else {
-            setListError(data.message || "Announcements load nahi ho saki");
+            setListError(data.message || "Unable to load announcements.");
         }
         setLoading(false);
     }, [getAnnouncements]);
@@ -59,7 +59,7 @@ export default function AnnouncementsPage() {
         setSaving(false);
 
         if (!ok) {
-            setFormError(data.message || "Save nahi ho saka");
+            setFormError(data.message || "Unable to save the announcement.");
             return;
         }
 
@@ -68,11 +68,11 @@ export default function AnnouncementsPage() {
     };
 
     const handleDelete = async (item) => {
-        if (!window.confirm("Ye announcement delete karni hai?")) return;
+        if (!window.confirm("Are you sure you want to delete this announcement?")) return;
 
         const { ok, data } = await deleteAnnouncement(item._id);
         if (!ok) {
-            alert(data.message || "Delete nahi ho saka");
+            alert(data.message || "Unable to delete the announcement.");
             return;
         }
         loadItems();
@@ -81,7 +81,7 @@ export default function AnnouncementsPage() {
     return (
         <div>
             <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
-                <PageHeader title="Announcements" description="Website ki announcement bar yahan se manage hogi." className="mb-0" />
+                <PageHeader title="Announcements" description="Manage the announcement bar displayed on the website." className="mb-0" />
                 <button
                     onClick={openCreate}
                     className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
@@ -95,7 +95,7 @@ export default function AnnouncementsPage() {
             ) : listError ? (
                 <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{listError}</p>
             ) : items.length === 0 ? (
-                <EmptyState icon={FiBell} title="Abhi koi announcement nahi" text="Upar Add announcement se pehli announcement banao." />
+                <EmptyState icon={FiBell} title="No announcements yet" text="Select Add announcement above to create your first announcement." />
             ) : (
                 <div className="space-y-3">
                     {items.map((item) => {

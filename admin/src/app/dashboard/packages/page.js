@@ -25,7 +25,7 @@ export default function PackagesPage() {
       setPackages(data.data);
       setListError("");
     } else {
-      setListError(data.message || "Packages load nahi ho sake");
+      setListError(data.message || "Unable to load packages.");
     }
     setLoading(false);
   }, [getPackages]);
@@ -59,7 +59,7 @@ export default function PackagesPage() {
     setSaving(false);
 
     if (!ok) {
-      setFormError(data.message || "Save nahi ho saka");
+      setFormError(data.message || "Unable to save the package.");
       return;
     }
 
@@ -68,11 +68,11 @@ export default function PackagesPage() {
   };
 
   const handleDelete = async (pkg) => {
-    if (!window.confirm(`"${pkg.title}" delete karna hai?`)) return;
+    if (!window.confirm(`Are you sure you want to delete "${pkg.title}"?`)) return;
 
     const { ok, data } = await deletePackage(pkg._id);
     if (!ok) {
-      alert(data.message || "Delete nahi ho saka");
+      alert(data.message || "Unable to delete the package.");
       return;
     }
     loadPackages();
@@ -81,7 +81,7 @@ export default function PackagesPage() {
   return (
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
-        <PageHeader title="Packages" description="Travel packages yahan manage honge." className="mb-0" />
+        <PageHeader title="Packages" description="Manage travel packages." className="mb-0" />
         <button
           onClick={openCreate}
           className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
@@ -95,7 +95,7 @@ export default function PackagesPage() {
       ) : listError ? (
         <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{listError}</p>
       ) : packages.length === 0 ? (
-        <EmptyState icon={FiMap} title="Abhi koi package nahi" text="Upar Add package se pehla package banao." />
+        <EmptyState icon={FiMap} title="No packages yet" text="Select Add package above to create your first package." />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {packages.map((pkg) => (

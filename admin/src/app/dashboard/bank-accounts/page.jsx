@@ -25,7 +25,7 @@ export default function BankAccountsPage() {
       setAccounts(data.data);
       setListError("");
     } else {
-      setListError(data.message || "Bank accounts load nahi ho sake");
+      setListError(data.message || "Unable to load bank accounts.");
     }
     setLoading(false);
   }, [getBankAccounts]);
@@ -59,7 +59,7 @@ export default function BankAccountsPage() {
     setSaving(false);
 
     if (!ok) {
-      setFormError(data.message || "Save nahi ho saka");
+      setFormError(data.message || "Unable to save the bank account.");
       return;
     }
 
@@ -68,11 +68,11 @@ export default function BankAccountsPage() {
   };
 
   const handleDelete = async (item) => {
-    if (!window.confirm(`"${item.bankName}" delete karna hai?`)) return;
+    if (!window.confirm(`Are you sure you want to delete "${item.bankName}"?`)) return;
 
     const { ok, data } = await deleteBankAccount(item._id);
     if (!ok) {
-      alert(data.message || "Delete nahi ho saka");
+      alert(data.message || "Unable to delete the bank account.");
       return;
     }
     loadAccounts();
@@ -81,7 +81,7 @@ export default function BankAccountsPage() {
   return (
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
-        <PageHeader title="Bank Accounts" description="Payment receive karne wale accounts yahan manage honge." className="mb-0" />
+        <PageHeader title="Bank Accounts" description="Manage the accounts used to receive payments." className="mb-0" />
         <button
           onClick={openCreate}
           className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
@@ -95,7 +95,7 @@ export default function BankAccountsPage() {
       ) : listError ? (
         <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{listError}</p>
       ) : accounts.length === 0 ? (
-        <EmptyState icon={FiCreditCard} title="Abhi koi bank account nahi" text="Upar Add account se pehla account banao." />
+        <EmptyState icon={FiCreditCard} title="No bank accounts yet" text="Select Add account above to create your first bank account." />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {accounts.map((item) => (

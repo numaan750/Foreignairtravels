@@ -22,7 +22,7 @@ export default function GroupTicketCategoriesPage() {
     if (ok) {
       setCategories(data.data);
       setListError("");
-    } else setListError(data.message || "Categories load nahi ho sakin");
+    } else setListError(data.message || "Unable to load categories.");
     setLoading(false);
   }, [getGroupTicketCategories]);
 
@@ -44,7 +44,7 @@ export default function GroupTicketCategoriesPage() {
       : await createGroupTicketCategory(body);
     setSaving(false);
     if (!ok) {
-      setFormError(data.message || "Category save nahi ho saki");
+      setFormError(data.message || "Unable to save the category.");
       return;
     }
     setFormOpen(false);
@@ -52,10 +52,10 @@ export default function GroupTicketCategoriesPage() {
   };
 
   const handleDelete = async (category) => {
-    if (!window.confirm(`"${category.name}" category delete karni hai?`)) return;
+    if (!window.confirm(`Are you sure you want to delete the "${category.name}" category?`)) return;
     const { ok, data } = await deleteGroupTicketCategory(category._id);
     if (!ok) {
-      window.alert(data.message || "Category delete nahi ho saki");
+      window.alert(data.message || "Unable to delete the category.");
       return;
     }
     await loadCategories();
@@ -64,13 +64,13 @@ export default function GroupTicketCategoriesPage() {
   return (
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
-        <PageHeader title="Group Ticket Categories" description="Categories website ke Group Tickets menu mein dikhengi." className="mb-0" />
+        <PageHeader title="Group Ticket Categories" description="Categories appear in the Group Tickets menu on the website." className="mb-0" />
         <button onClick={() => openForm()} className="flex items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"><FiPlus /> Add category</button>
       </div>
 
       {loading ? <p className="text-sm text-[#003366]/60">Loading...</p>
         : listError ? <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{listError}</p>
-          : categories.length === 0 ? <EmptyState icon={FiLayers} title="Abhi koi category nahi" text="Add category se pehli group ticket category banayein." />
+          : categories.length === 0 ? <EmptyState icon={FiLayers} title="No categories yet" text="Select Add category to create your first group ticket category." />
             : <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
               <div className="divide-y divide-[#003366]/10">
                 {categories.map((category) => (

@@ -48,7 +48,7 @@ export default function PackageForm({ initial, saving, error, onSubmit, onClose 
     e.target.value = ""; // same file dobara select ho sake
 
     if (!ok) {
-      setUploadError(data.message || "Image upload nahi ho saki");
+      setUploadError(data.message || "Image upload failed.");
       return;
     }
     setForm((prev) => ({ ...prev, image: data.url }));
@@ -62,7 +62,7 @@ export default function PackageForm({ initial, saving, error, onSubmit, onClose 
     const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.image) {
-      setUploadError("Pehle image upload karo");
+      setUploadError("Upload an image first.");
       return;
     }
     onSubmit({
@@ -87,12 +87,12 @@ export default function PackageForm({ initial, saving, error, onSubmit, onClose 
       >
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-[#003366]">
-            {initial ? "Package edit karo" : "Naya package"}
+            {initial ? "Edit package" : "New package"}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Band karo"
+            aria-label="Close"
             className="cursor-pointer rounded-lg p-2 text-xl text-[#003366] transition hover:bg-[#EDEEE9]"
           >
             <FiX />
@@ -145,7 +145,7 @@ export default function PackageForm({ initial, saving, error, onSubmit, onClose 
 
               <label className="flex min-h-24 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#003366]/20 px-4 py-4 text-center text-sm text-[#003366]/70 transition hover:border-[#FF6B35] hover:text-[#FF6B35]">
                 <FiUploadCloud className="shrink-0 text-lg" />
-                {uploading ? "Uploading..." : form.image ? "Image badlo" : "Image select karo (max 4MB)"}
+                {uploading ? "Uploading..." : form.image ? "Change image" : "Choose an image (max 4 MB)"}
                 <input
                   type="file"
                   accept="image/*"
@@ -166,7 +166,7 @@ export default function PackageForm({ initial, saving, error, onSubmit, onClose 
             </label>
             {/* <label className="flex cursor-pointer items-center gap-2 text-sm text-[#003366]">
               <input type="checkbox" name="isActive" checked={form.isActive} onChange={setValue} className="h-4 w-4 accent-[#FF6B35]" />
-              Website pe show karo
+              Show on website
             </label> */}
           </div>
         </div>

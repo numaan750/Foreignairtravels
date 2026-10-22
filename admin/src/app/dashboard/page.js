@@ -37,7 +37,7 @@ export default function DashboardPage() {
 
       <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold text-[#003366]">Recent Activity</h2>
-        <p className="mt-2 text-sm text-[#003366]/60">Abhi koi activity nahi hai.</p>
+        <p className="mt-2 text-sm text-[#003366]/60">No activity yet.</p>
       </div>
     </div>
   );

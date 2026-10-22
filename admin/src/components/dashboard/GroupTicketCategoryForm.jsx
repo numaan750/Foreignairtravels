@@ -25,7 +25,7 @@ export default function GroupTicketCategoryForm({ initial, saving, error, onSubm
     setUploading(false);
     event.target.value = "";
     if (!ok) {
-      setUploadError(data.message || "Logo upload nahi ho saka");
+      setUploadError(data.message || "Logo upload failed.");
       return;
     }
     setForm((current) => ({ ...current, logo: data.url }));

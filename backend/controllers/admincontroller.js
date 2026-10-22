@@ -15,14 +15,14 @@ export const loginAdmin = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ success: false, message: "email aur password zaroori hain" });
+      return res.status(400).json({ success: false, message: "Email and password are required." });
     }
 
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_PASSWORD;
 
     if (!adminEmail || !adminPassword || !process.env.JWT_SECRET) {
-      return res.status(500).json({ success: false, message: "Server config incomplete hai (.env check karo)" });
+      return res.status(500).json({ success: false, message: "Server configuration is incomplete. Check the environment settings." });
     }
 
     const emailOk = safeEqual(email.trim().toLowerCase(), adminEmail.trim().toLowerCase());

@@ -46,7 +46,7 @@ export default function AirlineForm({ initial, saving, error, onSubmit, onClose 
         e.target.value = "";
 
         if (!ok) {
-            setUploadError(data.message || "Logo upload nahi ho saka");
+            setUploadError(data.message || "Logo upload failed.");
             return;
         }
         setForm((prev) => ({ ...prev, logo: data.url }));
@@ -55,7 +55,7 @@ export default function AirlineForm({ initial, saving, error, onSubmit, onClose 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!form.logo) {
-            setUploadError("Pehle logo upload karo");
+            setUploadError("Upload a logo first.");
             return;
         }
         onSubmit({
@@ -73,12 +73,12 @@ export default function AirlineForm({ initial, saving, error, onSubmit, onClose 
             >
                 <div className="mb-5 flex items-center justify-between">
                     <h2 className="text-lg font-semibold text-[#003366]">
-                        {initial ? "Airline edit karo" : "Nayi airline"}
+                        {initial ? "Edit airline" : "New airline"}
                     </h2>
                     <button
                         type="button"
                         onClick={onClose}
-                        aria-label="Band karo"
+                        aria-label="Close"
                         className="cursor-pointer rounded-lg p-2 text-xl text-[#003366] transition hover:bg-[#EDEEE9]"
                     >
                         <FiX />
@@ -109,7 +109,7 @@ export default function AirlineForm({ initial, saving, error, onSubmit, onClose 
 
                             <label className="flex min-h-24 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#003366]/20 px-4 py-4 text-center text-sm text-[#003366]/70 transition hover:border-[#FF6B35] hover:text-[#FF6B35]">
                                 <FiUploadCloud className="shrink-0 text-lg" />
-                                {uploading ? "Uploading..." : form.logo ? "Logo badlo" : "Logo select karo (max 4MB)"}
+                                {uploading ? "Uploading..." : form.logo ? "Change logo" : "Choose a logo (max 4 MB)"}
                                 <input
                                     type="file"
                                     accept="image/*"

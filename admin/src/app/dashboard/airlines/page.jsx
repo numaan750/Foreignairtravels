@@ -25,7 +25,7 @@ export default function AirlinesPage() {
             setAirlines(data.data);
             setListError("");
         } else {
-            setListError(data.message || "Airlines load nahi ho saki");
+            setListError(data.message || "Unable to load airlines.");
         }
         setLoading(false);
     }, [getAirlines]);
@@ -59,7 +59,7 @@ export default function AirlinesPage() {
         setSaving(false);
 
         if (!ok) {
-            setFormError(data.message || "Save nahi ho saka");
+            setFormError(data.message || "Unable to save the airline.");
             return;
         }
 
@@ -68,11 +68,11 @@ export default function AirlinesPage() {
     };
 
     const handleDelete = async (item) => {
-        if (!window.confirm(`"${item.name}" delete karni hai?`)) return;
+        if (!window.confirm(`Are you sure you want to delete "${item.name}"?`)) return;
 
         const { ok, data } = await deleteAirline(item._id);
         if (!ok) {
-            alert(data.message || "Delete nahi ho saka");
+            alert(data.message || "Unable to delete the airline.");
             return;
         }
         loadAirlines();
@@ -81,7 +81,7 @@ export default function AirlinesPage() {
     return (
         <div>
             <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
-                <PageHeader title="Airlines" description="Partner airlines yahan manage hongi." className="mb-0" />
+                <PageHeader title="Airlines" description="Manage partner airlines." className="mb-0" />
                 <button
                     onClick={openCreate}
                     className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
@@ -95,7 +95,7 @@ export default function AirlinesPage() {
             ) : listError ? (
                 <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{listError}</p>
             ) : airlines.length === 0 ? (
-                <EmptyState icon={FiSend} title="Abhi koi airline nahi" text="Upar Add airline se pehli airline banao." />
+                <EmptyState icon={FiSend} title="No airlines yet" text="Select Add airline above to create your first airline." />
             ) : (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     {airlines.map((item) => (

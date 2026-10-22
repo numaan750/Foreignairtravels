@@ -47,7 +47,7 @@ export default function Sidebar({ open, onClose }) {
 
           <button
             onClick={onClose}
-            aria-label="Menu band karo"
+            aria-label="Close menu"
             className="cursor-pointer rounded-lg p-2 text-xl text-[#EDEEE9]/80 transition hover:bg-white/10 hover:text-white lg:hidden"
           >
             <FiX />
