@@ -34,7 +34,7 @@ const toCard = (item, index) => ({
   label: item.tagline,
   text: item.description,
   image: item.image,
-  href: '/contact',
+  href: '/#contact',
   layout: layouts[index % layouts.length],
 })
 

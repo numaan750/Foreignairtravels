@@ -95,6 +95,7 @@ const CountryCoverage = () => {
 
   return (
     <section
+      id="destinations"
       aria-labelledby="countries-title"
       className="relative isolate overflow-hidden bg-[#003366] py-[64px] text-white sm:py-[80px] lg:py-[112px]"
     >
