@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { FiCalendar, FiClock, FiMapPin, FiShoppingCart } from 'react-icons/fi'
+import { FiCalendar, FiClock, FiShoppingCart } from 'react-icons/fi'
+import { FaPlaneArrival, FaPlaneDeparture } from 'react-icons/fa'
 import { useApp } from '@/context/AppContext'
 import GroupTicketBookingModal from './GroupTicketBookingModal'
 
@@ -65,19 +66,19 @@ function TicketGroupCard({ tickets, dashboardMode, selectedTicketId, onBook }) {
 
   return (
     <article className={`overflow-hidden rounded-2xl border bg-white shadow-[0_8px_24px_rgba(0,51,102,0.06)] ${tickets.some((ticket) => ticket._id === selectedTicketId) ? 'border-[#FF6B35] ring-2 ring-[#FF6B35]/15' : 'border-slate-200'}`}>
-      <div className="relative flex min-w-0 flex-wrap items-center justify-center gap-x-5 gap-y-2 border-b border-slate-100 px-4 py-2.5 sm:px-5">
-        <div className="flex min-w-0 items-center justify-center gap-2.5">
+      <div className="grid min-w-0 grid-cols-[1fr_auto_1fr] items-center border-b border-slate-100 px-3 py-2.5 sm:px-5">
+        <div className="col-start-2 flex min-w-0 items-center justify-center gap-2.5">
           {airlineLogo
-            ? <img src={airlineLogo} alt="" className="size-11 shrink-0 rounded-lg border border-slate-100 object-contain p-1.5" />
-            : <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-[#003366]/5 text-sm font-bold text-[#003366]">{airlineName?.slice(0, 2).toUpperCase()}</span>}
-          <p className="truncate text-sm font-semibold text-[#003366] sm:text-base">{airlineName}</p>
-        </div>
-        <div className="flex min-w-0 items-center gap-2 sm:absolute sm:right-5">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#FF6B35]">{firstTicket.category?.name}</span>
-          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-medium text-slate-600">
-            {tickets.length} {tickets.length === 1 ? 'ticket' : 'tickets'}
+            ? <img src={airlineLogo} alt="" className="size-14 shrink-0 object-contain" />
+            : <span className="flex size-14 shrink-0 items-center justify-center text-sm font-bold text-[#003366]">{airlineName?.slice(0, 2).toUpperCase()}</span>}
+          <p className="truncate text-sm font-semibold leading-5 text-[#003366] sm:text-base">{airlineName}</p>
+          <span className="shrink-0 whitespace-nowrap text-center text-xs font-semibold uppercase leading-5 tracking-[0.1em] text-[#FF6B35]">
+          {firstTicket.category?.name}
           </span>
         </div>
+        <span className="col-start-3 justify-self-end whitespace-nowrap rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+          {tickets.length} {tickets.length === 1 ? 'ticket' : 'tickets'}
+        </span>
       </div>
 
       {tickets.map((ticket, ticketIndex) => {
@@ -86,48 +87,54 @@ function TicketGroupCard({ tickets, dashboardMode, selectedTicketId, onBook }) {
           <div key={ticket._id} className={ticketIndex > 0 ? 'border-t border-slate-200' : ''}>
             <div className={`flex min-w-0 flex-wrap items-center justify-between gap-x-5 gap-y-1 px-4 ${dashboardMode ? 'py-3 sm:py-4' : 'py-2.5'} sm:px-5`}>
               <div className="flex min-w-0 items-center gap-2">
-                <p className="truncate text-[13px] font-semibold text-[#003366]">{ticket.groupName}</p>
+                <FaPlaneDeparture aria-hidden="true" className="shrink-0 text-[#FF6B35]" />
+                <p className="break-words text-sm font-semibold leading-5 text-[#003366]">{ticket.groupName}</p>
                 {selected && <span className="shrink-0 rounded-full bg-[#FF6B35]/10 px-2.5 py-1 text-[10px] font-semibold text-[#FF6B35]">Selected ticket</span>}
               </div>
-              <p className="flex items-center gap-1 text-[11px] text-slate-500"><FiCalendar aria-hidden="true" />{formatDate(ticket.departureDate)}</p>
+              <p className="flex items-center gap-1 text-xs text-slate-500"><FiCalendar aria-hidden="true" />{formatDate(ticket.departureDate)}</p>
             </div>
 
             <div className="grid min-w-0 grid-cols-2 divide-x divide-y divide-slate-100 border-t border-slate-100 md:grid-cols-4 md:divide-y-0 xl:grid-cols-[1.35fr_1fr_1fr_1.15fr_auto]">
               <div className={`min-w-0 ${detailsPadding}`}>
-                <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-500">Flight</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Flight</p>
                 <div className={`mt-1 ${dashboardMode ? 'space-y-2' : 'space-y-1'}`}>
                   {ticket.segments.map((segment, index) => (
-                    <div key={`${segment.flightNumber}-${index}`} className="min-w-0 text-[11px] leading-4 text-[#003366]">
-                      <p className="flex min-w-0 items-center gap-1 font-medium"><FiMapPin aria-hidden="true" className="shrink-0 text-[#FF6B35]" /><span className="truncate">{segment.from} → {segment.to}</span></p>
-                      <p className="truncate pl-4 text-[10px] text-slate-500">{segment.flightNumber}</p>
+                    <div key={`${segment.flightNumber}-${index}`} className="min-w-0 text-xs leading-5 text-[#003366]">
+                      <p className="flex min-w-0 flex-wrap items-center gap-1 font-medium">
+                        <FaPlaneDeparture aria-hidden="true" className="shrink-0 text-[#FF6B35]" />
+                        <span className="break-words">{segment.from}</span>
+                        <FaPlaneArrival aria-hidden="true" className="shrink-0 text-[#FF6B35]" />
+                        <span className="break-words">{segment.to}</span>
+                      </p>
+                      <p className="break-words pl-4 text-[11px] text-slate-500">{segment.flightNumber}</p>
                     </div>
                   ))}
                 </div>
               </div>
               <div className={`min-w-0 ${detailsPadding}`}>
-                <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-500">Time</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Time</p>
                 <div className={`mt-1 ${dashboardMode ? 'space-y-2' : 'space-y-1'}`}>
                   {ticket.segments.map((segment, index) => (
-                    <p key={`${segment.flightNumber}-time-${index}`} className="flex min-w-0 items-center gap-1 text-[11px] text-[#003366]">
+                    <p key={`${segment.flightNumber}-time-${index}`} className="flex min-w-0 items-start gap-1 text-xs leading-5 text-[#003366]">
                       <FiClock aria-hidden="true" className="shrink-0 text-[#FF6B35]" />
-                      <span className="truncate">{segment.departureTime || 'TBA'}{segment.arrivalTime ? ` – ${segment.arrivalTime}` : ''}</span>
+                      <span className="break-words">{segment.departureTime || 'TBA'}{segment.arrivalTime ? ` – ${segment.arrivalTime}` : ''}</span>
                     </p>
                   ))}
                 </div>
               </div>
               <div className={`min-w-0 ${detailsPadding}`}>
-                <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-500">Baggage & meal</p>
-                <p className="mt-1 truncate text-[11px] font-medium text-[#003366]">{ticket.baggage}</p>
-                <p className={`mt-0.5 text-[11px] font-medium ${ticket.mealAvailable ? 'text-emerald-600' : 'text-slate-500'}`}>Meal {ticket.mealAvailable ? 'yes' : 'no'}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Baggage & meal</p>
+                <p className="mt-1 break-words text-xs font-medium leading-5 text-[#003366]">{ticket.baggage}</p>
+                <p className={`mt-0.5 text-xs font-medium ${ticket.mealAvailable ? 'text-emerald-600' : 'text-slate-500'}`}>Meal {ticket.mealAvailable ? 'yes' : 'no'}</p>
               </div>
               <div className={`min-w-0 ${detailsPadding}`}>
-                <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-500">Fare</p>
-                <p className="mt-1 truncate text-[11px] font-semibold text-[#003366]">Adult · {fare(ticket.currency, ticket.adultFare)}</p>
-                <p className="truncate text-[10px] text-slate-500">Child · {fare(ticket.currency, ticket.childFare)}</p>
-                <p className="truncate text-[10px] text-slate-500">Infant · {ticket.infantPriceOnCall ? 'Price on call' : fare(ticket.currency, ticket.infantFare)}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Fare</p>
+                <p className="mt-1 break-words text-xs font-semibold leading-5 text-[#003366]">Adult · {fare(ticket.currency, ticket.adultFare)}</p>
+                <p className="break-words text-[11px] leading-5 text-slate-500">Child · {fare(ticket.currency, ticket.childFare)}</p>
+                <p className="break-words text-[11px] leading-5 text-slate-500">Infant · {ticket.infantPriceOnCall ? 'Price on call' : fare(ticket.currency, ticket.infantFare)}</p>
               </div>
               <div className={`col-span-2 flex items-center px-4 md:col-span-4 xl:col-span-1 sm:px-5 ${dashboardMode ? 'py-3 sm:py-4' : 'py-2.5'}`}>
-                <button type="button" onClick={() => onBook(ticket)} className="inline-flex min-h-9 w-full cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[#FF6B35] px-4 text-xs font-semibold text-white transition hover:bg-[#003366] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]">
+                <button type="button" onClick={() => onBook(ticket)} className="inline-flex min-h-9 w-full cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[#FF6B35] px-4 text-sm font-semibold text-white transition hover:bg-[#003366] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]">
                   <FiShoppingCart aria-hidden="true" />{dashboardMode ? 'Contact to book' : 'Book Now'}
                 </button>
               </div>
