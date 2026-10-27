@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { FiX } from 'react-icons/fi'
-import { useApp } from '@/context/AppContext'
+import { DASHBOARD_POPUP_SESSION_KEY, useApp } from '@/context/AppContext'
 
 const SLIDE_MS = 3000
 
@@ -12,14 +12,19 @@ export default function WelcomePopup() {
     const [images, setImages] = useState([])
     const [open, setOpen] = useState(false)
     const [current, setCurrent] = useState(0)
+    const didCheckSession = useRef(false)
 
     const close = () => setOpen(false)
 
     // Images load karo, hon to popup kholo
     useEffect(() => {
+        if (didCheckSession.current || sessionStorage.getItem(DASHBOARD_POPUP_SESSION_KEY)) return
+        didCheckSession.current = true
+
         const load = async () => {
             const { ok, data } = await getPopupImages()
             if (ok && data.data.length > 0) {
+                sessionStorage.setItem(DASHBOARD_POPUP_SESSION_KEY, 'true')
                 setImages(data.data)
                 setOpen(true)
             }

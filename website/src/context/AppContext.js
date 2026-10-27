@@ -16,6 +16,7 @@ const API_URL = (
   "http://localhost:5000"
 ).replace(/\/$/, "");
 const TOKEN_KEY = "userToken";
+export const DASHBOARD_POPUP_SESSION_KEY = "dashboardWelcomePopupShown";
 
 const AppContext = createContext(null);
 
@@ -30,6 +31,7 @@ export function AppProvider({ children }) {
   const clearSession = useCallback(() => {
     tokenRef.current = null;
     localStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(DASHBOARD_POPUP_SESSION_KEY);
     setUser(null);
   }, []);
 
