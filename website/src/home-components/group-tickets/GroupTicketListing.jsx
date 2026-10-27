@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FiCalendar, FiClock, FiShoppingCart } from 'react-icons/fi'
-import { FaPlaneArrival, FaPlaneDeparture } from 'react-icons/fa'
+import { FaPlane, FaPlaneArrival, FaPlaneDeparture, FaSuitcase, FaUtensils } from 'react-icons/fa'
 import { useApp } from '@/context/AppContext'
 import GroupTicketBookingModal from './GroupTicketBookingModal'
 
@@ -58,46 +58,63 @@ function FilterSelect({ value, onChange, label, children }) {
   )
 }
 
-function TicketGroupCard({ tickets, dashboardMode, selectedTicketId, onBook }) {
+function TicketGroupCard({ tickets, selectedTicketId, onBook }) {
   const firstTicket = tickets[0]
   const airlineName = firstTicket.airlineId?.name || firstTicket.airline
   const airlineLogo = firstTicket.airlineId?.logo || firstTicket.airlineLogo
-  const detailsPadding = dashboardMode ? 'px-4 py-4 sm:px-5 sm:py-5' : 'px-4 py-2.5 sm:px-5'
+  const columnLayout = 'xl:grid-cols-[minmax(120px,1.05fr)_minmax(170px,1.35fr)_minmax(120px,1fr)_minmax(80px,0.7fr)_minmax(75px,0.65fr)_minmax(155px,1.1fr)_minmax(120px,0.85fr)]'
 
   return (
     <article className={`overflow-hidden rounded-2xl border bg-white shadow-[0_8px_24px_rgba(0,51,102,0.06)] ${tickets.some((ticket) => ticket._id === selectedTicketId) ? 'border-[#FF6B35] ring-2 ring-[#FF6B35]/15' : 'border-slate-200'}`}>
-      <div className="grid min-w-0 grid-cols-[1fr_auto_1fr] items-center border-b border-slate-100 px-3 py-2.5 sm:px-5">
-        <div className="col-start-2 flex min-w-0 items-center justify-center gap-2.5">
+      <div className="grid min-w-0 grid-cols-1 items-center gap-2 border-b border-slate-100 px-4 py-4 sm:grid-cols-[1fr_auto_1fr] sm:gap-5 sm:px-6 sm:py-5">
+        <div className="mx-auto flex w-fit max-w-full min-w-0 items-center justify-center gap-2 sm:col-start-2 sm:row-start-1 sm:gap-5">
+          <div className="flex h-14 w-20 shrink-0 items-center justify-center sm:h-16 sm:w-32">
           {airlineLogo
-            ? <img src={airlineLogo} alt="" className="size-14 shrink-0 object-contain" />
-            : <span className="flex size-14 shrink-0 items-center justify-center text-sm font-bold text-[#003366]">{airlineName?.slice(0, 2).toUpperCase()}</span>}
-          <p className="truncate text-sm font-semibold leading-5 text-[#003366] sm:text-base">{airlineName}</p>
-          <span className="shrink-0 whitespace-nowrap text-center text-xs font-semibold uppercase leading-5 tracking-[0.1em] text-[#FF6B35]">
-          {firstTicket.category?.name}
+            ? <img src={airlineLogo} alt={`${airlineName} logo`} className="max-h-full max-w-full object-contain" />
+            : <span className="text-lg font-bold text-[#003366]">{airlineName?.slice(0, 2).toUpperCase()}</span>}
+          </div>
+          <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#003366]/5 text-[#003366] sm:size-11">
+            <FaPlane className="size-5 -rotate-45 sm:size-6" />
           </span>
+          <div className="min-w-0">
+            <p className="whitespace-normal break-words text-sm font-semibold leading-5 text-[#003366] sm:text-lg">{airlineName}</p>
+            <p className="mt-1 whitespace-normal break-words text-[11px] font-semibold uppercase leading-4 tracking-[0.12em] text-[#FF6B35] sm:text-xs">
+              {firstTicket.category?.name}
+            </p>
+          </div>
         </div>
-        <span className="col-start-3 justify-self-end whitespace-nowrap rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+        <span className="mx-auto whitespace-nowrap rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 sm:col-start-3 sm:row-start-1 sm:mx-0 sm:justify-self-end">
           {tickets.length} {tickets.length === 1 ? 'ticket' : 'tickets'}
         </span>
+      </div>
+
+      <div className={`hidden min-w-0 grid-cols-7 items-center gap-0 bg-gradient-to-r from-[#124f7c] to-[#2097dc] py-3 text-center text-xs font-semibold uppercase tracking-[0.08em] text-white ${columnLayout} xl:grid`}>
+        <span className="flex items-center justify-center gap-2"><FiCalendar aria-hidden="true" />Date</span>
+        <span className="flex items-center justify-center gap-2"><FaPlane aria-hidden="true" />Flight</span>
+        <span className="flex items-center justify-center gap-2"><FiClock aria-hidden="true" />Time</span>
+        <span className="flex items-center justify-center gap-2"><FaSuitcase aria-hidden="true" />Bag</span>
+        <span className="flex items-center justify-center gap-2"><FaUtensils aria-hidden="true" />Meal</span>
+        <span>Fare</span>
+        <span aria-label="Booking action" className="flex w-full items-center justify-center"><FiShoppingCart aria-hidden="true" /></span>
       </div>
 
       {tickets.map((ticket, ticketIndex) => {
         const selected = ticket._id === selectedTicketId
         return (
           <div key={ticket._id} className={ticketIndex > 0 ? 'border-t border-slate-200' : ''}>
-            <div className={`flex min-w-0 flex-wrap items-center justify-between gap-x-5 gap-y-1 px-4 ${dashboardMode ? 'py-3 sm:py-4' : 'py-2.5'} sm:px-5`}>
-              <div className="flex min-w-0 items-center gap-2">
-                <FaPlaneDeparture aria-hidden="true" className="shrink-0 text-[#FF6B35]" />
-                <p className="break-words text-sm font-semibold leading-5 text-[#003366]">{ticket.groupName}</p>
-                {selected && <span className="shrink-0 rounded-full bg-[#FF6B35]/10 px-2.5 py-1 text-[10px] font-semibold text-[#FF6B35]">Selected ticket</span>}
+            <div className={`grid min-w-0 grid-cols-2 divide-x divide-y divide-slate-100 ${columnLayout} xl:divide-y-0`}>
+              <div className="min-w-0 px-4 py-3 sm:px-5">
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 xl:hidden">Date</p>
+                <p className="flex items-center gap-1.5 text-sm font-medium text-[#003366]">
+                  <FiCalendar aria-hidden="true" className="shrink-0 text-[#159fe3]" />
+                  <span>{formatDate(ticket.departureDate)}</span>
+                </p>
+                <p className="mt-1 break-words text-[11px] leading-4 text-slate-500">{ticket.groupName}</p>
+                {selected && <span className="mt-1 inline-block rounded-full bg-[#FF6B35]/10 px-2 py-0.5 text-[10px] font-semibold text-[#FF6B35]">Selected ticket</span>}
               </div>
-              <p className="flex items-center gap-1 text-xs text-slate-500"><FiCalendar aria-hidden="true" />{formatDate(ticket.departureDate)}</p>
-            </div>
-
-            <div className="grid min-w-0 grid-cols-2 divide-x divide-y divide-slate-100 border-t border-slate-100 md:grid-cols-4 md:divide-y-0 xl:grid-cols-[1.35fr_1fr_1fr_1.15fr_auto]">
-              <div className={`min-w-0 ${detailsPadding}`}>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Flight</p>
-                <div className={`mt-1 ${dashboardMode ? 'space-y-2' : 'space-y-1'}`}>
+              <div className="min-w-0 px-4 py-3 sm:px-5">
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 xl:hidden">Flight</p>
+                <div className="space-y-1">
                   {ticket.segments.map((segment, index) => (
                     <div key={`${segment.flightNumber}-${index}`} className="min-w-0 text-xs leading-5 text-[#003366]">
                       <p className="flex min-w-0 flex-wrap items-center gap-1 font-medium">
@@ -111,31 +128,34 @@ function TicketGroupCard({ tickets, dashboardMode, selectedTicketId, onBook }) {
                   ))}
                 </div>
               </div>
-              <div className={`min-w-0 ${detailsPadding}`}>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Time</p>
-                <div className={`mt-1 ${dashboardMode ? 'space-y-2' : 'space-y-1'}`}>
+              <div className="min-w-0 px-4 py-3 sm:px-5">
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 xl:hidden">Time</p>
+                <div className="space-y-1">
                   {ticket.segments.map((segment, index) => (
                     <p key={`${segment.flightNumber}-time-${index}`} className="flex min-w-0 items-start gap-1 text-xs leading-5 text-[#003366]">
-                      <FiClock aria-hidden="true" className="shrink-0 text-[#FF6B35]" />
+                      <FiClock aria-hidden="true" className="shrink-0 text-[#159fe3]" />
                       <span className="break-words">{segment.departureTime || 'TBA'}{segment.arrivalTime ? ` – ${segment.arrivalTime}` : ''}</span>
                     </p>
                   ))}
                 </div>
               </div>
-              <div className={`min-w-0 ${detailsPadding}`}>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Baggage & meal</p>
-                <p className="mt-1 break-words text-xs font-medium leading-5 text-[#003366]">{ticket.baggage}</p>
-                <p className={`mt-0.5 text-xs font-medium ${ticket.mealAvailable ? 'text-emerald-600' : 'text-slate-500'}`}>Meal {ticket.mealAvailable ? 'yes' : 'no'}</p>
+              <div className="min-w-0 px-4 py-3 sm:px-5">
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 xl:hidden">Bag</p>
+                <p className="break-words text-xs font-medium leading-5 text-[#003366]">{ticket.baggage}</p>
               </div>
-              <div className={`min-w-0 ${detailsPadding}`}>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">Fare</p>
-                <p className="mt-1 break-words text-xs font-semibold leading-5 text-[#003366]">Adult · {fare(ticket.currency, ticket.adultFare)}</p>
+              <div className="min-w-0 px-4 py-3 sm:px-5">
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 xl:hidden">Meal</p>
+                <p className={`text-xs font-semibold ${ticket.mealAvailable ? 'text-emerald-600' : 'text-red-600'}`}>{ticket.mealAvailable ? 'Yes' : 'No'}</p>
+              </div>
+              <div className="min-w-0 px-4 py-3 sm:px-5">
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 xl:hidden">Fare</p>
+                <p className="break-words text-xs font-semibold leading-5 text-emerald-700">Adult · {fare(ticket.currency, ticket.adultFare)}</p>
                 <p className="break-words text-[11px] leading-5 text-slate-500">Child · {fare(ticket.currency, ticket.childFare)}</p>
                 <p className="break-words text-[11px] leading-5 text-slate-500">Infant · {ticket.infantPriceOnCall ? 'Price on call' : fare(ticket.currency, ticket.infantFare)}</p>
               </div>
-              <div className={`col-span-2 flex items-center px-4 md:col-span-4 xl:col-span-1 sm:px-5 ${dashboardMode ? 'py-3 sm:py-4' : 'py-2.5'}`}>
-                <button type="button" onClick={() => onBook(ticket)} className="inline-flex min-h-9 w-full cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[#FF6B35] px-4 text-sm font-semibold text-white transition hover:bg-[#003366] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]">
-                  <FiShoppingCart aria-hidden="true" />{dashboardMode ? 'Book Now' : 'Book Now'}
+              <div className="col-span-2 flex min-w-0 items-center px-2 py-3 sm:px-3 xl:col-span-1">
+                <button type="button" onClick={() => onBook(ticket)} className="inline-flex min-h-9 w-full min-w-0 cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-full bg-[#FF6B35] px-2 text-xs font-semibold text-white transition hover:bg-[#003366] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35] sm:text-sm">
+                  <FiShoppingCart aria-hidden="true" />Book Now
                 </button>
               </div>
             </div>
@@ -146,7 +166,7 @@ function TicketGroupCard({ tickets, dashboardMode, selectedTicketId, onBook }) {
   )
 }
 
-export default function GroupTicketListing({ slug = '', dashboardMode = false }) {
+export default function GroupTicketListing({ slug = '', dashboardMode = false, previewMode = false }) {
   const { getGroupTickets, getGroupTicketCategories, getAirlines, user } = useApp()
   const router = useRouter()
   const [categories, setCategories] = useState([])
@@ -239,9 +259,10 @@ export default function GroupTicketListing({ slug = '', dashboardMode = false })
     }
     return true
   })
-  const displayedTickets = selectedTicketId
+  const filteredTickets = selectedTicketId
     ? [...dateAndTimeFilteredTickets].sort((first, second) => Number(second._id === selectedTicketId) - Number(first._id === selectedTicketId))
     : dateAndTimeFilteredTickets
+  const displayedTickets = previewMode ? filteredTickets.slice(0, 3) : filteredTickets
   const ticketGroups = displayedTickets.reduce((groups, ticket) => {
     const key = getTicketGroupKey(ticket)
     const existingGroup = groups.find((group) => group.key === key)
@@ -262,7 +283,7 @@ export default function GroupTicketListing({ slug = '', dashboardMode = false })
           </p>
         </header>}
 
-        <div className={`${dashboardMode ? 'mb-6' : 'mt-7 mb-6'} grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4`}>
+        {!previewMode && <div className={`${dashboardMode ? 'mb-6' : 'mt-7 mb-6'} grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4`}>
           <FilterSelect
             label="Filter by category"
             value={categoryFilter}
@@ -311,7 +332,7 @@ export default function GroupTicketListing({ slug = '', dashboardMode = false })
               className={filterControlClass}
             />
           </FilterField>
-        </div>
+        </div>}
 
         <section aria-label="Group ticket listings" className={`${dashboardMode ? 'mt-0' : 'mt-6'} space-y-3`}>
           {loading ? <p className="rounded-2xl bg-white p-6 text-sm text-slate-600">Loading group tickets...</p>
@@ -321,7 +342,6 @@ export default function GroupTicketListing({ slug = '', dashboardMode = false })
                   <TicketGroupCard
                     key={group.key}
                     tickets={group.tickets}
-                    dashboardMode={dashboardMode}
                     selectedTicketId={selectedTicketId}
                     onBook={handleBook}
                   />
