@@ -135,7 +135,7 @@ function TicketGroupCard({ tickets, dashboardMode, selectedTicketId, onBook }) {
               </div>
               <div className={`col-span-2 flex items-center px-4 md:col-span-4 xl:col-span-1 sm:px-5 ${dashboardMode ? 'py-3 sm:py-4' : 'py-2.5'}`}>
                 <button type="button" onClick={() => onBook(ticket)} className="inline-flex min-h-9 w-full cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[#FF6B35] px-4 text-sm font-semibold text-white transition hover:bg-[#003366] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35]">
-                  <FiShoppingCart aria-hidden="true" />{dashboardMode ? 'Contact to book' : 'Book Now'}
+                  <FiShoppingCart aria-hidden="true" />{dashboardMode ? 'Book Now' : 'Book Now'}
                 </button>
               </div>
             </div>
