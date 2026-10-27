@@ -26,6 +26,10 @@ const emptyPassenger = (type) => ({
 const inputClass =
   'h-11 w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3 text-sm text-[#153750] outline-none transition placeholder:text-slate-400 focus:border-[#FF6B35] focus:ring-4 focus:ring-[#FF6B35]/10'
 
+const countryCodes = 'AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW'.split(' ')
+const regionNames = new Intl.DisplayNames(['en'], { type: 'region' })
+const countryNames = [...new Set(countryCodes.map((code) => regionNames.of(code)))].sort((first, second) => first.localeCompare(second))
+
 function Field({ label, children, className = '' }) {
   return (
     <label className={`block min-w-0 text-xs font-semibold text-[#1f3c54] ${className}`}>
@@ -207,7 +211,7 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
                         <Field label="Passport number"><input className={inputClass} value={passenger.passportNumber} onChange={(event) => updatePassenger(index, 'passportNumber', event.target.value)} autoComplete="off" required /></Field>
                         <Field label="Date of birth"><input type="date" className={inputClass} value={passenger.dateOfBirth} onChange={(event) => updatePassenger(index, 'dateOfBirth', event.target.value)} required /></Field>
                         <Field label="Passport expiry"><input type="date" className={inputClass} value={passenger.passportExpiry} onChange={(event) => updatePassenger(index, 'passportExpiry', event.target.value)} required /></Field>
-                        <Field label="Nationality"><input className={inputClass} value={passenger.nationality} onChange={(event) => updatePassenger(index, 'nationality', event.target.value)} autoComplete="country-name" required /></Field>
+                        <Field label="Nationality"><input className={inputClass} list="nationality-country-options" value={passenger.nationality} onChange={(event) => updatePassenger(index, 'nationality', event.target.value)} autoComplete="country-name" required /></Field>
                         <Field label="Date of issue"><input type="date" className={inputClass} value={passenger.passportIssueDate} onChange={(event) => updatePassenger(index, 'passportIssueDate', event.target.value)} required /></Field>
                       </div>
                     </fieldset>
@@ -215,6 +219,10 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
                 })}
               </section>
             </div>
+
+            <datalist id="nationality-country-options">
+              {countryNames.map((country) => <option key={country} value={country} />)}
+            </datalist>
 
             <footer className="grid shrink-0 gap-3 border-t border-slate-200 bg-white p-4 sm:grid-cols-[minmax(0,1fr)_minmax(200px,0.8fr)_auto] sm:items-end sm:px-6">
               <div className="rounded-xl border border-violet-100 bg-violet-50 px-3 py-2">
