@@ -42,7 +42,7 @@ const groupBookingSchema = new mongoose.Schema(
       infantPriceOnCall: { type: Boolean, default: false },
     },
     passengerCounts: {
-      adults: { type: Number, required: true, min: 1 },
+      adults: { type: Number, required: true, min: 0 },
       children: { type: Number, required: true, min: 0 },
       infants: { type: Number, required: true, min: 0 },
     },

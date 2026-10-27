@@ -51,14 +51,15 @@ const formatFare = (currency, amount) =>
 
 export default function GroupTicketBookingModal({ ticket, user, onClose, onBooked }) {
   const { createGroupBooking } = useApp()
-  const [counts, setCounts] = useState({ adults: 1, children: 0, infants: 0 })
-  const [passengers, setPassengers] = useState([emptyPassenger('adult')])
+  const [counts, setCounts] = useState({ adults: 0, children: 0, infants: 0 })
+  const [passengers, setPassengers] = useState([])
   const [contactPhone, setContactPhone] = useState(user?.number || '')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
 
   const passengerTotal = counts.adults + counts.children + counts.infants
+  const canSubmitBooking = passengerTotal > 0
   const totalPrice = useMemo(() => (
     (counts.adults * Number(ticket.adultFare || 0))
     + (counts.children * Number(ticket.childFare || 0))
@@ -66,6 +67,10 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
   ), [counts, ticket])
 
   const resizeCount = (key, value) => {
+    if (key === 'children' && value > counts.children && counts.adults === 0 && counts.infants < 2) return
+    if (key === 'infants' && value < counts.infants && counts.adults === 0 && counts.children > 0 && value < 2) return
+    if (key === 'adults' && value === 0 && counts.children > 0 && counts.infants < 2) return
+
     const nextCounts = { ...counts, [key]: value }
     const nextPassengers = passengerTypes.flatMap(({ key: countKey, type }) => (
       Array.from({ length: nextCounts[countKey] }, (_, index) => {
@@ -86,6 +91,10 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
   const handleSubmit = async (event) => {
     event.preventDefault()
     if (saving) return
+    if (!canSubmitBooking) {
+      setError('Add at least one passenger to submit the booking.')
+      return
+    }
     setError('')
     setSaving(true)
 
@@ -128,7 +137,7 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
             onClick={onClose}
             disabled={saving}
             aria-label="Close booking form"
-            className="grid size-9 place-items-center rounded-lg text-xl text-slate-500 transition hover:bg-slate-100 hover:text-[#003366] disabled:opacity-50"
+            className="grid size-9 cursor-pointer place-items-center rounded-lg text-xl text-slate-500 transition hover:bg-slate-100 hover:text-[#003366] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <FiX aria-hidden="true" />
           </button>
@@ -145,7 +154,7 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
             <button
               type="button"
               onClick={onBooked}
-              className="mt-5 h-11 rounded-xl bg-[#FF6B35] px-5 text-sm font-semibold text-white hover:bg-[#e95724]"
+              className="mt-5 h-11 cursor-pointer rounded-xl bg-[#FF6B35] px-5 text-sm font-semibold text-white hover:bg-[#e95724]"
             >
               Go to My Bookings
             </button>
@@ -179,9 +188,9 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
                     {passengerTypes.map(({ key, label, fare }) => (
                       <div key={key} className="flex items-center justify-between gap-2 rounded-xl border border-slate-200 px-3 py-2">
                         <span className="text-xs font-medium text-slate-600">{label}</span>
-                        <button type="button" aria-label={`Remove one ${label.toLowerCase()}`} disabled={key === 'adults' ? counts[key] <= 1 : counts[key] <= 0} onClick={() => resizeCount(key, counts[key] - 1)} className="size-7 rounded-md bg-slate-100 font-bold text-[#003366] disabled:opacity-40">−</button>
+                        <button type="button" aria-label={`Remove one ${label.toLowerCase()}`} disabled={counts[key] <= 0 || (key === 'adults' && counts[key] === 1 && counts.children > 0 && counts.infants < 2) || (key === 'infants' && counts.adults === 0 && counts.children > 0 && counts[key] <= 2)} onClick={() => resizeCount(key, counts[key] - 1)} className="size-7 cursor-pointer rounded-md bg-slate-100 font-bold text-[#003366] disabled:cursor-not-allowed disabled:opacity-40">−</button>
                         <span className="min-w-4 text-center text-sm font-semibold text-[#153750]">{counts[key]}</span>
-                        <button type="button" aria-label={`Add one ${label.toLowerCase()}`} disabled={passengerTotal >= 9} onClick={() => resizeCount(key, counts[key] + 1)} className="size-7 rounded-md bg-violet-50 font-bold text-violet-700 disabled:opacity-40">+</button>
+                        <button type="button" aria-label={`Add one ${label.toLowerCase()}`} disabled={key === 'children' && counts.adults === 0 && counts.infants < 2} onClick={() => resizeCount(key, counts[key] + 1)} className="size-7 cursor-pointer rounded-md bg-violet-50 font-bold text-violet-700 disabled:cursor-not-allowed disabled:opacity-40">+</button>
                         <span className="hidden text-[10px] text-slate-500 2xl:inline">{ticket.infantPriceOnCall && key === 'infants' ? 'On call' : formatFare(ticket.currency, ticket[fare])}</span>
                       </div>
                     ))}
@@ -234,8 +243,8 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
                 <input className={inputClass} type="tel" autoComplete="tel" value={contactPhone} onChange={(event) => setContactPhone(event.target.value)} required />
               </Field>
               <div className="flex justify-end gap-2 sm:pb-0">
-                <button type="button" onClick={onClose} disabled={saving} className="h-11 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
-                <button type="submit" disabled={saving || passengerTotal > 9} className="h-11 rounded-xl bg-violet-600 px-5 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60">{saving ? 'Submitting...' : 'Submit booking'}</button>
+                <button type="button" onClick={onClose} disabled={saving} className="h-11 cursor-pointer rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed">Cancel</button>
+                <button type="submit" disabled={saving || !canSubmitBooking} className="h-11 cursor-pointer rounded-xl bg-violet-600 px-5 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60">{saving ? 'Submitting...' : 'Submit booking'}</button>
               </div>
               {error && <p className="text-sm text-red-600 sm:col-span-3" role="alert">{error}</p>}
             </footer>

@@ -45,11 +45,16 @@ export const createGroupBooking = async (req, res) => {
       children: Number(passengerCounts?.children || 0),
       infants: Number(passengerCounts?.infants || 0),
     };
-    if (!Number.isInteger(counts.adults) || counts.adults < 1
+    if (!Number.isInteger(counts.adults) || counts.adults < 0
       || !Number.isInteger(counts.children) || counts.children < 0
-      || !Number.isInteger(counts.infants) || counts.infants < 0
-      || counts.adults + counts.children + counts.infants > 9) {
-      return res.status(400).json({ success: false, message: 'Add at least one adult. A booking can include up to 9 passengers.' });
+      || !Number.isInteger(counts.infants) || counts.infants < 0) {
+      return res.status(400).json({ success: false, message: 'Enter valid passenger counts.' });
+    }
+    if (counts.adults + counts.children + counts.infants === 0) {
+      return res.status(400).json({ success: false, message: 'Add at least one passenger.' });
+    }
+    if (counts.adults === 0 && counts.children > 0 && counts.infants < 2) {
+      return res.status(400).json({ success: false, message: 'A booking with a child and no adults must include at least 2 infants.' });
     }
     if (!Array.isArray(passengers) || passengers.length !== counts.adults + counts.children + counts.infants) {
       return res.status(400).json({ success: false, message: 'Passenger details must match the passenger counts.' });
