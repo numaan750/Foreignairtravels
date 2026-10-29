@@ -139,29 +139,29 @@ function createBookingPdf(booking, airlineLogo) {
     );
   } else {
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
+    doc.setFontSize(12);
     setColor("ink");
     doc.text(pdfText(details.airline || "Airline"), margin, 19);
   }
 
   const topRight = pageWidth - margin;
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
+  doc.setFontSize(18);
   setColor("ink");
   doc.text("Travel Itinerary", topRight, 12, { align: "right" });
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
+  doc.setFontSize(11);
   setColor("ink");
   doc.text(`Booking reference: ${bookingReference}`, topRight, 18, { align: "right" });
   drawBookingBarcode(doc, bookingReference, topRight - 48, 21, 48, 8);
-  doc.setFontSize(8);
+  doc.setFontSize(9);
   setColor("muted");
   doc.text("Booking reference barcode - not airline PNR", topRight, 33, { align: "right" });
   doc.setDrawColor(...colors.blue);
   doc.setLineWidth(0.7);
   doc.line(margin, 39, pageWidth - margin, 39);
 
-  let y = 45;
+  let y = 48;
 
   const tableColumns = [
     { label: "TYPE", width: 20 },
@@ -173,7 +173,7 @@ function createBookingPdf(booking, airlineLogo) {
   ];
   const drawPassengerTableHeader = () => {
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(8.5);
+    doc.setFontSize(9.5);
     setColor("ink");
     let x = margin + 2;
     tableColumns.forEach((column) => {
@@ -186,7 +186,7 @@ function createBookingPdf(booking, airlineLogo) {
     y += 9;
   };
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
+  doc.setFontSize(13);
   setColor("ink");
   doc.text("Passenger details", margin, y - 2);
   y += 1;
@@ -203,7 +203,7 @@ function createBookingPdf(booking, airlineLogo) {
     const rows = values.map((value, columnIndex) =>
       doc.splitTextToSize(pdfText(value), tableColumns[columnIndex].width - 4)
     );
-    const rowHeight = Math.max(12, ...rows.map((parts) => parts.length * 4.2 + 4));
+    const rowHeight = Math.max(14, ...rows.map((parts) => parts.length * 4.8 + 5));
     if (y + rowHeight > pageHeight - 23) {
       doc.addPage();
       y = 20;
@@ -212,7 +212,7 @@ function createBookingPdf(booking, airlineLogo) {
     doc.setDrawColor(...colors.border);
     doc.line(margin, y + rowHeight, pageWidth - margin, y + rowHeight);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
+    doc.setFontSize(10);
     setColor("ink");
     let x = margin + 2.5;
     rows.forEach((parts, columnIndex) => {
@@ -257,13 +257,13 @@ function createBookingPdf(booking, airlineLogo) {
     );
   }
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
+  doc.setFontSize(11);
   setColor("ink");
   doc.text(pdfText(details.airline || "Airline"), margin + airlineCardWidth / 2, y + 24, { align: "center" });
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
+  doc.setFontSize(10);
   doc.text(pdfText(details.groupName), margin + airlineCardWidth / 2, y + 30, { align: "center", maxWidth: airlineCardWidth - 5 });
-  doc.setFontSize(8.5);
+  doc.setFontSize(9.5);
   doc.text(`Ref: ${bookingReference}`, margin + airlineCardWidth / 2, y + 37, { align: "center" });
 
   const drawRouteCard = (x, routeSegment, isArrival) => {
@@ -272,26 +272,26 @@ function createBookingPdf(booking, airlineLogo) {
     const location = isArrival ? routeSegment?.to : routeSegment?.from;
     const time = isArrival ? routeSegment?.arrivalTime : routeSegment?.departureTime;
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
+    doc.setFontSize(9.5);
     setColor("muted");
     doc.text(isArrival ? "ARRIVAL" : "DEPARTURE", x + 5, y + 6);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
+    doc.setFontSize(15);
     setColor("ink");
     doc.text(doc.splitTextToSize(pdfText(location || "TBA"), routeWidth - 10), x + 5, y + 13);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
+    doc.setFontSize(9);
     setColor("muted");
     doc.text(`Airport: ${pdfText(location || "TBA")}`, x + 5, y + 23, { maxWidth: routeWidth - 10 });
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
+    doc.setFontSize(13);
     setColor("ink");
     doc.text(pdfText(time || (isArrival ? "Landing time TBA" : "Departure time TBA")), x + 5, y + 32);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
+    doc.setFontSize(10);
     doc.text(isArrival ? `Flight ${pdfText(routeSegment?.flightNumber || "TBA")}` : dateText(details.departureDate), x + 5, y + 40);
     if (!isArrival) {
-      doc.setFontSize(8);
+      doc.setFontSize(9);
       doc.text(`Flight ${pdfText(routeSegment?.flightNumber || "TBA")}`, x + routeWidth - 5, y + 40, { align: "right" });
     }
   };
@@ -311,7 +311,7 @@ function createBookingPdf(booking, airlineLogo) {
     doc.setDrawColor(...colors.border);
     doc.roundedRect(margin, y, contentWidth, 12, 2, 2, "S");
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
+    doc.setFontSize(10);
     setColor("ink");
     doc.text(`${pdfText(segment.from)} -> ${pdfText(segment.to)}`, margin + 4, y + 5);
     doc.text(`Flight ${pdfText(segment.flightNumber)}  |  ${pdfText(segment.departureTime || "Time TBA")} - ${pdfText(segment.arrivalTime || "Time TBA")}`, margin + 75, y + 5);
@@ -327,14 +327,14 @@ function createBookingPdf(booking, airlineLogo) {
   doc.setDrawColor(...colors.border);
   doc.roundedRect(margin, y, contentWidth, 31, 3, 3, "S");
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
+  doc.setFontSize(14);
   doc.setTextColor(0, 102, 255);
   doc.text("Foreign Air Travel", margin + 5, y + 7);
-  doc.setFontSize(13);
+  doc.setFontSize(15);
   setColor("ink");
   doc.text(`TOTAL: ${money(booking.totalPrice)}`, pageWidth - margin - 5, y + 8, { align: "right" });
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
+  doc.setFontSize(11);
   setColor("ink");
   doc.text("Mobile: +966 59 638 2847  |  0301 7075427", margin + 5, y + 15);
   doc.text("Email: info@foreignairtravel.com", margin + 5, y + 22);
@@ -344,7 +344,7 @@ function createBookingPdf(booking, airlineLogo) {
   for (let page = 1; page <= pageCount; page += 1) {
     doc.setPage(page);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
+    doc.setFontSize(9);
     setColor("muted");
     doc.text("Booking itinerary - airline ticket number is not issued by this confirmation.", margin, pageHeight - 8);
     if (pageCount > 1) doc.text(`Page ${page} of ${pageCount}`, pageWidth - margin, pageHeight - 8, { align: "right" });
@@ -478,8 +478,8 @@ export default function BookingsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-[#003366] sm:text-3xl">My Bookings</h1>
-      <p className="mt-1 text-sm text-slate-600">Review and manage your group-ticket bookings.</p>
+      {/* <h1 className="text-2xl font-bold text-[#003366] sm:text-3xl">My Bookings</h1>
+      <p className="mt-1 text-sm text-slate-600">Review and manage your group-ticket bookings.</p> */}
 
       <label className="mt-5 mb-5 block max-w-xs text-sm font-medium text-[#003366]">
         Filter by status

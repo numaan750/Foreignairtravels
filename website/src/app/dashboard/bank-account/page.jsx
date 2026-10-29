@@ -31,10 +31,10 @@ export default function BankAccountPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-[#003366] sm:text-3xl">Bank Account</h1>
+      {/* <h1 className="text-2xl font-bold text-[#003366] sm:text-3xl">Bank Account</h1>
       <p className="mt-1 text-sm text-slate-600">
         You can send your payment to any of the accounts below.
-      </p>
+      </p> */}
 
       {loading ? (
         <div className="mt-6 rounded-2xl bg-white p-6 text-sm text-slate-500 shadow-sm">

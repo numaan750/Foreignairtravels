@@ -30,7 +30,7 @@ export default function DashboardLayout({ children }) {
        <WelcomePopup />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="min-w-0 lg:pl-64">
+      <div className="min-w-0 lg:pl-16">
         <Topbar onMenuClick={() => setSidebarOpen(true)} />
         <main className={`p-4 sm:p-6 lg:p-8 ${pathname === '/dashboard/group-bookings' ? 'pt-4 sm:pt-4 lg:pt-10' : ''}`}>{children}</main>
       </div>

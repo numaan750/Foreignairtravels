@@ -12,6 +12,7 @@ export default function GroupTicketCategoryForm({ initial, saving, error, onSubm
   const [form, setForm] = useState({
     name: initial?.name || "",
     logo: initial?.logo || "",
+    tagline: initial?.tagline || "",
   });
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
@@ -33,7 +34,7 @@ export default function GroupTicketCategoryForm({ initial, saving, error, onSubm
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    onSubmit({ ...form, name: form.name.trim() });
+    onSubmit({ ...form, name: form.name.trim(), tagline: form.tagline.trim() });
   };
 
   return (
@@ -47,6 +48,10 @@ export default function GroupTicketCategoryForm({ initial, saving, error, onSubm
         <label className="mb-4 block text-sm font-medium text-[#003366]">
           Category name
           <input value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} required className={`${inputClass} mt-1.5`} placeholder="KSA to Pakistan" />
+        </label>
+        <label className="mb-4 block text-sm font-medium text-[#003366]">
+          Optional tagline
+          <input value={form.tagline} onChange={(event) => setForm((current) => ({ ...current, tagline: event.target.value }))} className={`${inputClass} mt-1.5`} placeholder="Add a short tagline" />
         </label>
         <div className="mb-4">
           <span className="mb-1.5 block text-sm font-medium text-[#003366]">Optional category logo</span>

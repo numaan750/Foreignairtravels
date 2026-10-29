@@ -10,12 +10,12 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-[#003366] sm:text-3xl">
+      {/* <h1 className="text-2xl font-bold text-[#003366] sm:text-3xl">
         Welcome, {user?.name}
-      </h1>
+      </h1> */}
 
       <section className="mt-7" aria-labelledby="dashboard-group-tickets-title">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        {/* <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 id="dashboard-group-tickets-title" className="text-xl font-semibold text-[#003366] sm:text-2xl">
               Group Bookings
@@ -28,7 +28,7 @@ export default function DashboardPage() {
           >
             View all group bookings <FiArrowUpRight aria-hidden="true" />
           </Link>
-        </div>
+        </div> */}
 
         <GroupTicketListing dashboardMode previewMode />
       </section>

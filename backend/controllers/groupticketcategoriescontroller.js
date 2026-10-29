@@ -18,7 +18,7 @@ const uniqueSlug = async (name, ignoreId = null) => {
 
 const categoryFields = (body) => {
   const fields = {};
-  ['name', 'logo'].forEach((key) => {
+  ['name', 'logo', 'tagline'].forEach((key) => {
     if (body[key] !== undefined) fields[key] = body[key];
   });
   return fields;

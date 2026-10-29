@@ -45,7 +45,7 @@ export const getGroupTickets = async (req, res) => {
     }
 
     const tickets = await GroupTicket.find(filter)
-      .populate('category', 'name slug logo')
+      .populate('category', 'name slug logo tagline')
       .populate('airlineId', 'name logo network')
       .sort({ departureDate: 1, createdAt: -1 });
     res.json({ success: true, data: tickets });
@@ -73,7 +73,7 @@ export const createGroupTicket = async (req, res) => {
 
     const item = await GroupTicket.create(fields);
     await item.populate([
-      { path: 'category', select: 'name slug logo' },
+      { path: 'category', select: 'name slug logo tagline' },
       { path: 'airlineId', select: 'name logo network' },
     ]);
     res.status(201).json({ success: true, message: 'Group ticket created', data: item });
@@ -110,7 +110,7 @@ export const updateGroupTicket = async (req, res) => {
       new: true,
       runValidators: true,
     }).populate([
-      { path: 'category', select: 'name slug logo' },
+      { path: 'category', select: 'name slug logo tagline' },
       { path: 'airlineId', select: 'name logo network' },
     ]);
     if (!item) return res.status(404).json({ success: false, message: 'Group ticket not found' });
