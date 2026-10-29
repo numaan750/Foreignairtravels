@@ -67,7 +67,7 @@ function TicketGroupCard({ tickets, selectedTicketId, onBook }) {
   return (
     <article className={`overflow-hidden rounded-2xl border bg-white shadow-[0_8px_24px_rgba(0,51,102,0.06)] ${tickets.some((ticket) => ticket._id === selectedTicketId) ? 'border-[#FF6B35] ring-2 ring-[#FF6B35]/15' : 'border-slate-200'}`}>
       <div className="grid min-w-0 grid-cols-1 items-center gap-2 border-b border-slate-100 px-4 py-4 sm:grid-cols-[1fr_auto_1fr] sm:gap-5 sm:px-6 sm:py-5">
-        <div className="mx-auto flex w-fit max-w-full min-w-0 items-center justify-center gap-2 sm:col-start-2 sm:row-start-1 sm:gap-5">
+        <div className="mx-auto flex w-fit max-w-full min-w-0 items-center justify-center gap-2 sm:col-start-2 sm:row-start-1 sm:gap-15">
           <div className="flex h-14 w-20 shrink-0 items-center justify-center sm:h-16 sm:w-32">
           {airlineLogo
             ? <img src={airlineLogo} alt={`${airlineName} logo`} className="max-h-full max-w-full object-contain" />
@@ -78,9 +78,9 @@ function TicketGroupCard({ tickets, selectedTicketId, onBook }) {
           </span>
           <div className="min-w-0">
             <p className="whitespace-normal break-words text-sm font-semibold leading-5 text-[#003366] sm:text-lg">{airlineName}</p>
-            <p className="mt-1 whitespace-normal break-words text-[11px] font-semibold uppercase leading-4 tracking-[0.12em] text-[#FF6B35] sm:text-xs">
+            {/* <p className="mt-1 whitespace-normal break-words text-[11px] font-semibold uppercase leading-4 tracking-[0.12em] text-[#FF6B35] sm:text-xs">
               {firstTicket.category?.name}
-            </p>
+            </p> */}
           </div>
         </div>
         <span className="mx-auto whitespace-nowrap rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 sm:col-start-3 sm:row-start-1 sm:mx-0 sm:justify-self-end">
@@ -88,7 +88,7 @@ function TicketGroupCard({ tickets, selectedTicketId, onBook }) {
         </span>
       </div>
 
-      <div className={`hidden min-w-0 grid-cols-7 items-center gap-0 bg-gradient-to-r from-[#124f7c] to-[#2097dc] py-3 text-center text-xs font-semibold uppercase tracking-[0.08em] text-white ${columnLayout} xl:grid`}>
+      <div className={`hidden min-w-0 grid-cols-7 items-center gap-0 bg-gradient-to-r from-[#124f7c] to-[#2097dc] py-3 text-center text-:sm md:text-md font-semibold uppercase tracking-[0.08em] text-white ${columnLayout} xl:grid`}>
         <span className="flex items-center justify-center gap-2"><FiCalendar aria-hidden="true" />Date</span>
         <span className="flex items-center justify-center gap-2"><FaPlane aria-hidden="true" />Flight</span>
         <span className="flex items-center justify-center gap-2"><FiClock aria-hidden="true" />Time</span>
@@ -103,55 +103,55 @@ function TicketGroupCard({ tickets, selectedTicketId, onBook }) {
         return (
           <div key={ticket._id} className={ticketIndex > 0 ? 'border-t border-slate-200' : ''}>
             <div className={`grid min-w-0 grid-cols-2 divide-x divide-y divide-slate-100 ${columnLayout} xl:divide-y-0`}>
-              <div className="min-w-0 px-4 py-3 sm:px-5">
+              <div className="min-w-0 px-4 py-3 sm:px-5 mx-auto">
                 <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 xl:hidden">Date</p>
-                <p className="flex items-center gap-1.5 text-sm font-medium text-[#003366]">
-                  <FiCalendar aria-hidden="true" className="shrink-0 text-[#159fe3]" />
+                <p className="flex items-center gap-1.5 text-sm ms:text-md font-bold text-[#003366]">
+                  <FiCalendar aria-hidden="true" className="shrink-0 text-[#FF6B35]" />
                   <span>{formatDate(ticket.departureDate)}</span>
                 </p>
-                <p className="mt-1 break-words text-[11px] leading-4 text-slate-500">{ticket.groupName}</p>
+                {/* <p className="mt-1 break-words text-[11px] leading-4 text-slate-500">{ticket.groupName}</p> */}
                 {selected && <span className="mt-1 inline-block rounded-full bg-[#FF6B35]/10 px-2 py-0.5 text-[10px] font-semibold text-[#FF6B35]">Selected ticket</span>}
               </div>
-              <div className="min-w-0 px-4 py-3 sm:px-5">
+              <div className="min-w-0 px-4 py-3 sm:px-5 mx-auto">
                 <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 xl:hidden">Flight</p>
                 <div className="space-y-1">
                   {ticket.segments.map((segment, index) => (
                     <div key={`${segment.flightNumber}-${index}`} className="min-w-0 text-xs leading-5 text-[#003366]">
-                      <p className="flex min-w-0 flex-wrap items-center gap-1 font-medium">
+                      {/* <p className="flex min-w-0 flex-wrap items-center gap-1 font-medium">
                         <FaPlaneDeparture aria-hidden="true" className="shrink-0 text-[#FF6B35]" />
                         <span className="break-words">{segment.from}</span>
                         <FaPlaneArrival aria-hidden="true" className="shrink-0 text-[#FF6B35]" />
                         <span className="break-words">{segment.to}</span>
-                      </p>
-                      <p className="break-words pl-4 text-[11px] text-slate-500">{segment.flightNumber}</p>
+                      </p> */}
+                      <p className="break-words pl-4 text-sm md:text-md font-bold text-black">{segment.flightNumber}</p>
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="min-w-0 px-4 py-3 sm:px-5">
+              <div className="min-w-0 px-4 py-3 sm:px-5 mx-auto">
                 <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 xl:hidden">Time</p>
                 <div className="space-y-1">
                   {ticket.segments.map((segment, index) => (
                     <p key={`${segment.flightNumber}-time-${index}`} className="flex min-w-0 items-start gap-1 text-xs leading-5 text-[#003366]">
-                      <FiClock aria-hidden="true" className="shrink-0 text-[#159fe3]" />
-                      <span className="break-words">{segment.departureTime || 'TBA'}{segment.arrivalTime ? ` – ${segment.arrivalTime}` : ''}</span>
+                      <FiClock aria-hidden="true" className="shrink-0 mt-1 text-[#FF6B35]" />
+                      <span className="break-words text-sm md:text-md font-bold">{segment.departureTime || 'TBA'}{segment.arrivalTime ? ` – ${segment.arrivalTime}` : ''}</span>
                     </p>
                   ))}
                 </div>
               </div>
-              <div className="min-w-0 px-4 py-3 sm:px-5">
+              <div className="min-w-0 px-4 py-3 sm:px-5 mx-auto">
                 <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 xl:hidden">Bag</p>
-                <p className="break-words text-xs font-medium leading-5 text-[#003366]">{ticket.baggage}</p>
+                <p className="break-words text-sm md:text-md font-bold text-[#003366]">{ticket.baggage}</p>
               </div>
-              <div className="min-w-0 px-4 py-3 sm:px-5">
+              <div className="min-w-0 px-4 py-3 sm:px-5 mx-auto">
                 <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 xl:hidden">Meal</p>
-                <p className={`text-xs font-semibold ${ticket.mealAvailable ? 'text-emerald-600' : 'text-red-600'}`}>{ticket.mealAvailable ? 'Yes' : 'No'}</p>
+                <p className={`text-sm md:text-md font-bold ${ticket.mealAvailable ? 'text-emerald-600' : 'text-red-600'}`}>{ticket.mealAvailable ? 'Yes' : 'No'}</p>
               </div>
-              <div className="min-w-0 px-4 py-3 sm:px-5">
+              <div className="min-w-0 px-4 py-3 sm:px-5 mx-auto">
                 <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 xl:hidden">Fare</p>
-                <p className="break-words text-xs font-semibold leading-5 text-emerald-700">Adult · {fare(ticket.currency, ticket.adultFare)}</p>
-                <p className="break-words text-[11px] leading-5 text-slate-500">Child · {fare(ticket.currency, ticket.childFare)}</p>
-                <p className="break-words text-[11px] leading-5 text-slate-500">Infant · {ticket.infantPriceOnCall ? 'Price on call' : fare(ticket.currency, ticket.infantFare)}</p>
+                <p className="break-words text-sm md:text-md font-bold text-emerald-700"> {fare(ticket.currency, ticket.adultFare)}</p>
+                {/* <p className="break-words text-[11px] leading-5 text-slate-500">Child · {fare(ticket.currency, ticket.childFare)}</p>
+                <p className="break-words text-[11px] leading-5 text-slate-500">Infant · {ticket.infantPriceOnCall ? 'Price on call' : fare(ticket.currency, ticket.infantFare)}</p> */}
               </div>
               <div className="col-span-2 flex min-w-0 items-center px-2 py-3 sm:px-3 xl:col-span-1">
                 <button type="button" onClick={() => onBook(ticket)} className="inline-flex min-h-9 w-full min-w-0 cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-full bg-[#FF6B35] px-2 text-xs font-semibold text-white transition hover:bg-[#003366] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35] sm:text-sm">
