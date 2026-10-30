@@ -37,10 +37,11 @@ export function AppProvider({ children }) {
 
   // ---------- Core request (sirf is file ke andar use hoga) ----------
   const request = useCallback(
-    async (path, { method = "GET", body } = {}) => {
+    async (path, { method = "GET", body, cache = "default" } = {}) => {
       try {
         const res = await fetch(`${API_URL}${path}`, {
           method,
+          cache,
           headers: {
             "Content-Type": "application/json",
             ...(tokenRef.current
@@ -207,7 +208,7 @@ export function AppProvider({ children }) {
   const getPackages = useCallback(() => request("/api/packages"), [request]);
 
   // ---------- GROUP TICKETS (public, token nahi chahiye) ----------
-  const getGroupTicketCategories = useCallback(() => request("/api/group-ticket-categories"), [request]);
+  const getGroupTicketCategories = useCallback(() => request("/api/group-ticket-categories", { cache: "no-store" }), [request]);
   const getGroupTickets = useCallback(
     (category) => request(`/api/group-tickets${category ? `?category=${encodeURIComponent(category)}` : ""}`),
     [request]

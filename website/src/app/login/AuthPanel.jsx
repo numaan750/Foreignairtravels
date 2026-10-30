@@ -294,7 +294,7 @@ export default function AuthPanel() {
     <main className="relative isolate flex flex-1 flex-col overflow-x-hidden bg-[#e8e5df] text-[#12314e]">
       <div
         aria-hidden="true"
-        className="fixed inset-0 -z-20 scale-[1.01] bg-[url('/images/login/login-background-img.jpg')] bg-cover bg-[position:29%_center] sm:bg-[position:37%_center] lg:bg-center"
+        className="fixed inset-0 -z-20 scale-[1.01] bg-[url('/images/login/login-background-imag.jpg')] bg-cover bg-[position:29%_center] sm:bg-[position:37%_center] lg:bg-center"
       />
       <div
         aria-hidden="true"

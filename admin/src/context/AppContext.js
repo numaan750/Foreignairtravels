@@ -31,12 +31,13 @@ export function AppProvider({ children }) {
 
   // ---------- Core request (sirf is file ke andar use hoga) ----------
   const request = useCallback(
-    async (path, { method = "GET", body } = {}) => {
+    async (path, { method = "GET", body, cache = "default" } = {}) => {
       try {
         const isForm = body instanceof FormData;
 
         const res = await fetch(`${API_URL}${path}`, {
           method,
+          cache,
           headers: {
             ...(isForm ? {} : { "Content-Type": "application/json" }),
             ...(tokenRef.current
@@ -180,7 +181,7 @@ export function AppProvider({ children }) {
   const createPopupImage = useCallback((body) => request("/api/popup-images", { method: "POST", body }), [request]);
   const deletePopupImage = useCallback((id) => request(`/api/popup-images/${id}`, { method: "DELETE" }), [request]);
     // ---------- GROUP TICKET CATEGORIES ----------
-  const getGroupTicketCategories = useCallback(() => request("/api/group-ticket-categories?all=true"), [request]);
+  const getGroupTicketCategories = useCallback(() => request("/api/group-ticket-categories?all=true", { cache: "no-store" }), [request]);
   const createGroupTicketCategory = useCallback((body) => request("/api/group-ticket-categories", { method: "POST", body }), [request]);
   const updateGroupTicketCategory = useCallback((id, body) => request(`/api/group-ticket-categories/${id}`, { method: "PUT", body }), [request]);
   const deleteGroupTicketCategory = useCallback((id) => request(`/api/group-ticket-categories/${id}`, { method: "DELETE" }), [request]);

@@ -7,6 +7,11 @@ import GroupTicketCategoryForm from "@/components/dashboard/GroupTicketCategoryF
 import PageHeader from "@/components/dashboard/PageHeader";
 import { useApp } from "@/context/AppContext";
 
+const getCategoryImageUrl = (url) =>
+  url?.includes("/upload/")
+    ? url.replace("/upload/", "/upload/f_auto,q_auto,w_128,h_128,c_fill/")
+    : url;
+
 export default function GroupTicketCategoriesPage() {
   const { getGroupTicketCategories, createGroupTicketCategory, updateGroupTicketCategory, deleteGroupTicketCategory } = useApp();
   const [categories, setCategories] = useState([]);
@@ -64,7 +69,7 @@ export default function GroupTicketCategoriesPage() {
   return (
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4 pb-5">
-        <PageHeader title="Group Ticket Categories" description="Categories appear in the Group Tickets menu on the website." className="mb-0" />
+        <PageHeader title="Group Ticket Categories" description="Categories appear in the Group Tickets menu and customer dashboard." className="mb-0" />
         <button onClick={() => openForm()} className="flex items-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"><FiPlus /> Add category</button>
       </div>
 
@@ -75,7 +80,7 @@ export default function GroupTicketCategoriesPage() {
               <div className="divide-y divide-[#003366]/10">
                 {categories.map((category) => (
                   <div key={category._id} className="flex flex-wrap items-center gap-4 p-4">
-                    {category.logo ? <img src={category.logo} alt="" className="size-12 rounded-xl border border-[#003366]/10 object-contain p-1" /> : <span className="flex size-12 items-center justify-center rounded-xl bg-[#FF6B35]/10 text-[#FF6B35]"><FiLayers /></span>}
+                    {(category.image || category.logo) ? <img src={getCategoryImageUrl(category.image || category.logo)} alt="" className="size-12 rounded-xl border border-[#003366]/10 object-cover" /> : <span className="flex size-12 items-center justify-center rounded-xl bg-[#FF6B35]/10 text-[#FF6B35]"><FiLayers /></span>}
                     <div className="min-w-0 flex-1">
                       <h2 className="font-semibold text-[#003366]">{category.name}</h2>
                       <p className="text-xs text-[#003366]/60">/{category.slug}</p>

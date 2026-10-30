@@ -179,6 +179,7 @@ export default function GroupTicketListing({ slug = '', dashboardMode = false, p
   const [selectedTicketId, setSelectedTicketId] = useState('')
   const [bookingTicketId, setBookingTicketId] = useState('')
   const [dashboardCategory, setDashboardCategory] = useState('')
+  const [dashboardQueryReady, setDashboardQueryReady] = useState(!dashboardMode)
   const [websiteCategory, setWebsiteCategory] = useState(slug)
   const [selectedAirlineId, setSelectedAirlineId] = useState('')
   const [departureDate, setDepartureDate] = useState('')
@@ -212,17 +213,20 @@ export default function GroupTicketListing({ slug = '', dashboardMode = false, p
   }, [categoryFilter, getAirlines, getGroupTicketCategories, getGroupTickets])
 
   useEffect(() => {
+    if (!dashboardQueryReady) return
     const frame = window.requestAnimationFrame(() => { void loadPage() })
     return () => window.cancelAnimationFrame(frame)
-  }, [loadPage])
+  }, [dashboardQueryReady, loadPage])
 
   useEffect(() => {
     if (!dashboardMode) return
     const frame = window.requestAnimationFrame(() => {
       const params = new URLSearchParams(window.location.search)
       const ticketId = params.get('ticketId') || ''
+      setDashboardCategory(params.get('category') || '')
       setSelectedTicketId(ticketId)
       if (params.get('book') === 'true') setBookingTicketId(ticketId)
+      setDashboardQueryReady(true)
     })
     return () => window.cancelAnimationFrame(frame)
   }, [dashboardMode])
@@ -238,7 +242,12 @@ export default function GroupTicketListing({ slug = '', dashboardMode = false, p
 
   const closeBooking = () => {
     setBookingTicketId('')
-    if (dashboardMode && window.location.search) router.replace('/dashboard/group-bookings')
+    if (dashboardMode && window.location.search) {
+      const params = new URLSearchParams(window.location.search)
+      params.delete('book')
+      params.delete('ticketId')
+      router.replace(params.size ? `/dashboard/group-bookings?${params}` : '/dashboard/group-bookings')
+    }
   }
 
   const selectedCategory = categories.find((category) => category.slug === categoryFilter)
