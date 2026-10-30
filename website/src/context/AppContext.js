@@ -171,39 +171,6 @@ export function AppProvider({ children }) {
     [request]
   );
 
-  const verifyEmail = useCallback(
-    async (token) => {
-      const { ok, data } = await request("/api/user/verify-email", {
-        method: "POST",
-        body: { token },
-      });
-      return { ok, message: data.message };
-    },
-    [request]
-  );
-
-  const sendApprovalNotification = useCallback(
-    async (token) => {
-      const { ok, data } = await request("/api/user/approval-notification", {
-        method: "POST",
-        body: { token },
-      });
-      return { ok, message: data.message };
-    },
-    [request]
-  );
-
-  const resendVerification = useCallback(
-    async (email) => {
-      const { ok, data } = await request("/api/user/resend-verification", {
-        method: "POST",
-        body: { email },
-      });
-      return { ok, message: data.message, code: data.code };
-    },
-    [request]
-  );
-
   const getMe = useCallback(async () => {
     const { ok, data } = await request("/api/user/me");
     if (ok) setUser(data.user);
@@ -285,9 +252,6 @@ export function AppProvider({ children }) {
       verifyPasswordResetCode,
       resetPassword,
       updatePassword,
-      verifyEmail,
-      sendApprovalNotification,
-      resendVerification,
       getMe,
       updateMe,
       deleteMe,
@@ -305,7 +269,7 @@ export function AppProvider({ children }) {
       getAnnouncements,
       getPopupImages,
     }),
-    [user, authLoading, register, login, requestPasswordReset, verifyPasswordResetCode, resetPassword, updatePassword, verifyEmail, sendApprovalNotification, resendVerification, getMe, updateMe, deleteMe, logout, getPackages, getGroupTicketCategories, getGroupTickets, createGroupBooking, getMyGroupBookings, updateMyGroupBookingStatus, getServices, getAirlines, getCountries, getBankAccounts,
+    [user, authLoading, register, login, requestPasswordReset, verifyPasswordResetCode, resetPassword, updatePassword, getMe, updateMe, deleteMe, logout, getPackages, getGroupTicketCategories, getGroupTickets, createGroupBooking, getMyGroupBookings, updateMyGroupBookingStatus, getServices, getAirlines, getCountries, getBankAccounts,
       getAnnouncements, getPopupImages,
     ]
   );

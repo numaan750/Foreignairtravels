@@ -113,7 +113,6 @@ export default function AuthPanel() {
     authLoading,
     login,
     register,
-    resendVerification,
     requestPasswordReset,
     verifyPasswordResetCode,
     resetPassword,
@@ -122,8 +121,6 @@ export default function AuthPanel() {
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [resending, setResending] = useState(false)
-  const [unverifiedEmail, setUnverifiedEmail] = useState('')
   const [forgotOpen, setForgotOpen] = useState(false)
   const [forgotEmail, setForgotEmail] = useState('')
   const [resetCode, setResetCode] = useState('')
@@ -136,7 +133,6 @@ export default function AuthPanel() {
   const resetFeedback = () => {
     setError('')
     setNotice('')
-    setUnverifiedEmail('')
   }
 
   // Pehle se login ho to dashboard par bhejo
@@ -192,30 +188,12 @@ export default function AuthPanel() {
     if (result.ok) {
       formElement.reset()
       setNotice(
-        'Registration complete. Your account is waiting for admin approval. We will email you when it is approved.'
+        'Signup request submitted. The admin will review your details, and approve your account. We will email you when you can sign in.'
       )
-      setUnverifiedEmail(email)
     } else {
       setError(result.message || 'Could not create your account.')
     }
     setSubmitting(false)
-  }
-
-  const handleResend = async () => {
-    setResending(true)
-    const result = await resendVerification(unverifiedEmail)
-    if (result.ok) {
-      setError('')
-      setNotice(result.message || 'Your account approval request has been sent again.')
-      if (result.code === 'ACCOUNT_ALREADY_APPROVED') {
-        setUnverifiedEmail('')
-        setMode('login')
-      }
-    } else {
-      setError(result.message || 'Could not resend the account approval request.')
-      setNotice('')
-    }
-    setResending(false)
   }
 
   const handlePasswordResetRequest = async (event) => {
@@ -376,20 +354,6 @@ export default function AuthPanel() {
             >
               {notice}
             </div>
-          )}
-
-          {unverifiedEmail && (
-            <p className="mb-4 text-xs leading-5 text-slate-500">
-              Didn’t get the email?{' '}
-              <button
-                type="button"
-                className={textButton}
-                onClick={handleResend}
-                disabled={resending}
-              >
-                {resending ? 'Sending...' : 'Resend approval request'}
-              </button>
-            </p>
           )}
 
           {isLogin ? (

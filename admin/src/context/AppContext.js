@@ -114,6 +114,30 @@ export function AppProvider({ children }) {
 
   // ---------- CUSTOMERS ----------
   const getCustomers = useCallback(() => request("/api/admin/customers"), [request]);
+  const approveCustomer = useCallback(
+    (id, file) => {
+      const formData = new FormData();
+      if (file) formData.append("image", file);
+      return request(`/api/admin/customers/${id}/approve`, { method: "POST", body: formData });
+    },
+    [request]
+  );
+  const updateCustomerProfileImage = useCallback(
+    (id, file) => {
+      const formData = new FormData();
+      formData.append("image", file);
+      return request(`/api/admin/customers/${id}/profile-image`, { method: "POST", body: formData });
+    },
+    [request]
+  );
+  const unverifyCustomer = useCallback(
+    (id) => request(`/api/admin/customers/${id}/unverify`, { method: "PATCH" }),
+    [request]
+  );
+  const deleteCustomer = useCallback(
+    (id) => request(`/api/admin/customers/${id}`, { method: "DELETE" }),
+    [request]
+  );
   const getInquiries = useCallback(() => request("/api/admin/inquiries"), [request]);
   const updateInquiryStatus = useCallback(
     (id, status) => request(`/api/admin/inquiries/${id}/status`, { method: "PATCH", body: { status } }),
@@ -183,6 +207,10 @@ export function AppProvider({ children }) {
       login,
       logout,
       getCustomers,
+      approveCustomer,
+      updateCustomerProfileImage,
+      unverifyCustomer,
+      deleteCustomer,
       getInquiries,
       updateInquiryStatus,
       getPackages,
@@ -219,7 +247,7 @@ export function AppProvider({ children }) {
       deletePopupImage,
       getAirlines, createAirline, updateAirline, deleteAirline,
     }),
-    [admin, authLoading, login, logout, getCustomers, getInquiries, updateInquiryStatus, getPackages, createPackage, updatePackage, deletePackage, getGroupTicketCategories, createGroupTicketCategory, updateGroupTicketCategory, deleteGroupTicketCategory, getGroupTickets, createGroupTicket, updateGroupTicket, deleteGroupTicket, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry, getBankAccounts, createBankAccount, updateBankAccount, deleteBankAccount,
+    [admin, authLoading, login, logout, getCustomers, approveCustomer, updateCustomerProfileImage, unverifyCustomer, deleteCustomer, getInquiries, updateInquiryStatus, getPackages, createPackage, updatePackage, deletePackage, getGroupTicketCategories, createGroupTicketCategory, updateGroupTicketCategory, deleteGroupTicketCategory, getGroupTickets, createGroupTicket, updateGroupTicket, deleteGroupTicket, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry, getBankAccounts, createBankAccount, updateBankAccount, deleteBankAccount,
       getAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement,getPopupImages, createPopupImage, deletePopupImage,
     ]
   );

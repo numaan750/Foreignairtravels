@@ -1,9 +1,6 @@
 import express from "express";
 import {
   register,
-  verifyEmail,
-  sendApprovalNotification,
-  resendVerification,
   login,
   requestPasswordReset,
   verifyPasswordResetCode,
@@ -19,9 +16,6 @@ const loginuserrouters = express.Router();
 
 // Public
 loginuserrouters.post("/register", register);
-loginuserrouters.post("/verify-email", verifyEmail);
-loginuserrouters.post("/approval-notification", sendApprovalNotification);
-loginuserrouters.post("/resend-verification", resendVerification);
 loginuserrouters.post("/login", login);
 loginuserrouters.post("/forgot-password", requestPasswordReset);
 loginuserrouters.post("/verify-password-reset-code", verifyPasswordResetCode);
