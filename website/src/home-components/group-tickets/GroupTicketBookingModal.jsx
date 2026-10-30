@@ -162,7 +162,7 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
         ) : (
           <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSubmit}>
             <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4 sm:p-6">
-              <section className="rounded-2xl border border-violet-100 bg-[#f8f7ff] p-3 sm:p-5">
+              <section className="rounded-2xl border border-[#FF6B35]/20 bg-[#FF6B35]/5 p-3 sm:p-5">
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                   <div className="flex min-w-0 items-center gap-2 rounded-xl bg-white p-3">
                     {logo && <img src={logo} alt="" className="size-8 shrink-0 rounded-md object-contain" />}
@@ -185,16 +185,18 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <h3 className="text-lg font-semibold text-[#153750]">Passengers</h3>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {passengerTypes.map(({ key, label, fare }) => (
-                      <div key={key} className="flex items-center justify-between gap-2 rounded-xl border border-slate-200 px-3 py-2">
-                        <span className="text-xs font-medium text-slate-600">{label}</span>
-                        <button type="button" aria-label={`Remove one ${label.toLowerCase()}`} disabled={counts[key] <= 0 || (key === 'adults' && counts[key] === 1 && counts.children > 0 && counts.infants < 2) || (key === 'infants' && counts.adults === 0 && counts.children > 0 && counts[key] <= 2)} onClick={() => resizeCount(key, counts[key] - 1)} className="size-7 cursor-pointer rounded-md bg-slate-100 font-bold text-[#003366] disabled:cursor-not-allowed disabled:opacity-40">−</button>
-                        <span className="min-w-4 text-center text-sm font-semibold text-[#153750]">{counts[key]}</span>
-                        <button type="button" aria-label={`Add one ${label.toLowerCase()}`} disabled={key === 'children' && counts.adults === 0 && counts.infants < 2} onClick={() => resizeCount(key, counts[key] + 1)} className="size-7 cursor-pointer rounded-md bg-violet-50 font-bold text-violet-700 disabled:cursor-not-allowed disabled:opacity-40">+</button>
-                        <span className="hidden text-[10px] text-slate-500 2xl:inline">{ticket.infantPriceOnCall && key === 'infants' ? 'On call' : formatFare(ticket.currency, ticket[fare])}</span>
-                      </div>
-                    ))}
-                    <div className="flex items-center justify-between rounded-xl border border-violet-100 bg-violet-50 px-3 py-2 text-xs font-semibold text-[#153750]">Total <span>{passengerTotal}</span></div>
+                    {passengerTypes
+                      .filter(({ key }) => key !== 'children')
+                      .map(({ key, label }) => (
+                        <div key={key} className="flex items-center justify-between gap-2 rounded-xl border border-slate-200 px-3 py-2">
+                          <span className="text-xs font-medium text-slate-600">{label}</span>
+                          <button type="button" aria-label={`Remove one ${label.toLowerCase()}`} disabled={counts[key] <= 0 || (key === 'adults' && counts[key] === 1 && counts.children > 0 && counts.infants < 2) || (key === 'infants' && counts.adults === 0 && counts.children > 0 && counts[key] <= 2)} onClick={() => resizeCount(key, counts[key] - 1)} className="size-7 cursor-pointer rounded-md bg-slate-100 font-bold text-[#003366] disabled:cursor-not-allowed disabled:opacity-40">−</button>
+                          <span className="min-w-4 text-center text-sm font-semibold text-[#153750]">{counts[key]}</span>
+                          <button type="button" aria-label={`Add one ${label.toLowerCase()}`} disabled={key === 'children' && counts.adults === 0 && counts.infants < 2} onClick={() => resizeCount(key, counts[key] + 1)} className="size-7 cursor-pointer rounded-md bg-[#FF6B35]/10 font-bold text-[#d84c19] disabled:cursor-not-allowed disabled:opacity-40">+</button>
+                          {/* <span className="hidden text-[10px] text-slate-500 2xl:inline">{ticket.infantPriceOnCall && key === 'infants' ? 'On call' : formatFare(ticket.currency, ticket[fare])}</span> */}
+                        </div>
+                      ))}
+                    <div className="flex items-center justify-between rounded-xl border border-[#FF6B35]/20 bg-[#FF6B35]/5 px-3 py-2 text-xs font-semibold text-[#153750]">Total <span>{passengerTotal}</span></div>
                   </div>
                 </div>
 
@@ -207,7 +209,7 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
                       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                         <Field label="Title">
                           <select className={`dropdown-select ${inputClass}`} value={passenger.title} onChange={(event) => updatePassenger(index, 'title', event.target.value)} required>
-                            {(passenger.type === 'adult' ? ['Mr', 'Mrs', 'Ms'] : ['Master', 'Miss']).map((title) => <option key={title}>{title}</option>)}
+                            {(passenger.type === 'adult' ? ['Mr', 'Mrs', 'Ms'] : ['Inf', 'Miss']).map((title) => <option key={title}>{title}</option>)}
                           </select>
                         </Field>
                         <Field label="Given name"><input className={inputClass} value={passenger.firstName} onChange={(event) => updatePassenger(index, 'firstName', event.target.value)} autoComplete="given-name" required /></Field>
@@ -234,9 +236,9 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
             </datalist>
 
             <footer className="grid shrink-0 gap-3 border-t border-slate-200 bg-white p-4 sm:grid-cols-[minmax(0,1fr)_minmax(200px,0.8fr)_auto] sm:items-end sm:px-6">
-              <div className="rounded-xl border border-violet-100 bg-violet-50 px-3 py-2">
+              <div className="rounded-xl border border-[#FF6B35]/20 bg-[#FF6B35]/5 px-3 py-2">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Total price</p>
-                <p className="font-bold text-violet-700">{formatFare(ticket.currency, totalPrice)}</p>
+                <p className="font-bold text-[#FF6B35]">{formatFare(ticket.currency, totalPrice)}</p>
                 {ticket.infantPriceOnCall && counts.infants > 0 && <p className="text-[10px] text-slate-600">Infant fare will be confirmed by our team.</p>}
               </div>
               <Field label="Customer contact number">
@@ -244,7 +246,7 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
               </Field>
               <div className="flex justify-end gap-2 sm:pb-0">
                 <button type="button" onClick={onClose} disabled={saving} className="h-11 cursor-pointer rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed">Cancel</button>
-                <button type="submit" disabled={saving || !canSubmitBooking} className="h-11 cursor-pointer rounded-xl bg-violet-600 px-5 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60">{saving ? 'Submitting...' : 'Submit booking'}</button>
+                <button type="submit" disabled={saving || !canSubmitBooking} className="h-11 cursor-pointer rounded-xl bg-[#FF6B35] px-5 text-sm font-semibold text-white transition hover:bg-[#e95724] disabled:cursor-not-allowed disabled:opacity-60">{saving ? 'Submitting...' : 'Submit booking'}</button>
               </div>
               {error && <p className="text-sm text-red-600 sm:col-span-3" role="alert">{error}</p>}
             </footer>

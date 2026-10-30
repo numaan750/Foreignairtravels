@@ -26,9 +26,12 @@ const formatFare = (currency, amount) =>
   `${currency || "SAR"} ${Number(amount || 0).toLocaleString("en-US")}`;
 
 export default function InquiriesPage() {
-  const { getInquiries, updateInquiryStatus } = useApp();
+  const { getInquiries, getCustomers, updateInquiryStatus } = useApp();
   const [inquiries, setInquiries] = useState([]);
   const [statusFilter, setStatusFilter] = useState("");
+  const [customerFilter, setCustomerFilter] = useState("");
+  const [customers, setCustomers] = useState([]);
+  const [customersError, setCustomersError] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingError, setLoadingError] = useState("");
   const [actionError, setActionError] = useState("");
@@ -38,11 +41,20 @@ export default function InquiriesPage() {
   const loadInquiries = useCallback(async () => {
     setLoading(true);
     setLoadingError("");
-    const { ok, data } = await getInquiries();
-    if (ok) setInquiries(data.data);
-    else setLoadingError(data.message || "Inquiries could not be loaded.");
+    const [inquiriesResult, customersResult] = await Promise.all([
+      getInquiries(),
+      getCustomers(),
+    ]);
+    if (inquiriesResult.ok) setInquiries(inquiriesResult.data.data);
+    else setLoadingError(inquiriesResult.data.message || "Inquiries could not be loaded.");
+    if (customersResult.ok) {
+      setCustomers(customersResult.data.data);
+      setCustomersError("");
+    } else {
+      setCustomersError(customersResult.data.message || "Customers could not be loaded.");
+    }
     setLoading(false);
-  }, [getInquiries]);
+  }, [getInquiries, getCustomers]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => { void loadInquiries(); });
@@ -63,9 +75,10 @@ export default function InquiriesPage() {
     setSavingId("");
   };
 
-  const visibleInquiries = statusFilter
-    ? inquiries.filter((inquiry) => inquiry.status === statusFilter)
-    : inquiries;
+  const visibleInquiries = inquiries.filter((inquiry) => (
+    (!statusFilter || inquiry.status === statusFilter)
+    && (!customerFilter || inquiry.user?._id === customerFilter)
+  ));
 
   return (
     <div>
@@ -74,19 +87,43 @@ export default function InquiriesPage() {
         description="Review group-ticket requests and update their booking status."
       />
 
-      <label className="mb-5 block max-w-xs text-sm font-medium text-[#003366]">
-        Filter by status
-        <select
-          value={statusFilter}
-          onChange={(event) => setStatusFilter(event.target.value)}
-          className="dropdown-select mt-1.5 w-full rounded-xl border border-[#003366]/15 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#FF6B35]"
-        >
-          <option value="">All statuses</option>
-          {bookingStatuses.map((status) => (
-            <option key={status.value} value={status.value}>{status.label}</option>
-          ))}
-        </select>
-      </label>
+      <div className="mb-5 flex flex-wrap gap-4">
+        <label className="block w-full max-w-xs text-sm font-medium text-[#003366]">
+          Filter by status
+          <select
+            value={statusFilter}
+            onChange={(event) => setStatusFilter(event.target.value)}
+            className="dropdown-select mt-1.5 w-full rounded-xl border border-[#003366]/15 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#FF6B35]"
+          >
+            <option value="">All statuses</option>
+            {bookingStatuses.map((status) => (
+              <option key={status.value} value={status.value}>{status.label}</option>
+            ))}
+          </select>
+        </label>
+        <label className="block w-full max-w-xs text-sm font-medium text-[#003366]">
+          Filter by customer
+          <select
+            value={customerFilter}
+            onChange={(event) => setCustomerFilter(event.target.value)}
+            disabled={Boolean(customersError)}
+            className="dropdown-select mt-1.5 w-full rounded-xl border border-[#003366]/15 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#FF6B35] disabled:opacity-60"
+          >
+            <option value="">All customers</option>
+            {customers.map((customer) => (
+              <option key={customer._id} value={customer._id}>
+                {customer.name}
+                 {/* · {customer.email} */}
+              </option>
+            ))}
+          </select>
+          {customersError && (
+            <span role="alert" className="mt-1 block text-xs font-normal text-red-600">
+              {customersError}
+            </span>
+          )}
+        </label>
+      </div>
 
       {actionError && (
         <p role="alert" className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -103,8 +140,8 @@ export default function InquiriesPage() {
       ) : visibleInquiries.length === 0 ? (
         <EmptyState
           icon={FiUsers}
-          title={inquiries.length ? "No inquiries in this status" : "No inquiries yet"}
-          text={inquiries.length ? "Choose another status filter to see inquiries." : "Customer group-ticket bookings will appear here."}
+          title={inquiries.length ? "No inquiries match these filters" : "No inquiries yet"}
+          text={inquiries.length ? "Choose another status or customer to see inquiries." : "Customer group-ticket bookings will appear here."}
         />
       ) : (
         <section aria-label={`${visibleInquiries.length} group-ticket inquiries`} className="space-y-4">
