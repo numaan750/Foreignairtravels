@@ -15,7 +15,7 @@
   "crons": [
     {
       "path": "/api/group-bookings/expire-pending",
-      "schedule": "* * * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
