@@ -609,14 +609,6 @@ export default function BookingsPage() {
                     >
                       {savingId === booking._id ? "Updating..." : "Put on hold"}
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => updateStatus(booking, "cancelled")}
-                      disabled={savingId === booking._id}
-                      className="rounded-lg bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      Cancel booking
-                    </button>
                       </>
                     )}
                   </div>

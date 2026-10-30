@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import GroupTicket from '../models/groupticketmodel.js';
 import GroupTicketCategory from '../models/groupticketcategorymodel.js';
 import Airline from '../models/airlinesmodel.js';
+import { expirePendingGroupBookings } from '../utils/groupBookingExpiry.js';
 
 const ticketFields = (body) => {
   const fields = {};
@@ -28,8 +29,10 @@ const ticketFields = (body) => {
 
 export const getGroupTickets = async (req, res) => {
   try {
+    await expirePendingGroupBookings();
     const { category } = req.query;
     const filter = {};
+    if (req.query.all !== 'true') filter.isAvailable = { $ne: false };
 
     if (category) {
       let categoryItem;
@@ -45,6 +48,7 @@ export const getGroupTickets = async (req, res) => {
     }
 
     const tickets = await GroupTicket.find(filter)
+      .select('-reservedBooking')
       .populate('category', 'name slug logo tagline')
       .populate('airlineId', 'name logo network')
       .sort({ departureDate: 1, createdAt: -1 });

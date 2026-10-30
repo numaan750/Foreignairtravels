@@ -56,6 +56,8 @@ const groupBookingSchema = new mongoose.Schema(
       default: 'pending',
       index: true,
     },
+    expiresAt: { type: Date, index: true },
+    confirmedAt: { type: Date },
   },
   { timestamps: true }
 );

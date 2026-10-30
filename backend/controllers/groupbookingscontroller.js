@@ -1,8 +1,10 @@
 import mongoose from 'mongoose';
 import GroupBooking from '../models/groupbookingmodel.js';
 import GroupTicket from '../models/groupticketmodel.js';
+import { expirePendingGroupBookings } from '../utils/groupBookingExpiry.js';
 
 const bookingStatuses = ['pending', 'processing', 'on_hold', 'confirmed', 'cancelled', 'completed'];
+const BOOKING_HOLD_MS = 2 * 60 * 60 * 1000;
 const passengerTypes = ['adult', 'child', 'infant'];
 const passengerCountFields = { adult: 'adults', child: 'children', infant: 'infants' };
 const validDate = (value) => !Number.isNaN(new Date(value).getTime());
@@ -34,7 +36,11 @@ const getTicketSnapshot = (ticket) => ({
 });
 
 export const createGroupBooking = async (req, res) => {
+  let reservedTicketId;
+  let bookingId;
+  let bookingCreated = false;
   try {
+    await expirePendingGroupBookings();
     const { ticketId, passengerCounts, passengers, contactPhone } = req.body;
     if (!mongoose.isValidObjectId(ticketId)) {
       return res.status(400).json({ success: false, message: 'Select a valid group ticket.' });
@@ -77,17 +83,38 @@ export const createGroupBooking = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Enter valid passenger birth and passport dates.' });
     }
 
-    const ticket = await GroupTicket.findById(ticketId)
-      .populate('category', 'name')
-      .populate('airlineId', 'name logo');
-    if (!ticket) return res.status(404).json({ success: false, message: 'Group ticket not found.' });
+    bookingId = new mongoose.Types.ObjectId();
+    const reservedTicket = await GroupTicket.findOneAndUpdate(
+      { _id: ticketId, isActive: true, isAvailable: { $ne: false } },
+      {
+        $set: {
+          isAvailable: false,
+          reservedBooking: bookingId,
+        },
+      },
+      { new: true }
+    );
+    if (!reservedTicket) {
+      const exists = await GroupTicket.exists({ _id: ticketId, isActive: true });
+      return res.status(exists ? 409 : 404).json({
+        success: false,
+        message: exists ? 'This ticket has already been booked.' : 'Group ticket not found.',
+      });
+    }
+    reservedTicketId = reservedTicket._id;
+    const ticket = await reservedTicket.populate([
+      { path: 'category', select: 'name' },
+      { path: 'airlineId', select: 'name logo' },
+    ]);
 
     const infantPriceOnCall = Boolean(ticket.infantPriceOnCall);
     const totalPrice = (counts.adults * ticket.adultFare)
       + (counts.children * ticket.childFare)
       + (infantPriceOnCall ? 0 : counts.infants * ticket.infantFare);
 
+    const expiresAt = new Date(Date.now() + BOOKING_HOLD_MS);
     const booking = await GroupBooking.create({
+      _id: bookingId,
       user: req.user._id,
       ticket: ticket._id,
       ticketDetails: getTicketSnapshot(ticket),
@@ -96,22 +123,31 @@ export const createGroupBooking = async (req, res) => {
       contactPhone: String(contactPhone).trim(),
       totalPrice,
       infantPriceOnCall,
+      expiresAt,
     });
+    bookingCreated = true;
 
     res.status(201).json({
       success: true,
       message: infantPriceOnCall && counts.infants
-        ? 'Booking submitted. Infant fare is on call and will be confirmed by our team.'
-        : 'Booking submitted successfully.',
+        ? 'Booking submitted. The ticket is reserved for 2 hours while awaiting admin confirmation. Infant fare is on call.'
+        : 'Booking submitted. The ticket is reserved for 2 hours while awaiting admin confirmation.',
       data: await populateBooking(GroupBooking.findById(booking._id)).lean(),
     });
   } catch (error) {
+    if (reservedTicketId && bookingId && !bookingCreated) {
+      await GroupTicket.updateOne(
+        { _id: reservedTicketId, reservedBooking: bookingId },
+        { $set: { isAvailable: true }, $unset: { reservedBooking: 1 } }
+      );
+    }
     res.status(400).json({ success: false, message: error.message });
   }
 };
 
 export const getMyGroupBookings = async (req, res) => {
   try {
+    await expirePendingGroupBookings();
     const bookings = await populateBooking(GroupBooking.find({ user: req.user._id }).sort({ createdAt: -1 })).lean();
     res.json({ success: true, data: bookings });
   } catch (error) {
@@ -121,11 +157,12 @@ export const getMyGroupBookings = async (req, res) => {
 
 export const updateMyGroupBookingStatus = async (req, res) => {
   try {
+    await expirePendingGroupBookings();
     const { id } = req.params;
     const { status } = req.body;
     if (!mongoose.isValidObjectId(id)) return res.status(400).json({ success: false, message: 'Invalid booking id.' });
-    if (!['on_hold', 'cancelled'].includes(status)) {
-      return res.status(400).json({ success: false, message: 'You can place a booking on hold or cancel it.' });
+    if (status !== 'on_hold') {
+      return res.status(403).json({ success: false, message: 'Only the administrator can change or cancel a booking.' });
     }
 
     const booking = await GroupBooking.findOne({ _id: id, user: req.user._id });
@@ -133,9 +170,24 @@ export const updateMyGroupBookingStatus = async (req, res) => {
     if (['cancelled', 'completed'].includes(booking.status)) {
       return res.status(409).json({ success: false, message: 'This booking can no longer be changed.' });
     }
-    booking.status = status;
-    await booking.save();
-    res.json({ success: true, message: `Booking ${status === 'on_hold' ? 'placed on hold' : 'cancelled'}.`, data: booking });
+    if (booking.expiresAt && booking.expiresAt <= new Date()) {
+      return res.status(409).json({ success: false, message: 'The 2-hour booking hold has expired.' });
+    }
+    const updatedBooking = await GroupBooking.findOneAndUpdate(
+      {
+        _id: booking._id,
+        user: req.user._id,
+        status: booking.status,
+        ...(booking.expiresAt ? { expiresAt: { $gt: new Date() } } : {}),
+      },
+      { $set: { status } },
+      { new: true }
+    );
+    if (!updatedBooking) {
+      await expirePendingGroupBookings();
+      return res.status(409).json({ success: false, message: 'This booking can no longer be changed.' });
+    }
+    res.json({ success: true, message: 'Booking placed on hold.', data: updatedBooking });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -143,6 +195,7 @@ export const updateMyGroupBookingStatus = async (req, res) => {
 
 export const getAdminGroupBookings = async (req, res) => {
   try {
+    await expirePendingGroupBookings();
     const bookings = await populateBooking(GroupBooking.find().sort({ createdAt: -1 })).lean();
     res.json({ success: true, data: bookings });
   } catch (error) {
@@ -152,6 +205,7 @@ export const getAdminGroupBookings = async (req, res) => {
 
 export const updateAdminGroupBookingStatus = async (req, res) => {
   try {
+    await expirePendingGroupBookings();
     const { id } = req.params;
     const { status } = req.body;
     if (!mongoose.isValidObjectId(id)) return res.status(400).json({ success: false, message: 'Invalid booking id.' });
@@ -159,10 +213,55 @@ export const updateAdminGroupBookingStatus = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Select a valid booking status.' });
     }
 
-    const booking = await GroupBooking.findByIdAndUpdate(id, { status }, { new: true, runValidators: true });
-    if (!booking) return res.status(404).json({ success: false, message: 'Booking not found.' });
+    const currentBooking = await GroupBooking.findById(id);
+    if (!currentBooking) return res.status(404).json({ success: false, message: 'Booking not found.' });
+    if (currentBooking.status === 'cancelled' && status !== 'cancelled') {
+      return res.status(409).json({ success: false, message: 'A cancelled booking cannot be reactivated.' });
+    }
+    const awaitingConfirmation = !currentBooking.confirmedAt && currentBooking.status !== 'cancelled';
+    if (currentBooking.expiresAt && currentBooking.expiresAt <= new Date() && awaitingConfirmation) {
+      await expirePendingGroupBookings();
+      return res.status(409).json({ success: false, message: 'The 2-hour booking hold has expired.' });
+    }
+
+    const booking = await GroupBooking.findOneAndUpdate(
+      {
+        _id: id,
+        status: currentBooking.status,
+        confirmedAt: currentBooking.confirmedAt,
+        ...(currentBooking.expiresAt && awaitingConfirmation
+          ? { expiresAt: { $gt: new Date() } }
+          : {}),
+      },
+      {
+        $set: {
+          status,
+          ...(status === 'confirmed' && !currentBooking.confirmedAt ? { confirmedAt: new Date() } : {}),
+        },
+      },
+      { new: true, runValidators: true }
+    );
+    if (!booking) {
+      await expirePendingGroupBookings();
+      return res.status(409).json({ success: false, message: 'This booking status changed. Refresh and try again.' });
+    }
+    if (status === 'cancelled') {
+      await GroupTicket.updateOne(
+        { _id: booking.ticket, reservedBooking: booking._id },
+        { $set: { isAvailable: true }, $unset: { reservedBooking: 1 } }
+      );
+    }
     res.json({ success: true, message: 'Booking status updated.', data: booking });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const expireGroupBookings = async (req, res) => {
+  try {
+    const expiredCount = await expirePendingGroupBookings();
+    res.json({ success: true, expiredCount });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };

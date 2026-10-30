@@ -38,6 +38,8 @@ const groupTicketSchema = new mongoose.Schema(
     currency: { type: String, default: 'SAR', trim: true, uppercase: true },
     bookingUrl: { type: String, default: '', trim: true },
     isActive: { type: Boolean, default: true },
+    isAvailable: { type: Boolean, default: true, index: true },
+    reservedBooking: { type: mongoose.Schema.Types.ObjectId, ref: 'GroupBooking', default: null },
   },
   { timestamps: true }
 );
