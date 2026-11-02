@@ -4,6 +4,15 @@
   --background: #ffffff;
 }
 
+.admin-readable-content .text-xs,
+.admin-readable-content .text-\[11px\] {
+  font-size: 0.875rem;
+}
+
+.admin-readable-content .text-sm {
+  font-size: 1rem;
+}
+
 .dropdown-select {
   appearance: none;
   padding-right: 2.75rem;

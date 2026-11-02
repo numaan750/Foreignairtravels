@@ -24,7 +24,7 @@ export default function DashboardLayout({ children }) {
 
       <div className="min-w-0 lg:pl-64">
         <Topbar onMenuClick={() => setSidebarOpen(true)} />
-        <main className="p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="admin-readable-content p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );
