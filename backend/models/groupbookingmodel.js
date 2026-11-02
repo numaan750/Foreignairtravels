@@ -58,6 +58,7 @@ const groupBookingSchema = new mongoose.Schema(
     },
     expiresAt: { type: Date, index: true },
     confirmedAt: { type: Date },
+    autoCancelledAt: { type: Date },
   },
   { timestamps: true }
 );

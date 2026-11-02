@@ -340,7 +340,6 @@ const Navbar = () => {
             label: category.name,
             href: `/group-tickets/${category.slug}`,
             icon: FaPlaneDeparture,
-            logo: category.logo,
         })),
     ]
     const navItems = [

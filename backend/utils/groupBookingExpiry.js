@@ -21,7 +21,7 @@ export const expirePendingGroupBookings = async () => {
         confirmedAt: { $exists: false },
         expiresAt: { $lte: now },
       },
-      { $set: { status: 'cancelled' } },
+      { $set: { status: 'cancelled', autoCancelledAt: now } },
       { new: true }
     )
       .select('_id ticket')
