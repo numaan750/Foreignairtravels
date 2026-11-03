@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { FiArrowUpRight, FiX } from 'react-icons/fi'
+import { FiArrowUpRight, FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi'
 import { navItems, isActivePath } from '@/config/navItems'
 
 export default function Sidebar({ open, onClose }) {
@@ -40,11 +40,8 @@ export default function Sidebar({ open, onClose }) {
       )}
 
       <aside
+        id="dashboard-sidebar"
         aria-label="Dashboard navigation"
-        onMouseEnter={() => {
-          if (window.matchMedia('(min-width: 1024px)').matches) setDesktopExpanded(true)
-        }}
-        onMouseLeave={() => setDesktopExpanded(false)}
         className={`fixed inset-y-0 left-0 z-40 flex w-72 max-w-[85vw] flex-col overflow-hidden bg-[#003366] text-white shadow-[12px_0_40px_rgba(0,51,102,0.18)] transition-[width,transform] duration-300 ease-out lg:w-16 lg:max-w-none lg:translate-x-0 lg:shadow-none ${
           open ? 'translate-x-0' : '-translate-x-full'
         } ${desktopExpanded ? 'lg:w-64' : ''}`}
@@ -145,6 +142,23 @@ export default function Sidebar({ open, onClose }) {
           </div>
         </div>
       </aside>
+
+      <button
+        type="button"
+        aria-label={desktopExpanded ? 'Collapse navigation menu' : 'Expand navigation menu'}
+        aria-expanded={desktopExpanded}
+        aria-controls="dashboard-sidebar"
+        onClick={() => setDesktopExpanded((expanded) => !expanded)}
+        className={`fixed top-18 z-50 hidden size-10 cursor-pointer items-center justify-center rounded-r-xl bg-[#FF6B35] text-xl text-white shadow-md transition-[left,background-color] duration-300 hover:bg-[#e95c2b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35] lg:flex ${
+          desktopExpanded ? 'left-64' : 'left-16'
+        }`}
+      >
+        {desktopExpanded ? (
+          <FiChevronLeft aria-hidden="true" />
+        ) : (
+          <FiChevronRight aria-hidden="true" />
+        )}
+      </button>
     </>
   )
 }
