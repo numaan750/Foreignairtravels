@@ -15,6 +15,15 @@ const bookingStatuses = [
   { value: "completed", label: "Completed" },
 ];
 
+const bookingStatusColors = {
+  pending: "border-amber-200 bg-amber-50 text-amber-700",
+  processing: "border-blue-200 bg-blue-50 text-blue-700",
+  on_hold: "border-orange-200 bg-orange-50 text-orange-700",
+  confirmed: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  cancelled: "border-red-200 bg-red-50 text-red-700",
+  completed: "border-teal-200 bg-teal-50 text-teal-700",
+};
+
 const formatDate = (value) => {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
@@ -79,6 +88,17 @@ export default function InquiriesPage() {
     (!statusFilter || inquiry.status === statusFilter)
     && (!customerFilter || inquiry.user?._id === customerFilter)
   ));
+  const customerGroups = visibleInquiries.reduce((groups, inquiry) => {
+    const customer = inquiry.user;
+    const customerKey = customer?._id || customer?.email || "unknown";
+    let group = groups.find((item) => item.key === customerKey);
+    if (!group) {
+      group = { key: customerKey, customer, inquiries: [] };
+      groups.push(group);
+    }
+    group.inquiries.push(inquiry);
+    return groups;
+  }, []);
 
   return (
     <div>
@@ -145,7 +165,19 @@ export default function InquiriesPage() {
         />
       ) : (
         <section aria-label={`${visibleInquiries.length} group-ticket inquiries`} className="space-y-4">
-          {visibleInquiries.map((inquiry) => {
+          {customerGroups.map((group) => (
+            <section key={group.key} className="rounded-2xl border border-[#003366]/10 bg-[#003366]/[0.04] p-3 shadow-sm sm:p-4">
+              <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <h2 className="text-sm font-semibold text-[#003366]">
+                  {group.customer?.name || "Customer"}
+                  {group.customer?.agencyname ? ` · ${group.customer.agencyname}` : ""}
+                </h2>
+                <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-[#003366]/65">
+                  {group.inquiries.length} {group.inquiries.length === 1 ? "booking" : "bookings"}
+                </span>
+              </header>
+              <div className="space-y-3">
+                {group.inquiries.map((inquiry) => {
             const details = inquiry.ticketDetails;
             const customer = inquiry.user;
             return (
@@ -172,7 +204,7 @@ export default function InquiriesPage() {
                       value={inquiry.status}
                       onChange={(event) => { void changeStatus(inquiry._id, event.target.value); }}
                       disabled={savingId === inquiry._id}
-                      className="dropdown-select min-w-32 rounded-lg border border-[#003366]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#FF6B35] disabled:opacity-60"
+                      className={`dropdown-select min-w-32 rounded-lg border px-3 py-2 text-xs outline-none focus:border-[#FF6B35] disabled:opacity-60 ${bookingStatusColors[inquiry.status] || "border-[#003366]/15 bg-white text-[#003366]"}`}
                     >
                       {bookingStatuses.map((status) => (
                         <option key={status.value} value={status.value}>{status.label}</option>
@@ -231,6 +263,9 @@ export default function InquiriesPage() {
               </article>
             );
           })}
+              </div>
+            </section>
+          ))}
         </section>
       )}
 

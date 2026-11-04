@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import GroupBooking from '../models/groupbookingmodel.js';
 import GroupTicket from '../models/groupticketmodel.js';
 import { expirePendingGroupBookings } from '../utils/groupBookingExpiry.js';
+import { uploadImageBuffer } from '../utils/cloudinary.js';
 
 const bookingStatuses = ['pending', 'processing', 'on_hold', 'confirmed', 'cancelled', 'completed'];
 const BOOKING_HOLD_MS = 2 * 60 * 60 * 1000;
@@ -41,7 +42,8 @@ export const createGroupBooking = async (req, res) => {
   let bookingCreated = false;
   try {
     await expirePendingGroupBookings();
-    const { ticketId, passengerCounts, passengers, contactPhone } = req.body;
+    const bookingData = req.body.booking ? JSON.parse(req.body.booking) : req.body;
+    const { ticketId, passengerCounts, passengers, contactPhone } = bookingData;
     if (!mongoose.isValidObjectId(ticketId)) {
       return res.status(400).json({ success: false, message: 'Select a valid group ticket.' });
     }
@@ -107,6 +109,9 @@ export const createGroupBooking = async (req, res) => {
       { path: 'airlineId', select: 'name logo' },
     ]);
 
+    const invoiceLogo = req.file
+      ? (await uploadImageBuffer(req.file.buffer, 'foreignairtravel/booking-logos')).url
+      : '';
     const infantPriceOnCall = Boolean(ticket.infantPriceOnCall);
     const totalPrice = (counts.adults * ticket.adultFare)
       + (counts.children * ticket.childFare)
@@ -117,6 +122,7 @@ export const createGroupBooking = async (req, res) => {
       _id: bookingId,
       user: req.user._id,
       ticket: ticket._id,
+      invoiceLogo,
       ticketDetails: getTicketSnapshot(ticket),
       passengerCounts: counts,
       passengers,

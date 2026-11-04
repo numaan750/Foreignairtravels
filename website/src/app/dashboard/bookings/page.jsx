@@ -110,7 +110,7 @@ async function getLogoDataUrl(logoUrl) {
   }
 }
 
-function createBookingPdf(booking, airlineLogo, includePrice) {
+function createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice) {
   const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
   const details = booking.ticketDetails;
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -148,12 +148,12 @@ function createBookingPdf(booking, airlineLogo, includePrice) {
 
   doc.setFillColor(255, 255, 255);
   doc.rect(0, 0, pageWidth, pageHeight, "F");
-  if (airlineLogo) {
-    const scale = Math.min(43 / airlineLogo.width, 25 / airlineLogo.height);
-    const logoWidth = airlineLogo.width * scale;
-    const logoHeight = airlineLogo.height * scale;
+  if (invoiceLogo) {
+    const scale = Math.min(43 / invoiceLogo.width, 25 / invoiceLogo.height);
+    const logoWidth = invoiceLogo.width * scale;
+    const logoHeight = invoiceLogo.height * scale;
     doc.addImage(
-      airlineLogo.dataUrl,
+      invoiceLogo.dataUrl,
       "PNG",
       margin + (43 - logoWidth) / 2,
       7 + (25 - logoHeight) / 2,
@@ -614,9 +614,11 @@ export default function BookingsPage() {
     previewWindow.document.close();
 
     try {
-      const logoUrl = booking.ticketDetails.airlineLogo;
-      const logo = await getLogoDataUrl(logoUrl);
-      const { blob, filename } = createBookingPdf(booking, logo, includePrice);
+      const [invoiceLogo, airlineLogo] = await Promise.all([
+        getLogoDataUrl(booking.invoiceLogo || "/FOREIGN-AIR-TRAVEL.png"),
+        getLogoDataUrl(booking.ticketDetails.airlineLogo),
+      ]);
+      const { blob, filename } = createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice);
       const previewUrl = URL.createObjectURL(blob);
       const safeFilename = filename.replace(/[^\w.-]/g, "_");
       previewWindow.document.open();

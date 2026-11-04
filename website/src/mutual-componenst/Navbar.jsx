@@ -333,7 +333,7 @@ const Navbar = () => {
     const [open, setOpen] = useState(false)
     const [scrolled, setScrolled] = useState(false)
     const [groupCategories, setGroupCategories] = useState([])
-    const pendingHomeScroll = useRef(false)
+    const pendingLogoNavigation = useRef(false)
     const groupTypes = [
         { label: 'All Types', href: '/group-tickets', icon: FaThLarge },
         ...groupCategories.map((category) => ({
@@ -383,6 +383,13 @@ const Navbar = () => {
         return () => window.cancelAnimationFrame(frame)
     }, [pathname])
 
+    useEffect(() => {
+        if (authLoading || !pendingLogoNavigation.current) return
+
+        pendingLogoNavigation.current = false
+        router.push(user ? '/dashboard' : '/login')
+    }, [authLoading, user, router])
+
     const close = () => setOpen(false)
     const handleLogoClick = (event) => {
         if (
@@ -399,25 +406,15 @@ const Navbar = () => {
         event.preventDefault()
         close()
 
-        if (pathname === '/') {
-            window.scrollTo({ top: 0, behavior: 'smooth' })
+        if (authLoading) {
+            pendingLogoNavigation.current = true
             return
         }
 
-        pendingHomeScroll.current = true
-        router.push('/')
+        router.push(user ? '/dashboard' : '/login')
     }
     const isActive = (href) =>
         href === '/' ? pathname === '/' : pathname?.startsWith(href)
-
-    useEffect(() => {
-        if (pathname !== '/' || !pendingHomeScroll.current) return
-
-        pendingHomeScroll.current = false
-        requestAnimationFrame(() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' })
-        })
-    }, [pathname])
 
     return (
         <header
@@ -429,9 +426,9 @@ const Navbar = () => {
             <div className="mycontainer flex h-[76px] items-center justify-between gap-4">
                 {/* Logo */}
                 <Link
-                    href="/"
+                    href={user ? '/dashboard' : '/login'}
                     onClick={handleLogoClick}
-                    aria-label="Foreign Air Travel home"
+                    aria-label="Foreign Air Travel account"
                     className="flex shrink-0 items-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-700"
                 >
                     <Image

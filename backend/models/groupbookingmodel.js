@@ -20,6 +20,7 @@ const groupBookingSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     ticket: { type: mongoose.Schema.Types.ObjectId, ref: 'GroupTicket', required: true, index: true },
+    invoiceLogo: { type: String, default: '' },
     ticketDetails: {
       airline: { type: String, required: true },
       airlineLogo: { type: String, default: '' },

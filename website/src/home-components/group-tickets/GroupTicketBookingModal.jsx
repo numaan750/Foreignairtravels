@@ -1,7 +1,8 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { FiX } from 'react-icons/fi'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import Image from 'next/image'
+import { FiImage, FiUpload, FiX } from 'react-icons/fi'
 import { useApp } from '@/context/AppContext'
 
 const passengerTypes = [
@@ -54,9 +55,20 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
   const [counts, setCounts] = useState({ adults: 0, children: 0, infants: 0 })
   const [passengers, setPassengers] = useState([])
   const [contactPhone, setContactPhone] = useState(user?.number || '')
+  const [invoiceLogo, setInvoiceLogo] = useState(null)
+  const [invoiceLogoPreview, setInvoiceLogoPreview] = useState('')
+  const invoiceLogoPreviewRef = useRef('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
+
+  useEffect(() => {
+    return () => {
+      if (invoiceLogoPreviewRef.current) {
+        URL.revokeObjectURL(invoiceLogoPreviewRef.current)
+      }
+    }
+  }, [])
 
   const passengerTotal = counts.adults + counts.children + counts.infants
   const canSubmitBooking = passengerTotal > 0
@@ -103,7 +115,7 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
       passengerCounts: counts,
       passengers,
       contactPhone: contactPhone.trim(),
-    })
+    }, invoiceLogo)
     if (result.ok) {
       setSuccessMessage(result.data.message || 'Booking submitted successfully.')
     } else {
@@ -180,6 +192,75 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
                   <div className="rounded-xl bg-white p-3"><p className="text-[10px] font-semibold uppercase text-slate-400">Meal</p><p className="text-sm font-semibold text-[#153750]">{ticket.mealAvailable ? 'Yes' : 'No'}</p></div>
                 </div>
               </section>
+
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-[#1f3c54]">Invoice logo (optional)</p>
+                <div className="mt-1.5 flex flex-col gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 sm:flex-row sm:items-center">
+                  <label className="inline-flex min-h-10 w-fit max-w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#003366] px-4 text-sm font-semibold text-white transition hover:bg-[#FF6B35] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#FF6B35]">
+                    <FiUpload aria-hidden="true" />
+                    <span>{invoiceLogo ? 'Change logo' : 'Upload logo'}</span>
+                    <input
+                      className="sr-only"
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) => {
+                        const file = event.target.files?.[0] || null
+                        if (invoiceLogoPreviewRef.current) {
+                          URL.revokeObjectURL(invoiceLogoPreviewRef.current)
+                          invoiceLogoPreviewRef.current = ''
+                        }
+                        if (file && file.size > 4 * 1024 * 1024) {
+                          setError('Logo must be smaller than 4 MB.')
+                          event.target.value = ''
+                          setInvoiceLogo(null)
+                          setInvoiceLogoPreview('')
+                          return
+                        }
+                        setError('')
+                        setInvoiceLogo(file)
+                        const previewUrl = file ? URL.createObjectURL(file) : ''
+                        invoiceLogoPreviewRef.current = previewUrl
+                        setInvoiceLogoPreview(previewUrl)
+                      }}
+                      disabled={saving}
+                    />
+                  </label>
+                  {invoiceLogo ? (
+                    <div className="flex min-w-0 items-center gap-3">
+                      <Image
+                        src={invoiceLogoPreview}
+                        alt="Uploaded invoice logo preview"
+                        width={48}
+                        height={48}
+                        unoptimized
+                        className="size-12 shrink-0 rounded-lg border border-slate-200 bg-white object-contain p-1"
+                      />
+                      <span className="min-w-0 flex-1 truncate text-sm text-slate-600">{invoiceLogo.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (invoiceLogoPreviewRef.current) {
+                            URL.revokeObjectURL(invoiceLogoPreviewRef.current)
+                            invoiceLogoPreviewRef.current = ''
+                          }
+                          setInvoiceLogo(null)
+                          setInvoiceLogoPreview('')
+                        }}
+                        disabled={saving}
+                        aria-label="Remove uploaded invoice logo"
+                        className="grid size-9 shrink-0 cursor-pointer place-items-center rounded-lg text-slate-500 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <FiX aria-hidden="true" />
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="inline-flex items-center gap-2 text-xs text-slate-500">
+                      <FiImage aria-hidden="true" />
+                      Choose an image up to 4 MB
+                    </span>
+                  )}
+                </div>
+              </div>
 
               <section>
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
