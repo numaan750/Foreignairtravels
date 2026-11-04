@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef } from 'react'
+import { useApp } from '@/context/AppContext'
 import {
   FiArrowUpRight,
   FiClock,
@@ -44,19 +45,12 @@ const socialLinks = [
 const Footer = () => {
   const pathname = usePathname()
   const router = useRouter()
+  const { user, authLoading } = useApp()
   const pendingTarget = useRef(null)
-  const pendingHomeScroll = useRef(false)
+  const pendingLogoNavigation = useRef(false)
 
   useEffect(() => {
     if (pathname !== '/') return
-
-    if (pendingHomeScroll.current) {
-      pendingHomeScroll.current = false
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' })
-      })
-      return
-    }
 
     if (!pendingTarget.current) return
     const targetId = pendingTarget.current
@@ -67,6 +61,13 @@ const Footer = () => {
         ?.scrollIntoView({ behavior: 'smooth' })
     })
   }, [pathname])
+
+  useEffect(() => {
+    if (authLoading || !pendingLogoNavigation.current) return
+
+    pendingLogoNavigation.current = false
+    router.push(user ? '/dashboard' : '/login')
+  }, [authLoading, user, router])
 
   const handleSectionLinkClick = (event, targetId) => {
     if (
@@ -104,15 +105,13 @@ const Footer = () => {
     }
 
     event.preventDefault()
-
-    if (pathname === '/') {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+    pendingTarget.current = null
+    if (authLoading) {
+      pendingLogoNavigation.current = true
       return
     }
 
-    pendingTarget.current = null
-    pendingHomeScroll.current = true
-    router.push('/')
+    router.push(user ? '/dashboard' : '/login')
   }
 
   return (
@@ -121,9 +120,9 @@ const Footer = () => {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[minmax(270px,1.25fr)_0.72fr_0.9fr_1fr] lg:gap-12 xl:gap-16">
           <div className="max-w-[390px] sm:col-span-2 lg:col-span-1">
             <Link
-              href="/"
+              href={user ? '/dashboard' : '/login'}
               onClick={handleLogoClick}
-              aria-label="Foreign Air Travel home"
+              aria-label="Foreign Air Travel account"
               className="inline-flex rounded-2xl bg-white px-4 py-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
               <Image

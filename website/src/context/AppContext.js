@@ -37,18 +37,18 @@ export function AppProvider({ children }) {
 
   // ---------- Core request (sirf is file ke andar use hoga) ----------
   const request = useCallback(
-    async (path, { method = "GET", body, cache = "default" } = {}) => {
+    async (path, { method = "GET", body, cache = "default", isFormData = false } = {}) => {
       try {
         const res = await fetch(`${API_URL}${path}`, {
           method,
           cache,
           headers: {
-            "Content-Type": "application/json",
+            ...(!isFormData ? { "Content-Type": "application/json" } : {}),
             ...(tokenRef.current
               ? { Authorization: `Bearer ${tokenRef.current}` }
               : {}),
           },
-          body: body ? JSON.stringify(body) : undefined,
+          body: isFormData ? body : body ? JSON.stringify(body) : undefined,
         });
 
         const data = await res.json().catch(() => ({}));
@@ -214,7 +214,14 @@ export function AppProvider({ children }) {
     [request]
   );
   const createGroupBooking = useCallback(
-    (body) => request("/api/group-bookings", { method: "POST", body }),
+    (body, invoiceLogo) => {
+      if (!invoiceLogo) return request("/api/group-bookings", { method: "POST", body });
+
+      const formData = new FormData();
+      formData.append("booking", JSON.stringify(body));
+      formData.append("logo", invoiceLogo);
+      return request("/api/group-bookings", { method: "POST", body: formData, isFormData: true });
+    },
     [request]
   );
   const getMyGroupBookings = useCallback(() => request("/api/group-bookings/me"), [request]);

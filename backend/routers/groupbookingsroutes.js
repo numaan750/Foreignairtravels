@@ -1,5 +1,6 @@
 import express from 'express';
 import { protectUser } from '../middleware/userAuth.js';
+import { uploadSingleLogo } from '../middleware/upload.js';
 import {
   createGroupBooking,
   getMyGroupBookings,
@@ -19,7 +20,7 @@ router.get('/expire-pending', (req, res, next) => {
   }
   next();
 }, expireGroupBookings);
-router.post('/', protectUser, createGroupBooking);
+router.post('/', protectUser, uploadSingleLogo, createGroupBooking);
 router.get('/me', protectUser, getMyGroupBookings);
 router.patch('/me/:id/status', protectUser, updateMyGroupBookingStatus);
 

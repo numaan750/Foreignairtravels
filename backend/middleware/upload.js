@@ -21,3 +21,13 @@ export const uploadSingleImage = (req, res, next) => {
     res.status(400).json({ success: false, message });
   });
 };
+
+export const uploadSingleLogo = (req, res, next) => {
+  upload.single('logo')(req, res, (err) => {
+    if (!err) return next();
+
+    const message =
+      err.code === 'LIMIT_FILE_SIZE' ? 'Images must be smaller than 4 MB.' : err.message;
+    res.status(400).json({ success: false, message });
+  });
+};
