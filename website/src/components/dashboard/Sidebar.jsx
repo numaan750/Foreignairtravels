@@ -54,7 +54,7 @@ export default function Sidebar({ open, onClose }) {
           <div className={`shrink-0 border-b border-white/10 px-4 pb-5 pt-4 ${desktopExpanded ? '' : 'lg:px-2 lg:pb-3 lg:pt-3'}`}>
             <div className="flex items-start gap-3">
               <Link
-                href="/"
+                href="/dashboard"
                 onClick={onClose}
                 aria-label="Foreign Air Travel home"
                 className={`flex min-h-[72px] flex-1 items-center justify-center rounded-2xl bg-white px-4 shadow-[0_10px_26px_rgba(0,51,102,0.18)] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35] ${desktopExpanded ? '' : 'lg:min-h-11 lg:px-1'}`}

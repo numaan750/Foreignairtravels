@@ -1,7 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { FiCalendar, FiChevronDown, FiClock, FiEye, FiMapPin, FiX } from "react-icons/fi";
+import {
+  FiCalendar,
+  FiCheckCircle,
+  FiChevronDown,
+  FiClock,
+  FiDollarSign,
+  FiEye,
+  FiFileText,
+  FiMapPin,
+  FiSettings,
+  FiUsers,
+  FiX,
+} from "react-icons/fi";
+import { FaPlane } from "react-icons/fa";
 import { jsPDF } from "jspdf";
 import { useApp } from "@/context/AppContext";
 
@@ -110,7 +123,7 @@ async function getLogoDataUrl(logoUrl) {
   }
 }
 
-function createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice) {
+function createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice, user) {
   const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
   const details = booking.ticketDetails;
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -444,7 +457,7 @@ function createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice) {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(15);
   doc.setTextColor(0, 102, 255);
-  doc.text("Foreign Air Travel", margin + 5, y + 7);
+  doc.text(pdfText(user?.agencyname || "Agency not provided"), margin + 5, y + 7);
   if (includePrice) {
     doc.setFontSize(16);
     setColor("ink");
@@ -453,14 +466,14 @@ function createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(12);
   setColor("ink");
-  doc.text("Mobile: +966 59 638 2847  |  0301 7075427", margin + 5, y + 15);
+  doc.text(`Mobile: ${pdfText(user?.number || "Not provided")}`, margin + 5, y + 15);
   doc.setFontSize(10);
   doc.text(`Reserved at: ${dateTimeText(booking.createdAt)}`, pageWidth - margin - 5, y + 15, { align: "right" });
-  doc.text("Email: info@foreignairtravel.com", margin + 5, y + 22);
+  doc.text(`Email: ${pdfText(user?.email || "Not provided")}`, margin + 5, y + 22);
   if (booking.confirmedAt) {
     doc.text(`Confirmed at: ${dateTimeText(booking.confirmedAt)}`, pageWidth - margin - 5, y + 22, { align: "right" });
   }
-  doc.text("Address: Stayana Road near McDonald's, Faisalabad 38000, Pakistan", margin + 5, y + 28);
+  doc.text(`Address: ${pdfText(user?.city || "Not provided")}`, margin + 5, y + 28);
 
   const pageCount = doc.getNumberOfPages();
   for (let page = 1; page <= pageCount; page += 1) {
@@ -558,7 +571,7 @@ function BookingActions({ booking, openingPdfId, onView, onPreview }) {
 }
 
 export default function BookingsPage() {
-  const { getMyGroupBookings, getGroupTicketCategories, updateMyGroupBookingStatus } = useApp();
+  const { user, getMyGroupBookings, getGroupTicketCategories, updateMyGroupBookingStatus } = useApp();
   const [bookings, setBookings] = useState([]);
   const [categories, setCategories] = useState([]);
   const [categoryLoadError, setCategoryLoadError] = useState("");
@@ -618,7 +631,7 @@ export default function BookingsPage() {
         getLogoDataUrl(booking.invoiceLogo || "/FOREIGN-AIR-TRAVEL.png"),
         getLogoDataUrl(booking.ticketDetails.airlineLogo),
       ]);
-      const { blob, filename } = createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice);
+      const { blob, filename } = createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice, user);
       const previewUrl = URL.createObjectURL(blob);
       const safeFilename = filename.replace(/[^\w.-]/g, "_");
       previewWindow.document.open();
@@ -704,7 +717,7 @@ export default function BookingsPage() {
       <p className="mt-1 text-sm text-slate-600">Review and manage your group-ticket bookings.</p> */}
 
       <div
-        className="mt-5 mb-6 grid gap-4 rounded-2xl bg-[#003366] p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-4"
+        className="mt-5 mb-6 grid gap-4 rounded-2xl bg-[#255f99] p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-4"
       >
         <label className="block text-sm font-semibold text-white">
           Booking Date From
@@ -790,34 +803,58 @@ export default function BookingsPage() {
         </div>
       ) : (
         <section aria-label={`${visibleBookings.length} bookings`}>
-          <div className="no-scrollbar overflow-x-auto rounded-xl border border-slate-300 bg-white shadow-sm">
-            <table className="w-full min-w-[1480px] table-fixed border-collapse border border-slate-300 text-left text-base xl:min-w-0 [&_td]:border [&_td]:border-slate-300 [&_th]:border [&_th]:border-slate-300">
-              <thead className="bg-[#003366] text-base font-semibold text-white">
+          <div className="no-scrollbar overflow-x-auto rounded-xl bg-[#f3f4f6] px-1 shadow-sm">
+            <table className="w-full min-w-[1280px] table-fixed border-separate border-spacing-x-0 border-spacing-y-2 text-left text-sm">
+              <thead className="font-semibold text-white">
                 <tr>
-                  <th className="w-[4%] px-3 py-3">Sr #</th>
-                  <th className="w-[14%] px-3 py-3">Booking No</th>
-                  <th className="w-[21%] px-3 py-3">Group</th>
-                  <th className="w-[25%] px-3 py-3">Passenger</th>
-                  <th className="w-[10%] px-3 py-3">Total Price</th>
-                  <th className="w-[10%] px-2 py-3 xl:w-[9%] xl:px-1.5">Status</th>
-                  <th className="w-[16%] px-2 py-3 xl:w-[14%] xl:px-1.5">Action</th>
+                  <th className="w-[24%] rounded-tl-xl border border-[#255f99] border-b-4 border-b-[#FF6B35] bg-[#2f70b3] px-4 py-3">
+                    <span className="inline-flex items-center gap-2"><FiFileText aria-hidden="true" />Booking Details</span>
+                  </th>
+                  <th className="w-[19%] border border-[#255f99] border-b-4 border-b-[#FF6B35] bg-[#2f70b3] px-4 py-3">
+                    <span className="inline-flex items-center gap-2"><FaPlane aria-hidden="true" />Group</span>
+                  </th>
+                  <th className="w-[26%] border border-[#255f99] border-b-4 border-b-[#FF6B35] bg-[#2f70b3] px-4 py-3">
+                    <span className="inline-flex items-center gap-2"><FiUsers aria-hidden="true" />Passengers</span>
+                  </th>
+                  <th className="w-[9%] border border-[#255f99] border-b-4 border-b-[#FF6B35] bg-[#2f70b3] px-3 py-3">
+                    <span className="inline-flex items-center gap-2"><FiDollarSign aria-hidden="true" />Price</span>
+                  </th>
+                  <th className="w-[13%] border border-[#255f99] border-b-4 border-b-[#FF6B35] bg-[#2f70b3] px-3 py-3">
+                    <span className="inline-flex items-center gap-2"><FiCheckCircle aria-hidden="true" />Status</span>
+                  </th>
+                  <th className="w-[9%] rounded-tr-xl border border-[#255f99] border-b-4 border-b-[#FF6B35] bg-[#2f70b3] px-3 py-3">
+                    <span className="inline-flex items-center gap-2"><FiSettings aria-hidden="true" />Action</span>
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 text-sm text-[#12314e]">
+              <tbody className="text-sm text-[#12314e]">
                 {visibleBookings.map((booking, index) => {
                   const details = booking.ticketDetails;
                   const requested = booking.passengerCounts || {};
                   const confirmed = getConfirmedPassengerCounts(booking);
                   const autoCancelledAt = getAutoCancellationDate(booking);
+                  const passengerSummary = (booking.passengers || []).reduce((summary, passenger) => {
+                    const name = `${passenger.firstName} ${passenger.lastName}`.trim();
+                    const existing = summary.find((item) => item.name === name);
+                    if (existing) existing.count += 1;
+                    else summary.push({ name, count: 1 });
+                    return summary;
+                  }, []);
                   return (
-                    <tr key={booking._id} className="align-top even:bg-slate-50/60">
-                      <td className="px-3 py-4">{index + 1}</td>
-                      <td className="break-words px-3 py-4">
-                        <p className="font-bold">BK-{booking._id.slice(-8).toUpperCase()}</p>
-                        <p className="mt-1 text-sm text-slate-600">Created: {formatDateTime(booking.createdAt)}</p>
-                        <p className="mt-2 inline-flex max-w-full rounded bg-[#003366] px-2 py-1 text-xs font-semibold text-white">
+                    <tr key={booking._id} className="align-top">
+                      <td className="rounded-l-xl border-y border-l border-slate-200 bg-white px-4 py-4">
+                        {/* <p><span className="font-bold text-[#2f70b3]">Sr #:</span> {index + 1}</p> */}
+                        <p className="mt-1 break-words"><span className="font-bold text-[#2f70b3]">Airline PNR #:</span> {details.segments.map((segment) => segment.flightNumber).filter(Boolean).join(", ") || "Not provided"}</p>
+                        <p className="mt-1 break-words"><span className="font-bold text-[#2f70b3]">Agency:</span> {user?.agencyname || "Not provided"}</p>
+                        <p className="mt-1 break-words"><span className="font-bold text-[#2f70b3]">BK#:</span> BK-{booking._id.slice(-8).toUpperCase()}</p>
+                        {/* <p className="mt-1 break-words"><span className="font-bold text-[#2f70b3]">Name:</span> {user?.name || "Not provided"}</p> */}
+                        {/* <p className="mt-1 break-words"><span className="font-bold text-[#2f70b3]">Mobile:</span> {user?.number || "Not provided"}</p> */}
+                        {/* <p className="mt-1 break-words"><span className="font-bold text-[#2f70b3]">Email:</span> {user?.email || "Not provided"}</p> */}
+                        {/* <p className="mt-1 break-words"><span className="font-bold text-[#2f70b3]">City:</span> {user?.city || "Not provided"}</p> */}
+                        <p className="mt-1 text-sm text-slate-600"><span className="font-semibold text-[#2f70b3]">Created:</span> {formatDateTime(booking.createdAt)}</p>
+                        {/* <p className="mt-2 inline-flex max-w-full rounded bg-[#eaf2fb] px-2 py-1 text-xs font-semibold text-[#2f70b3]">
                           {details.category || "Group ticket"}
-                        </p>
+                        </p> */}
                         {autoCancelledAt && (
                           <p className="mt-2 break-words text-sm font-semibold text-red-700">
                             Auto Cancelled on: {formatDateTime(autoCancelledAt)}
@@ -827,37 +864,42 @@ export default function BookingsPage() {
                           <p className="mt-2 text-sm font-semibold text-red-700">Cancelled</p>
                         )}
                       </td>
-                      <td className="break-words px-3 py-4">
+                      <td className="break-words border-y border-l border-slate-200 bg-white px-4 py-4">
                         <p className="font-semibold">{details.airline}</p>
-                        <p className="mt-1 text-base font-bold">{details.groupName}</p>
-                        <div className="mt-2 space-y-2">
+                        {/* <p className="mt-1 inline-flex max-w-full rounded bg-[#eaf2fb] px-2 py-1 text-xs font-semibold text-[#2f70b3]">
+                          {details.category || "Group ticket"}
+                        </p> */}
+                        <div className="mt-2 space-y-1">
                           {details.segments.map((segment, segmentIndex) => (
-                            <div key={`${segment.flightNumber}-${segmentIndex}`} className="break-words rounded-lg border border-slate-200 bg-slate-50 p-2.5">
-                              <p className="font-semibold text-[#003366]">{segment.from} → {segment.to}</p>
-                              <p className="mt-1 text-sm text-slate-700">Flight: {segment.flightNumber}</p>
-                              <p className="mt-1 text-sm text-slate-700">
-                                Time: {segment.departureTime || "TBA"} – {segment.arrivalTime || "TBA"}
-                              </p>
-                            </div>
+                            <p key={`${segment.flightNumber}-${segmentIndex}`} className="break-words font-medium text-[#12314e]">
+                              {segment.from} → {segment.to}
+                            </p>
                           ))}
                         </div>
-                        <p className="mt-2 text-sm text-slate-700">Departure: {formatDate(details.departureDate)}</p>
-                        <p className="mt-1 text-sm text-slate-700">Baggage: {details.baggage}</p>
-                        <p className="mt-1 text-sm text-slate-700">Meal: {details.mealAvailable ? "Yes" : "No"}</p>
-                        <p className="mt-1 break-words text-sm text-slate-700">Contact: {booking.contactPhone}</p>
+                        <p className="mt-1 text-sm text-slate-700">
+                          {formatDate(details.departureDate)} · {details.segments[0]?.departureTime || "Time TBA"}
+                        </p>
+                        <div className="mt-2 space-y-1">
+                          {passengerSummary.map((passenger) => (
+                            <p key={passenger.name} className="break-words text-sm font-bold uppercase text-[#12314e]">
+                              {passenger.name} × {passenger.count}
+                            </p>
+                          ))}
+                        </div>
                       </td>
-                      <td className="px-3 py-4">
-                        <table className="w-full table-fixed border-collapse text-sm">
-                          <thead className="bg-slate-100 text-[#12314e]">
+                      <td className="border-y border-l border-slate-200 bg-white px-3 py-4">
+                        <div className="overflow-hidden rounded-lg border border-slate-300">
+                          <table className="w-full table-fixed border-collapse text-sm">
+                          <thead className="bg-[#2f70b3] text-white">
                             <tr>
-                              <th className="break-words border border-slate-300 px-1.5 py-2 text-left">Status</th>
-                              <th className="border border-slate-300 px-1 py-2">Adults</th>
-                              <th className="border border-slate-300 px-1 py-2">Child</th>
-                              <th className="border border-slate-300 px-1 py-2">Infant</th>
-                              <th className="border border-slate-300 px-1 py-2">Total</th>
+                              <th className="break-words border border-[#255f99] px-1.5 py-2 text-left">Status</th>
+                              <th className="border border-[#255f99] px-1 py-2">Adults</th>
+                              <th className="border border-[#255f99] px-1 py-2">Child</th>
+                              <th className="border border-[#255f99] px-1 py-2">Infant</th>
+                              <th className="border border-[#255f99] px-1 py-2">Total</th>
                             </tr>
                           </thead>
-                          <tbody>
+                          <tbody className="bg-white">
                             <tr>
                               <th className="border border-slate-300 px-1.5 py-2 text-left font-semibold text-red-700">Req</th>
                               <td className="border border-slate-300 px-1 py-2">{Number(requested.adults || 0)}</td>
@@ -865,7 +907,7 @@ export default function BookingsPage() {
                               <td className="border border-slate-300 px-1 py-2">{Number(requested.infants || 0)}</td>
                               <td className="border border-slate-300 px-1 py-2">{Number(requested.adults || 0) + Number(requested.children || 0) + Number(requested.infants || 0)}</td>
                             </tr>
-                            <tr>
+                            <tr className="bg-slate-100">
                               <th className="border border-slate-300 px-1.5 py-2 text-left font-semibold text-emerald-700">Cnf</th>
                               <td className="border border-slate-300 px-1 py-2">{confirmed.adults}</td>
                               <td className="border border-slate-300 px-1 py-2">{confirmed.children}</td>
@@ -873,16 +915,22 @@ export default function BookingsPage() {
                               <td className="border border-slate-300 px-1 py-2">{confirmed.total}</td>
                             </tr>
                           </tbody>
-                        </table>
+                          </table>
+                        </div>
                       </td>
-                      <td className="break-words px-3 py-4 font-semibold text-emerald-800">{formatFare(details.currency, booking.totalPrice)}</td>
-                      <td className="min-w-0 overflow-hidden px-2 py-4 xl:px-1.5">
+                      <td className="break-words border-y border-l border-slate-200 bg-white px-3 py-4">
+                        <p className="flex justify-between gap-1"><span>T:</span><span className="font-semibold text-cyan-600">{Number(booking.totalPrice || 0).toLocaleString("en-US")}</span></p>
+                        <p className="flex justify-between gap-1"><span>P:</span><span className="font-semibold text-green-600">0</span></p>
+                        <p className="flex justify-between gap-1"><span>B:</span><span className="font-semibold text-red-600">{Number(booking.totalPrice || 0).toLocaleString("en-US")}</span></p>
+                        <p className="mt-2 font-semibold text-amber-500">Credit Given</p>
+                      </td>
+                      <td className="min-w-0 overflow-hidden border-y border-l border-slate-200 bg-white px-3 py-4">
                         <StatusBadge status={booking.status} />
                         {booking.confirmedAt && (
                           <p className="mt-2 break-words text-sm text-slate-600">Confirmed: {formatDateTime(booking.confirmedAt)}</p>
                         )}
                       </td>
-                      <td className="px-3 py-4">
+                      <td className="rounded-r-xl border-y border-x border-slate-200 bg-white px-3 py-4">
                         <BookingActions
                           booking={booking}
                           openingPdfId={openingPdfId}
