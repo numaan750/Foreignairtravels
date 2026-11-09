@@ -46,7 +46,7 @@ export default function DashboardPage() {
         {loading ? <p className="rounded-2xl bg-white p-6 text-sm text-slate-600">Loading categories...</p>
           : error ? <p role="alert" className="rounded-2xl bg-red-50 p-5 text-sm text-red-700">{error}</p>
             : categories.length === 0 ? <p className="rounded-2xl bg-white p-6 text-sm text-slate-600">No group booking categories are available right now.</p>
-              : <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              : <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 xl:grid-cols-4">
                 {categories.length > 0 && (
                   <Link
                     href="/dashboard/group-bookings"
