@@ -5,6 +5,7 @@ import {
   FiUser,
   FiCreditCard,
   FiUsers,
+  FiBookOpen,
 } from 'react-icons/fi'
 
 export const navItems = [
@@ -12,6 +13,7 @@ export const navItems = [
     // { label: 'Air Line Booking', href: '/dashboard/air-line-booking', icon: FiSend },
     { label: 'Group Bookings', href: '/dashboard/group-bookings', icon: FiUsers },
     { label: 'My Bookings', href: '/dashboard/bookings', icon: FiCalendar },
+    { label: 'Ledger', href: '/dashboard/ledger', icon: FiBookOpen },
     { label: 'Bank Account', href: '/dashboard/bank-account', icon: FiCreditCard },
     { label: 'Profile', href: '/dashboard/profile', icon: FiUser },
 ]

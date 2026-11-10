@@ -9,6 +9,7 @@ import {
   FiCreditCard,
   FiBell,
   FiImage,
+  FiBookOpen,
 } from "react-icons/fi";
 
 import { LuPlane } from "react-icons/lu";
@@ -36,6 +37,7 @@ export const navItems = [
       { label: "Group Tickets", href: "/dashboard/group-tickets", icon: LuPlane },
       { label: "Customers", href: "/dashboard/customers", icon: FiUsers },
       { label: "Inquiries", href: "/dashboard/inquiries", icon: FiMessageSquare },
+      { label: "Agent Ledgers", href: "/dashboard/ledger", icon: FiBookOpen },
     ],
   },
 ];
