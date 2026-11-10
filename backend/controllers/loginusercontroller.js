@@ -3,13 +3,14 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sendEmail } from "../utils/sendEmail.js";
+import { uploadImageBuffer } from "../utils/cloudinary.js";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const NUMBER_REGEX = /^[0-9+\-\s()]{7,20}$/;
 const getJwtSecret = () => process.env.JWT_SECRET || process.env.jwt_secret;
 
-// Jo fields user apna profile khud badal sakta hai
-const EDITABLE_FIELDS = ["agencyname", "name", "number", "city"];
+const PROFILE_APPROVAL_FIELDS = ["agencyname", "name", "number"];
+const EDITABLE_FIELDS = [...PROFILE_APPROVAL_FIELDS, "city"];
 
 const hashToken = (token) =>
   crypto.createHash("sha256").update(token).digest("hex");
@@ -35,6 +36,16 @@ const toUserPayload = (user) => ({
   email: user.email,
   number: user.number,
   city: user.city,
+  companyLogo: user.companyLogo || "",
+  pendingProfileUpdate: user.pendingProfileUpdate?.requestedAt
+    ? {
+        name: user.pendingProfileUpdate.name,
+        agencyname: user.pendingProfileUpdate.agencyname,
+        number: user.pendingProfileUpdate.number,
+        requestedAt: user.pendingProfileUpdate.requestedAt,
+      }
+    : null,
+  hasPendingPasswordChange: Boolean(user.hasPendingPasswordChange),
 });
 
 // POST /api/user/register
@@ -301,9 +312,14 @@ export const updatePassword = async (req, res) => {
       return res.status(401).json({ success: false, message: "Current password is incorrect." });
     }
 
-    user.password = await bcrypt.hash(newPassword, 12);
+    user.pendingPasswordHash = await bcrypt.hash(newPassword, 12);
+    user.hasPendingPasswordChange = true;
     await user.save();
-    res.status(200).json({ success: true, message: "Password updated successfully." });
+    res.status(200).json({
+      success: true,
+      message: "Password change request sent for administrator approval.",
+      user: toUserPayload(user),
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -314,10 +330,11 @@ export const getMe = async (req, res) => {
   res.status(200).json({ success: true, user: toUserPayload(req.user) });
 };
 
-// PUT /api/user/me (agency name, name, phone number, and city can be changed; email/password cannot)
+// PUT /api/user/me
 export const updateMe = async (req, res) => {
   try {
     const updates = {};
+    const profileChanges = {};
 
     for (const field of EDITABLE_FIELDS) {
       if (req.body[field] !== undefined) {
@@ -325,28 +342,67 @@ export const updateMe = async (req, res) => {
         if (!value) {
           return res.status(400).json({ success: false, message: `${field} cannot be empty.` });
         }
-        updates[field] = value;
+        if (PROFILE_APPROVAL_FIELDS.includes(field)) profileChanges[field] = value;
+        else updates[field] = value;
       }
     }
 
-    if (updates.number && !NUMBER_REGEX.test(updates.number)) {
+    if (profileChanges.number && !NUMBER_REGEX.test(profileChanges.number)) {
       return res.status(400).json({ success: false, message: "Enter a valid phone number." });
     }
-    if (!Object.keys(updates).length) {
+    if (!Object.keys(updates).length && !Object.keys(profileChanges).length) {
       return res.status(400).json({ success: false, message: "Provide at least one profile field to update." });
     }
 
-    const user = await User.findByIdAndUpdate(req.user.id, updates, {
-      new: true,
-      runValidators: true,
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User account not found." });
+    }
+    Object.assign(user, updates);
+    if (Object.keys(profileChanges).length) {
+      const currentRequest = user.pendingProfileUpdate || {};
+      user.pendingProfileUpdate = {
+        name: profileChanges.name ?? currentRequest.name,
+        agencyname: profileChanges.agencyname ?? currentRequest.agencyname,
+        number: profileChanges.number ?? currentRequest.number,
+        ...profileChanges,
+        requestedAt: new Date(),
+      };
+    }
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: Object.keys(profileChanges).length
+        ? "Profile changes sent for administrator approval."
+        : "Profile updated successfully.",
+      user: toUserPayload(user),
     });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// POST /api/user/me/company-logo
+export const updateCompanyLogo = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "Select a company logo." });
+    }
+
+    const image = await uploadImageBuffer(req.file.buffer, "foreignairtravel/company-logos");
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: { companyLogo: image.url } },
+      { new: true, runValidators: true }
+    );
     if (!user) {
       return res.status(404).json({ success: false, message: "User account not found." });
     }
 
     res.status(200).json({
       success: true,
-      message: "Profile updated successfully.",
+      message: "Company logo updated successfully.",
       user: toUserPayload(user),
     });
   } catch (error) {

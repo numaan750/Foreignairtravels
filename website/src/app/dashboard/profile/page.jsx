@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { FiEye, FiEyeOff } from 'react-icons/fi'
+import { FiEye, FiEyeOff, FiUploadCloud, FiUser } from 'react-icons/fi'
 import { useApp } from '@/context/AppContext'
 
 const inputClass =
@@ -36,16 +36,19 @@ function PasswordInput({ id, value, onChange, autoComplete, minLength, required 
 }
 
 export default function ProfilePage() {
-    const { user, updateMe, updatePassword } = useApp()
+    const { user, updateMe, updatePassword, updateCompanyLogo } = useApp()
     const [currentPassword, setCurrentPassword] = useState('')
     const [newPassword, setNewPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [profileMessage, setProfileMessage] = useState('')
     const [passwordMessage, setPasswordMessage] = useState('')
+    const [logoMessage, setLogoMessage] = useState('')
     const [profileError, setProfileError] = useState('')
     const [passwordError, setPasswordError] = useState('')
+    const [logoError, setLogoError] = useState('')
     const [savingProfile, setSavingProfile] = useState(false)
     const [savingPassword, setSavingPassword] = useState(false)
+    const [savingLogo, setSavingLogo] = useState(false)
 
     const handleProfileSubmit = async (event) => {
         event.preventDefault()
@@ -54,12 +57,37 @@ export default function ProfilePage() {
         setSavingProfile(true)
 
         const form = new FormData(event.currentTarget)
-        const name = String(form.get('name') || '').trim()
-        const result = await updateMe({ name })
-        if (result.ok) setProfileMessage(result.message || 'Name updated successfully.')
-        else setProfileError(result.message || 'Could not update your name.')
+        const result = await updateMe({
+            name: String(form.get('name') || '').trim(),
+            number: String(form.get('number') || '').trim(),
+            agencyname: String(form.get('agencyname') || '').trim(),
+        })
+        if (result.ok) setProfileMessage(result.message || 'Profile changes sent for administrator approval.')
+        else setProfileError(result.message || 'Could not submit your profile changes.')
 
         setSavingProfile(false)
+    }
+
+    const handleLogoChange = async (event) => {
+        const file = event.target.files?.[0]
+        event.target.value = ''
+        if (!file) return
+        setLogoMessage('')
+        setLogoError('')
+        if (!file.type.startsWith('image/')) {
+            setLogoError('Choose an image file for your company logo.')
+            return
+        }
+        if (file.size > 4 * 1024 * 1024) {
+            setLogoError('Company logo must be smaller than 4 MB.')
+            return
+        }
+
+        setSavingLogo(true)
+        const result = await updateCompanyLogo(file)
+        if (result.ok) setLogoMessage(result.message || 'Company logo updated successfully.')
+        else setLogoError(result.message || 'Could not update your company logo.')
+        setSavingLogo(false)
     }
 
     const handlePasswordSubmit = async (event) => {
@@ -75,58 +103,137 @@ export default function ProfilePage() {
         setSavingPassword(true)
         const result = await updatePassword(currentPassword, newPassword)
         if (result.ok) {
-            setPasswordMessage(result.message || 'Password updated successfully.')
+            setPasswordMessage(result.message || 'Password change request sent for administrator approval.')
             setCurrentPassword('')
             setNewPassword('')
             setConfirmPassword('')
         } else {
-            setPasswordError(result.message || 'Could not update your password.')
+            setPasswordError(result.message || 'Could not request a password change.')
         }
         setSavingPassword(false)
     }
 
+    const pendingProfileUpdate = user?.pendingProfileUpdate
+    const hasPendingChanges = Boolean(pendingProfileUpdate || user?.hasPendingPasswordChange)
+
     return (
         <div className="mx-auto w-full max-w-full">
-            {/* <h1 className="text-2xl font-bold text-[#003366] sm:text-3xl">Profile</h1>
-            <p className="mt-1 text-sm text-slate-600">Manage your account details and password.</p> */}
-
-            <section className="mt-6 rounded-2xl bg-white p-5 shadow-sm sm:p-7">
-                <h2 className="text-lg font-semibold text-[#003366]">Account details</h2>
-                <p className="mt-1 text-sm text-slate-500">Your registered email address cannot be changed here.</p>
-                <p className="mt-5 text-sm text-slate-600">
-                    Email: <span className="font-medium text-[#003366]">{user?.email || '—'}</span>
+            <section className="mt-6 rounded-2xl border-t-2 border-[#ff6b35] bg-white p-5 shadow-sm sm:p-7">
+                <h1 className="flex items-center gap-2 text-xl font-semibold text-[#003366]">
+                    <FiUser aria-hidden="true" />
+                    Profile Update
+                </h1>
+                <p className="mt-2 border-b border-slate-200 pb-4 text-sm text-slate-500">
+                    Update your account details. Name, phone, agency, and password changes require administrator approval.
                 </p>
 
-                <form key={`${user?.id || 'profile'}-${user?.name || ''}`} className="mt-5" onSubmit={handleProfileSubmit}>
-                    <label className="block text-sm font-medium text-[#1f3c54]" htmlFor="profile-name">
-                        Name
-                    </label>
-                    <input
-                        id="profile-name"
-                        className={inputClass}
-                        type="text"
-                        autoComplete="name"
-                        name="name"
-                        defaultValue={user?.name || ''}
-                        required
-                    />
+                {hasPendingChanges && (
+                    <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                        <p className="font-semibold">Your changes are waiting for administrator approval.</p>
+                        {pendingProfileUpdate && (
+                            <p className="mt-2 leading-6">
+                                Requested name: {pendingProfileUpdate.name || user?.name} · Phone: {pendingProfileUpdate.number || user?.number} · Agency: {pendingProfileUpdate.agencyname || user?.agencyname}
+                            </p>
+                        )}
+                        {user?.hasPendingPasswordChange && <p className="mt-1">A password change is also pending approval.</p>}
+                    </div>
+                )}
 
-                    {profileError && <p className="mt-3 text-sm text-red-600" role="alert">{profileError}</p>}
-                    {profileMessage && <p className="mt-3 text-sm text-emerald-700" role="status">{profileMessage}</p>}
+                <form
+                    key={`${user?.id || 'profile'}-${pendingProfileUpdate?.requestedAt || ''}`}
+                    className="mt-5"
+                    onSubmit={handleProfileSubmit}
+                >
+                    <div className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+                        <label className="block text-sm font-medium text-[#1f3c54]" htmlFor="profile-name">
+                            Name <span className="text-red-500">*</span>
+                            <input
+                                id="profile-name"
+                                className={inputClass}
+                                type="text"
+                                autoComplete="name"
+                                name="name"
+                                defaultValue={pendingProfileUpdate?.name || user?.name || ''}
+                                required
+                            />
+                        </label>
+                        <label className="block text-sm font-medium text-[#1f3c54]" htmlFor="profile-email">
+                            Email <span className="text-red-500">*</span>
+                            <input
+                                id="profile-email"
+                                className={`${inputClass} cursor-not-allowed bg-slate-100`}
+                                type="email"
+                                value={user?.email || ''}
+                                readOnly
+                                aria-describedby="profile-email-note"
+                            />
+                            <span id="profile-email-note" className="mt-1 block text-xs text-slate-500">Email cannot be changed here.</span>
+                        </label>
+                        <label className="block text-sm font-medium text-[#1f3c54]" htmlFor="profile-number">
+                            Phone number <span className="text-red-500">*</span>
+                            <input
+                                id="profile-number"
+                                className={inputClass}
+                                type="tel"
+                                autoComplete="tel"
+                                name="number"
+                                defaultValue={pendingProfileUpdate?.number || user?.number || ''}
+                                required
+                            />
+                        </label>
+                        <label className="block text-sm font-medium text-[#1f3c54]" htmlFor="profile-agency">
+                            Agency name <span className="text-red-500">*</span>
+                            <input
+                                id="profile-agency"
+                                className={inputClass}
+                                type="text"
+                                name="agencyname"
+                                defaultValue={pendingProfileUpdate?.agencyname || user?.agencyname || ''}
+                                required
+                            />
+                        </label>
+                        <div className="text-sm font-medium text-[#1f3c54]">
+                            Company logo
+                            <div className="mt-2 flex min-h-20 items-center gap-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3">
+                                {user?.companyLogo ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={user.companyLogo} alt="Current company logo" className="size-16 shrink-0 rounded-lg border border-slate-200 bg-white object-contain p-1" />
+                                ) : (
+                                    <div className="grid size-16 shrink-0 place-items-center rounded-lg border border-slate-200 bg-white text-slate-400">
+                                        <FiUploadCloud aria-hidden="true" className="size-6" />
+                                    </div>
+                                )}
+                                <div className="min-w-0">
+                                    <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg bg-[#003366] px-4 text-sm font-semibold text-white transition hover:bg-[#FF6B35] has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60">
+                                        <FiUploadCloud aria-hidden="true" />
+                                        {savingLogo ? 'Uploading...' : user?.companyLogo ? 'Change logo' : 'Upload logo'}
+                                        <input type="file" accept="image/*" className="sr-only" onChange={handleLogoChange} disabled={savingLogo} />
+                                    </label>
+                                    <p className="mt-1 text-xs font-normal text-slate-500">Image up to 4 MB. Saved immediately; no approval needed.</p>
+                                </div>
+                            </div>
+                            {logoError && <p className="mt-2 text-sm text-red-600" role="alert">{logoError}</p>}
+                            {logoMessage && <p className="mt-2 text-sm text-emerald-700" role="status">{logoMessage}</p>}
+                        </div>
+                    </div>
 
-                    <button
-                        className="mt-5 h-11 rounded-xl bg-[#ff6b35] px-5 text-sm font-semibold text-white transition hover:bg-[#e95724] disabled:cursor-not-allowed disabled:opacity-60"
-                        type="submit"
-                        disabled={savingProfile}
-                    >
-                        {savingProfile ? 'Saving...' : 'Save name'}
-                    </button>
+                    {profileError && <p className="mt-4 text-sm text-red-600" role="alert">{profileError}</p>}
+                    {profileMessage && <p className="mt-4 text-sm text-emerald-700" role="status">{profileMessage}</p>}
+                    <div className="mt-5 flex justify-end">
+                        <button
+                            className="h-11 rounded-xl bg-[#ff6b35] px-5 text-sm font-semibold text-white transition hover:bg-[#FF6B35] disabled:cursor-not-allowed disabled:opacity-60"
+                            type="submit"
+                            disabled={savingProfile}
+                        >
+                            {savingProfile ? 'Sending...' : 'Submit profile changes'}
+                        </button>
+                    </div>
                 </form>
             </section>
 
             <section className="mt-5 rounded-2xl bg-white p-5 shadow-sm sm:p-7">
                 <h2 className="text-lg font-semibold text-[#003366]">Change password</h2>
-                <p className="mt-1 text-sm text-slate-500">Enter your current password to set a new one.</p>
+                <p className="mt-1 text-sm text-slate-500">Your new password will take effect after administrator approval.</p>
 
                 <form className="mt-5 grid gap-4 sm:grid-cols-2" onSubmit={handlePasswordSubmit}>
                     <label className="block text-sm font-medium text-[#1f3c54] sm:col-span-2" htmlFor="current-password">
@@ -176,7 +283,7 @@ export default function ProfilePage() {
                         type="submit"
                         disabled={savingPassword}
                     >
-                        {savingPassword ? 'Updating...' : 'Change password'}
+                        {savingPassword ? 'Sending...' : 'Request password change'}
                     </button>
                 </form>
             </section>

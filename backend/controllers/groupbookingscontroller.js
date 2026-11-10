@@ -44,6 +44,13 @@ export const createGroupBooking = async (req, res) => {
     await expirePendingGroupBookings();
     const bookingData = req.body.booking ? JSON.parse(req.body.booking) : req.body;
     const { ticketId, passengerCounts, passengers, contactPhone } = bookingData;
+    const invoiceLogoSource = bookingData.invoiceLogoSource || 'upload';
+    if (!['upload', 'profile'].includes(invoiceLogoSource)) {
+      return res.status(400).json({ success: false, message: 'Select a valid invoice logo source.' });
+    }
+    if (invoiceLogoSource === 'profile' && !req.user.companyLogo) {
+      return res.status(400).json({ success: false, message: 'No company logo is saved in your profile.' });
+    }
     if (!mongoose.isValidObjectId(ticketId)) {
       return res.status(400).json({ success: false, message: 'Select a valid group ticket.' });
     }
@@ -115,9 +122,11 @@ export const createGroupBooking = async (req, res) => {
       { path: 'airlineId', select: 'name logo' },
     ]);
 
-    const invoiceLogo = req.file
-      ? (await uploadImageBuffer(req.file.buffer, 'foreignairtravel/booking-logos')).url
-      : '';
+    const invoiceLogo = invoiceLogoSource === 'profile'
+      ? req.user.companyLogo
+      : req.file
+        ? (await uploadImageBuffer(req.file.buffer, 'foreignairtravel/booking-logos')).url
+        : '';
     const infantPriceOnCall = Boolean(ticket.infantPriceOnCall);
     const totalPrice = (counts.adults * ticket.adultFare)
       + (counts.children * ticket.childFare)

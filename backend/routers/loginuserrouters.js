@@ -8,9 +8,11 @@ import {
   updatePassword,
   getMe,
   updateMe,
+  updateCompanyLogo,
   deleteMe,
 } from "../controllers/loginusercontroller.js";
 import { protectUser } from "../middleware/userAuth.js";
+import { uploadSingleLogo } from "../middleware/upload.js";
 
 const loginuserrouters = express.Router();
 
@@ -25,6 +27,7 @@ loginuserrouters.post("/reset-password", resetPassword);
 loginuserrouters.get("/me", protectUser, getMe);
 loginuserrouters.put("/me", protectUser, updateMe);
 loginuserrouters.put("/me/password", protectUser, updatePassword);
+loginuserrouters.post("/me/company-logo", protectUser, uploadSingleLogo, updateCompanyLogo);
 loginuserrouters.delete("/me", protectUser, deleteMe);
 
 export default loginuserrouters;

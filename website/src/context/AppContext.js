@@ -167,6 +167,7 @@ export function AppProvider({ children }) {
         method: "PUT",
         body: { currentPassword, newPassword },
       });
+      if (ok) setUser(data.user);
       return { ok, message: data.message };
     },
     [request]
@@ -183,6 +184,21 @@ export function AppProvider({ children }) {
       const { ok, data } = await request("/api/user/me", {
         method: "PUT",
         body: updates,
+      });
+      if (ok) setUser(data.user);
+      return { ok, user: data.user, message: data.message };
+    },
+    [request]
+  );
+
+  const updateCompanyLogo = useCallback(
+    async (file) => {
+      const formData = new FormData();
+      formData.append("logo", file);
+      const { ok, data } = await request("/api/user/me/company-logo", {
+        method: "POST",
+        body: formData,
+        isFormData: true,
       });
       if (ok) setUser(data.user);
       return { ok, user: data.user, message: data.message };
@@ -214,11 +230,12 @@ export function AppProvider({ children }) {
     [request]
   );
   const createGroupBooking = useCallback(
-    (body, invoiceLogo) => {
-      if (!invoiceLogo) return request("/api/group-bookings", { method: "POST", body });
+    (body, invoiceLogo, invoiceLogoSource) => {
+      const booking = { ...body, invoiceLogoSource };
+      if (!invoiceLogo) return request("/api/group-bookings", { method: "POST", body: booking });
 
       const formData = new FormData();
-      formData.append("booking", JSON.stringify(body));
+      formData.append("booking", JSON.stringify(booking));
       formData.append("logo", invoiceLogo);
       return request("/api/group-bookings", { method: "POST", body: formData, isFormData: true });
     },
@@ -262,6 +279,7 @@ export function AppProvider({ children }) {
       updatePassword,
       getMe,
       updateMe,
+      updateCompanyLogo,
       deleteMe,
       logout,
       getPackages,
@@ -277,7 +295,7 @@ export function AppProvider({ children }) {
       getAnnouncements,
       getPopupImages,
     }),
-    [user, authLoading, register, login, requestPasswordReset, verifyPasswordResetCode, resetPassword, updatePassword, getMe, updateMe, deleteMe, logout, getPackages, getGroupTicketCategories, getGroupTickets, createGroupBooking, getMyGroupBookings, updateMyGroupBookingStatus, getServices, getAirlines, getCountries, getBankAccounts,
+    [user, authLoading, register, login, requestPasswordReset, verifyPasswordResetCode, resetPassword, updatePassword, getMe, updateMe, updateCompanyLogo, deleteMe, logout, getPackages, getGroupTicketCategories, getGroupTickets, createGroupBooking, getMyGroupBookings, updateMyGroupBookingStatus, getServices, getAirlines, getCountries, getBankAccounts,
       getAnnouncements, getPopupImages,
     ]
   );

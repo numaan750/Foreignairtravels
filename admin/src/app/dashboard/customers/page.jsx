@@ -74,6 +74,8 @@ export default function CustomersPage() {
     getCustomers,
     approveCustomer,
     updateCustomerProfileImage,
+    approveCustomerProfileChanges,
+    rejectCustomerProfileChanges,
     unverifyCustomer,
     deleteCustomer,
   } = useApp();
@@ -167,6 +169,31 @@ export default function CustomersPage() {
       setActionNotice(result.data.message || "Profile image updated.");
     } else {
       setActionError(result.data.message || "Could not update this profile image.");
+    }
+    setBusyCustomerId("");
+  };
+
+  const handleProfileChanges = async (customer, approve) => {
+    if (!approve && !window.confirm(`Reject pending profile changes for ${customer.name}?`)) return;
+
+    setBusyCustomerId(customer._id);
+    setActionError("");
+    setActionNotice("");
+
+    const result = approve
+      ? await approveCustomerProfileChanges(customer._id)
+      : await rejectCustomerProfileChanges(customer._id);
+    if (result.ok) {
+      setCustomers((current) =>
+        current.map((item) =>
+          item._id === customer._id
+            ? { ...item, ...result.data.customer }
+            : item
+        )
+      );
+      setActionNotice(result.data.message || `Customer profile changes ${approve ? "approved" : "rejected"}.`);
+    } else {
+      setActionError(result.data.message || `Could not ${approve ? "approve" : "reject"} these profile changes.`);
     }
     setBusyCustomerId("");
   };
@@ -315,6 +342,39 @@ export default function CustomersPage() {
                     Registered {formatDate(customer.createdAt)}
                   </div>
                 </dl>
+                {(customer.pendingProfileUpdate?.requestedAt || customer.hasPendingPasswordChange) && (
+                  <section className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                    <h3 className="text-sm font-semibold text-amber-900">Profile change request</h3>
+                    {customer.pendingProfileUpdate && (
+                      <dl className="mt-2 grid gap-2 text-sm text-amber-950 sm:grid-cols-3">
+                        {customer.pendingProfileUpdate.name && <div><dt className="text-xs text-amber-800">Requested name</dt><dd className="break-words font-medium">{customer.pendingProfileUpdate.name}</dd></div>}
+                        {customer.pendingProfileUpdate.number && <div><dt className="text-xs text-amber-800">Requested phone</dt><dd className="break-words font-medium">{customer.pendingProfileUpdate.number}</dd></div>}
+                        {customer.pendingProfileUpdate.agencyname && <div><dt className="text-xs text-amber-800">Requested agency</dt><dd className="break-words font-medium">{customer.pendingProfileUpdate.agencyname}</dd></div>}
+                      </dl>
+                    )}
+                    {customer.hasPendingPasswordChange && (
+                      <p className="mt-2 text-sm text-amber-950">The customer also requested a password change. The new password will not be shown.</p>
+                    )}
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        className="rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+                        disabled={Boolean(busyCustomerId)}
+                        onClick={() => { void handleProfileChanges(customer, true); }}
+                      >
+                        {busyCustomerId === customer._id ? "Processing..." : "Approve changes"}
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded-xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        disabled={Boolean(busyCustomerId)}
+                        onClick={() => { void handleProfileChanges(customer, false); }}
+                      >
+                        Reject changes
+                      </button>
+                    </div>
+                  </section>
+                )}
                 <div className="mt-4 flex flex-wrap items-center gap-2">
                   {!customer.isVerified ? (
                     <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#FF6B35] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60">

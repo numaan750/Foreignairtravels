@@ -58,7 +58,7 @@ export const getAdminProfile = async (req, res) => {
 export const getCustomers = async (req, res) => {
   try {
     const customers = await User.find()
-      .select("agencyname name email number city profileImage isVerified approvalEmailSentAt createdAt")
+      .select("agencyname name email number city profileImage companyLogo pendingProfileUpdate hasPendingPasswordChange isVerified approvalEmailSentAt createdAt")
       .sort({ createdAt: -1 })
       .lean();
 
@@ -187,6 +187,84 @@ export const updateCustomerProfileImage = async (req, res) => {
       success: true,
       message: "Customer profile image updated.",
       profileImage: user.profileImage,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const approveCustomerProfileUpdate = async (req, res) => {
+  try {
+    if (!/^[a-f\d]{24}$/i.test(req.params.id)) {
+      return res.status(400).json({ success: false, message: "Invalid customer ID." });
+    }
+
+    const user = await User.findById(req.params.id).select("+pendingPasswordHash");
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Customer not found." });
+    }
+    if (!user.pendingProfileUpdate?.requestedAt && !user.hasPendingPasswordChange) {
+      return res.status(409).json({ success: false, message: "This customer has no pending profile changes." });
+    }
+
+    if (user.pendingProfileUpdate?.requestedAt) {
+      for (const field of ["name", "agencyname", "number"]) {
+        if (user.pendingProfileUpdate[field] !== undefined) {
+          user[field] = user.pendingProfileUpdate[field];
+        }
+      }
+      user.pendingProfileUpdate = undefined;
+    }
+    if (user.hasPendingPasswordChange) {
+      if (!user.pendingPasswordHash) {
+        return res.status(409).json({ success: false, message: "The pending password change is incomplete." });
+      }
+      user.password = user.pendingPasswordHash;
+      user.pendingPasswordHash = undefined;
+      user.hasPendingPasswordChange = false;
+    }
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Customer profile changes approved.",
+      customer: {
+        _id: user._id,
+        name: user.name,
+        agencyname: user.agencyname,
+        number: user.number,
+        pendingProfileUpdate: null,
+        hasPendingPasswordChange: false,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const rejectCustomerProfileUpdate = async (req, res) => {
+  try {
+    if (!/^[a-f\d]{24}$/i.test(req.params.id)) {
+      return res.status(400).json({ success: false, message: "Invalid customer ID." });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Customer not found." });
+    }
+    if (!user.pendingProfileUpdate?.requestedAt && !user.hasPendingPasswordChange) {
+      return res.status(409).json({ success: false, message: "This customer has no pending profile changes." });
+    }
+
+    user.pendingProfileUpdate = undefined;
+    user.pendingPasswordHash = undefined;
+    user.hasPendingPasswordChange = false;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Customer profile changes rejected.",
+      customer: { _id: user._id, pendingProfileUpdate: null, hasPendingPasswordChange: false },
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

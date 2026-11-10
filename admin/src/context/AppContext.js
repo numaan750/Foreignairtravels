@@ -131,6 +131,14 @@ export function AppProvider({ children }) {
     },
     [request]
   );
+  const approveCustomerProfileChanges = useCallback(
+    (id) => request(`/api/admin/customers/${id}/profile-changes/approve`, { method: "PATCH" }),
+    [request]
+  );
+  const rejectCustomerProfileChanges = useCallback(
+    (id) => request(`/api/admin/customers/${id}/profile-changes/reject`, { method: "PATCH" }),
+    [request]
+  );
   const unverifyCustomer = useCallback(
     (id) => request(`/api/admin/customers/${id}/unverify`, { method: "PATCH" }),
     [request]
@@ -210,6 +218,8 @@ export function AppProvider({ children }) {
       getCustomers,
       approveCustomer,
       updateCustomerProfileImage,
+      approveCustomerProfileChanges,
+      rejectCustomerProfileChanges,
       unverifyCustomer,
       deleteCustomer,
       getInquiries,
@@ -248,7 +258,7 @@ export function AppProvider({ children }) {
       deletePopupImage,
       getAirlines, createAirline, updateAirline, deleteAirline,
     }),
-    [admin, authLoading, login, logout, getCustomers, approveCustomer, updateCustomerProfileImage, unverifyCustomer, deleteCustomer, getInquiries, updateInquiryStatus, getPackages, createPackage, updatePackage, deletePackage, getGroupTicketCategories, createGroupTicketCategory, updateGroupTicketCategory, deleteGroupTicketCategory, getGroupTickets, createGroupTicket, updateGroupTicket, deleteGroupTicket, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry, getBankAccounts, createBankAccount, updateBankAccount, deleteBankAccount,
+    [admin, authLoading, login, logout, getCustomers, approveCustomer, updateCustomerProfileImage, approveCustomerProfileChanges, rejectCustomerProfileChanges, unverifyCustomer, deleteCustomer, getInquiries, updateInquiryStatus, getPackages, createPackage, updatePackage, deletePackage, getGroupTicketCategories, createGroupTicketCategory, updateGroupTicketCategory, deleteGroupTicketCategory, getGroupTickets, createGroupTicket, updateGroupTicket, deleteGroupTicket, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry, getBankAccounts, createBankAccount, updateBankAccount, deleteBankAccount,
       getAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement,getPopupImages, createPopupImage, deletePopupImage,
     ]
   );
