@@ -79,6 +79,8 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
   ), [counts, ticket])
 
   const resizeCount = (key, value) => {
+    if (key === 'adults' && (value > 9 || value < counts.infants)) return
+    if (key === 'infants' && value > counts.adults) return
     if (key === 'children' && value > counts.children && counts.adults === 0 && counts.infants < 2) return
     if (key === 'infants' && value < counts.infants && counts.adults === 0 && counts.children > 0 && value < 2) return
     if (key === 'adults' && value === 0 && counts.children > 0 && counts.infants < 2) return
@@ -271,9 +273,9 @@ export default function GroupTicketBookingModal({ ticket, user, onClose, onBooke
                       .map(({ key, label }) => (
                         <div key={key} className="flex items-center justify-between gap-2 rounded-xl border border-slate-200 px-3 py-2">
                           <span className="text-xs font-medium text-slate-600">{label}</span>
-                          <button type="button" aria-label={`Remove one ${label.toLowerCase()}`} disabled={counts[key] <= 0 || (key === 'adults' && counts[key] === 1 && counts.children > 0 && counts.infants < 2) || (key === 'infants' && counts.adults === 0 && counts.children > 0 && counts[key] <= 2)} onClick={() => resizeCount(key, counts[key] - 1)} className="size-7 cursor-pointer rounded-md bg-slate-100 font-bold text-[#003366] disabled:cursor-not-allowed disabled:opacity-40">−</button>
+                          <button type="button" aria-label={`Remove one ${label.toLowerCase()}`} disabled={counts[key] <= 0 || (key === 'adults' && (counts[key] <= counts.infants || (counts[key] === 1 && counts.children > 0 && counts.infants < 2))) || (key === 'infants' && counts.adults === 0 && counts.children > 0 && counts[key] <= 2)} onClick={() => resizeCount(key, counts[key] - 1)} className="size-7 cursor-pointer rounded-md bg-slate-100 font-bold text-[#003366] disabled:cursor-not-allowed disabled:opacity-40">−</button>
                           <span className="min-w-4 text-center text-sm font-semibold text-[#153750]">{counts[key]}</span>
-                          <button type="button" aria-label={`Add one ${label.toLowerCase()}`} disabled={key === 'children' && counts.adults === 0 && counts.infants < 2} onClick={() => resizeCount(key, counts[key] + 1)} className="size-7 cursor-pointer rounded-md bg-[#FF6B35]/10 font-bold text-[#d84c19] disabled:cursor-not-allowed disabled:opacity-40">+</button>
+                          <button type="button" aria-label={`Add one ${label.toLowerCase()}`} disabled={(key === 'adults' && counts.adults >= 9) || (key === 'infants' && (counts.adults === 0 || counts.infants >= counts.adults)) || (key === 'children' && counts.adults === 0 && counts.infants < 2)} onClick={() => resizeCount(key, counts[key] + 1)} className="size-7 cursor-pointer rounded-md bg-[#FF6B35]/10 font-bold text-[#d84c19] disabled:cursor-not-allowed disabled:opacity-40">+</button>
                           {/* <span className="hidden text-[10px] text-slate-500 2xl:inline">{ticket.infantPriceOnCall && key === 'infants' ? 'On call' : formatFare(ticket.currency, ticket[fare])}</span> */}
                         </div>
                       ))}

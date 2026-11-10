@@ -58,6 +58,12 @@ export const createGroupBooking = async (req, res) => {
       || !Number.isInteger(counts.infants) || counts.infants < 0) {
       return res.status(400).json({ success: false, message: 'Enter valid passenger counts.' });
     }
+    if (counts.adults > 9) {
+      return res.status(400).json({ success: false, message: 'A booking can include a maximum of 9 adults.' });
+    }
+    if (counts.infants > counts.adults) {
+      return res.status(400).json({ success: false, message: 'Infants cannot exceed the number of adults. Add an adult first.' });
+    }
     if (counts.adults + counts.children + counts.infants === 0) {
       return res.status(400).json({ success: false, message: 'Add at least one passenger.' });
     }
