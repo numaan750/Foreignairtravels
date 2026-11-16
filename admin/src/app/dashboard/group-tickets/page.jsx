@@ -160,6 +160,7 @@ export default function GroupTicketsPage() {
                       <p className="truncate text-[11px] font-medium text-[#FF6B35]">{ticket.category?.name || "Category missing"}</p>
                       <h2 className="truncate text-sm font-semibold text-[#003366]">{ticket.groupName}</h2>
                       <p className="truncate text-xs text-[#003366]/70">{ticket.airlineId?.name || ticket.airline} · {formatDate(ticket.departureDate)}</p>
+                      {ticket.sourceIntegration && <p className="truncate text-[11px] font-semibold text-emerald-700">Synced from connected website</p>}
                     </div>
                   </div>
                   <div className="min-w-0 space-y-0.5 text-xs text-[#003366]/75">
@@ -168,7 +169,7 @@ export default function GroupTicketsPage() {
                   <p className="truncate text-xs font-semibold text-[#003366]">{ticket.currency} {Number(ticket.adultFare).toLocaleString()} adult · {ticket.baggage} baggage</p>
                   <div className="flex gap-3 sm:w-40">
                     <button onClick={() => openForm(ticket)} className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#EDEEE9] px-3 py-2 text-xs font-medium text-[#003366] hover:bg-[#003366] hover:text-white"><FiEdit2 /> Edit</button>
-                    <button onClick={() => handleDelete(ticket)} className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-600 hover:text-white"><FiTrash2 /> Delete</button>
+                    {!ticket.sourceIntegration && <button onClick={() => handleDelete(ticket)} className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-600 hover:text-white"><FiTrash2 /> Delete</button>}
                   </div>
                 </article>
               ))}

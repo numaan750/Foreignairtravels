@@ -10,6 +10,7 @@ import {
   FiBell,
   FiImage,
   FiBookOpen,
+  FiRefreshCw,
 } from "react-icons/fi";
 
 import { LuPlane } from "react-icons/lu";
@@ -35,6 +36,7 @@ export const navItems = [
     children: [
       { label: "Group Ticket Categories", href: "/dashboard/group-ticket-categories", icon: FiLayers },
       { label: "Group Tickets", href: "/dashboard/group-tickets", icon: LuPlane },
+      { label: "Ticket Sync", href: "/dashboard/ticket-sync", icon: FiRefreshCw },
       { label: "Customers", href: "/dashboard/customers", icon: FiUsers },
       { label: "Inquiries", href: "/dashboard/inquiries", icon: FiMessageSquare },
       { label: "Agent Ledgers", href: "/dashboard/ledger", icon: FiBookOpen },

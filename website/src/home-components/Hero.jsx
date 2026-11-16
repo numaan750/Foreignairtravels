@@ -10,7 +10,7 @@ const Hero = () => {
     >
       {/* Background image */}
       <Image
-        src="/hero-travel.jpg"
+        src="/Find-Your-Special-Tour-Today.jpg"
         alt=""
         fill
         priority

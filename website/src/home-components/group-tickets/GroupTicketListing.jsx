@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { FiCalendar, FiClock, FiShoppingCart } from 'react-icons/fi'
-import { FaPlane, FaPlaneArrival, FaPlaneDeparture, FaSuitcase, FaUtensils } from 'react-icons/fa'
+import { FiArrowRight, FiCalendar, FiClock, FiShoppingCart } from 'react-icons/fi'
+import { FaPlane, FaPlaneDeparture, FaSuitcase, FaUtensils } from 'react-icons/fa'
 import { useApp } from '@/context/AppContext'
 import GroupTicketBookingModal from './GroupTicketBookingModal'
 
@@ -63,7 +63,7 @@ function TicketGroupCard({ tickets, selectedTicketId, onBook }) {
   const airlineName = firstTicket.airlineId?.name || firstTicket.airline
   const airlineLogo = firstTicket.airlineId?.logo || firstTicket.airlineLogo
   const tagline = firstTicket.category?.tagline?.trim()
-  const columnLayout = 'xl:grid-cols-[minmax(120px,1.05fr)_minmax(170px,1.35fr)_minmax(120px,1fr)_minmax(80px,0.7fr)_minmax(75px,0.65fr)_minmax(155px,1.1fr)_minmax(120px,0.85fr)]'
+  const columnLayout = 'xl:grid-cols-[minmax(100px,0.9fr)_minmax(100px,0.9fr)_minmax(145px,1.2fr)_minmax(120px,1fr)_minmax(80px,0.7fr)_minmax(75px,0.65fr)_minmax(140px,1.1fr)_minmax(120px,0.9fr)]'
 
   return (
     <article className={`overflow-hidden rounded-2xl border bg-white shadow-[0_8px_24px_rgba(0,51,102,0.06)] ${tickets.some((ticket) => ticket._id === selectedTicketId) ? 'border-[#FF6B35] ring-2 ring-[#FF6B35]/15' : 'border-slate-200'}`}>
@@ -90,9 +90,10 @@ function TicketGroupCard({ tickets, selectedTicketId, onBook }) {
         </span> */}
       </div>
 
-      <div className={`hidden min-w-0 grid-cols-7 items-center gap-0 bg-gradient-to-r from-[#124f7c] to-[#2097dc] py-3 text-center text-sm font-semibold uppercase tracking-[0.08em] text-white xl:divide-x xl:divide-white/20 md:text-base ${columnLayout} xl:grid`}>
+      <div className={`hidden min-w-0 grid-cols-8 items-center gap-0 bg-gradient-to-r from-[#124f7c] to-[#2097dc] py-3 text-center text-sm font-semibold uppercase tracking-[0.08em] text-white xl:divide-x xl:divide-white/20 md:text-base ${columnLayout} xl:grid`}>
         <span className="flex items-center justify-center gap-2"><FiCalendar aria-hidden="true" />Date</span>
         <span className="flex items-center justify-center gap-2"><FaPlane aria-hidden="true" />Flight</span>
+        <span className="flex items-center justify-center gap-2 text-[14px]"><FaPlaneDeparture aria-hidden="true" />Origin-Destination</span>
         <span className="flex items-center justify-center gap-2"><FiClock aria-hidden="true" />Time</span>
         <span className="flex items-center justify-center gap-2"><FaSuitcase aria-hidden="true" />Bag</span>
         <span className="flex items-center justify-center gap-2"><FaUtensils aria-hidden="true" />Meal</span>
@@ -119,14 +120,20 @@ function TicketGroupCard({ tickets, selectedTicketId, onBook }) {
                 <div className="space-y-1">
                   {ticket.segments.map((segment, index) => (
                     <div key={`${segment.flightNumber}-${index}`} className="min-w-0 text-xs leading-5 text-[#003366]">
-                      {/* <p className="flex min-w-0 flex-wrap items-center gap-1 font-medium">
-                        <FaPlaneDeparture aria-hidden="true" className="shrink-0 text-[#FF6B35]" />
-                        <span className="break-words">{segment.from}</span>
-                        <FaPlaneArrival aria-hidden="true" className="shrink-0 text-[#FF6B35]" />
-                        <span className="break-words">{segment.to}</span>
-                      </p> */}
                       <p className="break-words text-base font-bold text-black">{segment.flightNumber}</p>
                     </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex min-w-0 flex-col justify-center bg-white px-4 py-3 sm:px-5 xl:items-center xl:text-center font-bold">
+                <p className="mb-1 text-base font-bold uppercase tracking-[0.12em] text-slate-600 xl:hidden">Origin-Destination</p>
+                <div className="space-y-1 ">
+                  {ticket.segments.map((segment, index) => (
+                    <p key={`${segment.flightNumber}-sector-${index}`} className="flex min-w-0 flex-wrap items-center gap-1 text-base font-bold leading-5 text-[#003366] xl:justify-center">
+                      <span className="break-words">{segment.from}</span>
+                      <FiArrowRight aria-hidden="true" className="size-3.5 shrink-0 text-[#FF6B35]" />
+                      <span className="break-words">{segment.to}</span>
+                    </p>
                   ))}
                 </div>
               </div>

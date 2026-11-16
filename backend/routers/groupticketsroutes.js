@@ -9,7 +9,10 @@ import {
 
 const router = express.Router();
 
-router.get('/', getGroupTickets);
+router.get('/', (req, res, next) => {
+  if (req.query.all === 'true') return protectAdmin(req, res, next);
+  return next();
+}, getGroupTickets);
 router.post('/', protectAdmin, createGroupTicket);
 router.put('/:id', protectAdmin, updateGroupTicket);
 router.delete('/:id', protectAdmin, deleteGroupTicket);

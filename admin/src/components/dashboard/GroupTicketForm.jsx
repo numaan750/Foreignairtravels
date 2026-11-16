@@ -92,7 +92,7 @@ export default function GroupTicketForm({ initial, categories, airlines, saving,
             </select>
           </Field>
           <Field label="Airline">
-            <select name="airlineId" value={form.airlineId} onChange={setValue} required className={`dropdown-select ${inputClass}`}>
+            <select name="airlineId" value={form.airlineId} onChange={setValue} required={!initial?.sourceIntegration} className={`dropdown-select ${inputClass}`}>
               <option value="">Select airline</option>
               {airlines.map((airline) => <option key={airline._id} value={airline._id}>{airline.name}</option>)}
             </select>

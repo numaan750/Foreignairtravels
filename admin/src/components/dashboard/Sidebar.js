@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaPlaneDeparture } from "react-icons/fa";
 import { FiChevronDown, FiLogOut, FiX } from "react-icons/fi";
 import { useApp } from "@/context/AppContext";
 import { navItems, isActivePath } from "@/config/navItems";
@@ -39,10 +39,14 @@ export default function Sidebar({ open, onClose }) {
         {/* Brand */}
         <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FF6B35] text-base text-white">
-              <FaPlaneDeparture />
-            </div>
-            <span className="text-lg font-bold tracking-tight">ForeignAirTravel</span>
+            <Image
+              src="/FOREIGN-AIR-TRAVEL-white.png"
+              alt="ForeignAirTravel"
+              width={400}
+              height={163}
+              priority
+              className="h-[60px] w-auto object-contain"
+            />
           </div>
 
           <button

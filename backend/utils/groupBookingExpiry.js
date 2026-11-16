@@ -29,10 +29,14 @@ export const expirePendingGroupBookings = async () => {
 
     if (!expired) continue;
 
-    await GroupTicket.updateOne(
-      { _id: expired.ticket, reservedBooking: expired._id },
-      { $set: { isAvailable: true }, $unset: { reservedBooking: 1 } }
-    );
+    const ticket = await GroupTicket.findOne({ _id: expired.ticket, reservedBooking: expired._id });
+    if (ticket) {
+      ticket.isAvailable = ticket.sourceIntegration
+        ? ticket.sourceAvailable && ticket.isActive
+        : true;
+      ticket.reservedBooking = null;
+      await ticket.save();
+    }
     expiredCount += 1;
   }
 

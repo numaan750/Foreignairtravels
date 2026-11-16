@@ -46,7 +46,7 @@ const About = () => {
       />
 
       <div className="mycontainer">
-        <div className="grid min-w-0 items-center gap-12 lg:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)] lg:gap-16 xl:gap-24">
+        <div className="grid min-w-0 items-center gap-12 xl:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)] xl:gap-24">
           <div className="min-w-0 lg:py-6">
             <p className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#e95f2d] sm:text-[12px]">
               <span aria-hidden="true" className="h-px w-8 bg-[#e95f2d]" />
@@ -116,9 +116,9 @@ const About = () => {
               className="absolute bottom-0 left-0 hidden h-[88%] w-[88%] rounded-[36px] border border-[#07324a]/10 sm:block lg:-left-5"
             />
 
-            <div className="relative ml-auto aspect-[4/5] w-full overflow-hidden rounded-[28px] bg-slate-300 shadow-[0_32px_80px_rgba(7,50,74,0.20)] sm:aspect-[16/11] sm:w-[94%] sm:rounded-[36px] lg:aspect-auto lg:min-h-[660px] lg:w-[94%]">
+            <div className="relative ml-auto aspect-[16/11] w-full overflow-hidden rounded-[28px] bg-slate-300 shadow-[0_32px_80px_rgba(7,50,74,0.20)] sm:w-[94%] sm:rounded-[36px] lg:w-[94%]">
               <Image
-                src="/cappadocia-journey.png"
+                src="/cappadocia-journey.jpg"
                 alt="A sunrise journey overlooking Cappadocia and its hot-air balloons"
                 fill
                 sizes="(min-width: 1280px) 50vw, (min-width: 1024px) 52vw, 90vw"
@@ -135,15 +135,15 @@ const About = () => {
                 Travel, thoughtfully
               </div>
 
-              <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7 lg:p-8">
-                <p className="max-w-[520px] text-[24px] font-semibold leading-[1.12] tracking-[-0.035em] text-white sm:text-[30px] lg:text-[34px]">
+              <div className="absolute inset-x-0 bottom-3 p-4 sm:bottom-[50px] sm:p-7 lg:p-8">
+                <p className="max-w-[520px] text-[20px] font-semibold leading-[1.12] tracking-[-0.035em] text-white sm:text-[28px] lg:text-[34px]">
                   From the first idea to the final itinerary.
                 </p>
-                <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.16em] text-white/70 sm:text-[12px]">
+                {/* <p className="mt-2 text-[9px] font-medium uppercase tracking-[0.16em] text-white/70 sm:mt-3 sm:text-[12px]">
                   Flights <span className="px-1.5 text-[#ff9c78]">/</span> Stays
                   <span className="px-1.5 text-[#ff9c78]">/</span> Visas
                   <span className="px-1.5 text-[#ff9c78]">/</span> Tours
-                </p>
+                </p> */}
               </div>
             </div>
 

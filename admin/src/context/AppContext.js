@@ -198,6 +198,15 @@ export function AppProvider({ children }) {
   const createGroupTicket = useCallback((body) => request("/api/group-tickets", { method: "POST", body }), [request]);
   const updateGroupTicket = useCallback((id, body) => request(`/api/group-tickets/${id}`, { method: "PUT", body }), [request]);
   const deleteGroupTicket = useCallback((id) => request(`/api/group-tickets/${id}`, { method: "DELETE" }), [request]);
+  const getTicketIntegrations = useCallback(() => request("/api/group-ticket-integrations", { cache: "no-store" }), [request]);
+  const createTicketIntegration = useCallback((body) => request("/api/group-ticket-integrations", { method: "POST", body }), [request]);
+  const updateTicketIntegration = useCallback((id, body) => request(`/api/group-ticket-integrations/${id}`, { method: "PUT", body }), [request]);
+  const deleteTicketIntegration = useCallback((id) => request(`/api/group-ticket-integrations/${id}`, { method: "DELETE" }), [request]);
+  const syncTicketIntegration = useCallback((id) => request(`/api/group-ticket-integrations/${id}/sync`, { method: "POST" }), [request]);
+  const getTicketIntegrationKeys = useCallback(() => request("/api/group-ticket-integrations/keys", { cache: "no-store" }), [request]);
+  const createTicketIntegrationKey = useCallback((body) => request("/api/group-ticket-integrations/keys", { method: "POST", body }), [request]);
+  const revokeTicketIntegrationKey = useCallback((id) => request(`/api/group-ticket-integrations/keys/${id}`, { method: "DELETE" }), [request]);
+  const previewTicketIntegration = useCallback((body) => request("/api/group-ticket-integrations/preview", { method: "POST", body }), [request]);
 
   // ---------- UPLOAD ----------
   const uploadImage = useCallback(
@@ -236,6 +245,15 @@ export function AppProvider({ children }) {
       createGroupTicket,
       updateGroupTicket,
       deleteGroupTicket,
+      getTicketIntegrations,
+      createTicketIntegration,
+      updateTicketIntegration,
+      deleteTicketIntegration,
+      syncTicketIntegration,
+      getTicketIntegrationKeys,
+      createTicketIntegrationKey,
+      revokeTicketIntegrationKey,
+      previewTicketIntegration,
       uploadImage,
       getServices,
       createService,
@@ -258,7 +276,7 @@ export function AppProvider({ children }) {
       deletePopupImage,
       getAirlines, createAirline, updateAirline, deleteAirline,
     }),
-    [admin, authLoading, login, logout, getCustomers, approveCustomer, updateCustomerProfileImage, approveCustomerProfileChanges, rejectCustomerProfileChanges, unverifyCustomer, deleteCustomer, getInquiries, updateInquiryStatus, getPackages, createPackage, updatePackage, deletePackage, getGroupTicketCategories, createGroupTicketCategory, updateGroupTicketCategory, deleteGroupTicketCategory, getGroupTickets, createGroupTicket, updateGroupTicket, deleteGroupTicket, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry, getBankAccounts, createBankAccount, updateBankAccount, deleteBankAccount,
+    [admin, authLoading, login, logout, getCustomers, approveCustomer, updateCustomerProfileImage, approveCustomerProfileChanges, rejectCustomerProfileChanges, unverifyCustomer, deleteCustomer, getInquiries, updateInquiryStatus, getPackages, createPackage, updatePackage, deletePackage, getGroupTicketCategories, createGroupTicketCategory, updateGroupTicketCategory, deleteGroupTicketCategory, getGroupTickets, createGroupTicket, updateGroupTicket, deleteGroupTicket, getTicketIntegrations, createTicketIntegration, updateTicketIntegration, deleteTicketIntegration, syncTicketIntegration, getTicketIntegrationKeys, createTicketIntegrationKey, revokeTicketIntegrationKey, previewTicketIntegration, uploadImage, getServices, createService, updateService, deleteService, getAirlines, createAirline, updateAirline, deleteAirline, getCountries, createCountry, updateCountry, deleteCountry, getBankAccounts, createBankAccount, updateBankAccount, deleteBankAccount,
       getAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement,getPopupImages, createPopupImage, deletePopupImage,
     ]
   );

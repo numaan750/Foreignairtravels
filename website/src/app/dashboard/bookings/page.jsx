@@ -31,7 +31,11 @@ const formatDate = (value) => {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
     ? "Date unavailable"
-    : date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+    : date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
 };
 
 const formatDateTime = (value) => {
@@ -39,12 +43,12 @@ const formatDateTime = (value) => {
   return Number.isNaN(date.getTime())
     ? "Date unavailable"
     : date.toLocaleString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
 };
 
 const formatFare = (currency, amount) =>
@@ -53,34 +57,72 @@ const formatFare = (currency, amount) =>
 const getStatusLabel = (status) =>
   bookingStatuses.find((item) => item.value === status)?.label || status;
 
-const pdfText = (value) => String(value ?? "")
-  .normalize("NFKD")
-  .replace(/[^\x20-\x7E]/g, " ")
-  .replace(/\s+/g, " ")
-  .trim();
+const pdfText = (value) =>
+  String(value ?? "")
+    .normalize("NFKD")
+    .replace(/[^\x20-\x7E]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
 const barcodePatterns = {
-  "0": "nnnwwnwnn", "1": "wnnwnnnnw", "2": "nnwwnnnnw", "3": "wnwwnnnnn",
-  "4": "nnnwwnnnw", "5": "wnnwwnnnn", "6": "nnwwwnnnn", "7": "nnnwnnwnw",
-  "8": "wnnwnnwnn", "9": "nnwwnnwnn", A: "wnnnnwnnw", B: "nnwnnwnnw",
-  C: "wnwnnwnnn", D: "nnnnwwnnw", E: "wnnnwwnnn", F: "nnwnwwnnn",
-  G: "nnnnnwwnw", H: "wnnnnwwnn", I: "nnwnnwwnn", J: "nnnnwwwnn",
-  K: "wnnnnnnww", L: "nnwnnnnww", M: "wnwnnnnwn", N: "nnnnwnnww",
-  O: "wnnnwnnwn", P: "nnwnwnnwn", Q: "nnnnnnwww", R: "wnnnnnwwn",
-  S: "nnwnnnwwn", T: "nnnnwnwwn", U: "wwnnnnnnw", V: "nwwnnnnnw",
-  W: "wwwnnnnnn", X: "nwnnwnnnw", Y: "wwnnwnnnn", Z: "nwwnwnnnn",
-  "-": "nwnnnnwnw", ".": "wwnnnnwnn", " ": "nwwnnnwnn", $: "nwnwnwnnn",
-  "/": "nwnwnnnwn", "+": "nwnnnwnwn", "%": "nnnwnwnwn", "*": "nwnnwnwnn",
+  0: "nnnwwnwnn",
+  1: "wnnwnnnnw",
+  2: "nnwwnnnnw",
+  3: "wnwwnnnnn",
+  4: "nnnwwnnnw",
+  5: "wnnwwnnnn",
+  6: "nnwwwnnnn",
+  7: "nnnwnnwnw",
+  8: "wnnwnnwnn",
+  9: "nnwwnnwnn",
+  A: "wnnnnwnnw",
+  B: "nnwnnwnnw",
+  C: "wnwnnwnnn",
+  D: "nnnnwwnnw",
+  E: "wnnnwwnnn",
+  F: "nnwnwwnnn",
+  G: "nnnnnwwnw",
+  H: "wnnnnwwnn",
+  I: "nnwnnwwnn",
+  J: "nnnnwwwnn",
+  K: "wnnnnnnww",
+  L: "nnwnnnnww",
+  M: "wnwnnnnwn",
+  N: "nnnnwnnww",
+  O: "wnnnwnnwn",
+  P: "nnwnwnnwn",
+  Q: "nnnnnnwww",
+  R: "wnnnnnwwn",
+  S: "nnwnnnwwn",
+  T: "nnnnwnwwn",
+  U: "wwnnnnnnw",
+  V: "nwwnnnnnw",
+  W: "wwwnnnnnn",
+  X: "nwnnwnnnw",
+  Y: "wwnnwnnnn",
+  Z: "nwwnwnnnn",
+  "-": "nwnnnnwnw",
+  ".": "wwnnnnwnn",
+  " ": "nwwnnnwnn",
+  $: "nwnwnwnnn",
+  "/": "nwnwnnnwn",
+  "+": "nwnnnwnwn",
+  "%": "nnnwnwnwn",
+  "*": "nwnnwnwnn",
 };
 
 function drawBookingBarcode(doc, value, x, y, maxWidth, height) {
   const characters = `*${value.toUpperCase()}*`;
-  const patterns = [...characters].map((character) => barcodePatterns[character]);
+  const patterns = [...characters].map(
+    (character) => barcodePatterns[character],
+  );
   if (patterns.some((pattern) => !pattern)) return;
 
   const moduleCount = patterns.reduce(
-    (sum, pattern) => sum + [...pattern].reduce((width, part) => width + (part === "w" ? 3 : 1), 0),
-    characters.length - 1
+    (sum, pattern) =>
+      sum +
+      [...pattern].reduce((width, part) => width + (part === "w" ? 3 : 1), 0),
+    characters.length - 1,
   );
   const narrowWidth = maxWidth / moduleCount;
   let position = x;
@@ -99,7 +141,8 @@ async function getLogoDataUrl(logoUrl) {
   if (!logoUrl) return null;
 
   const response = await fetch(logoUrl);
-  if (!response.ok) throw new Error("Airline logo could not be loaded for the PDF.");
+  if (!response.ok)
+    throw new Error("Airline logo could not be loaded for the PDF.");
   const imageBlob = await response.blob();
   const objectUrl = URL.createObjectURL(imageBlob);
 
@@ -111,7 +154,8 @@ async function getLogoDataUrl(logoUrl) {
     canvas.width = image.naturalWidth;
     canvas.height = image.naturalHeight;
     const context = canvas.getContext("2d");
-    if (!context) throw new Error("The airline logo could not be prepared for the PDF.");
+    if (!context)
+      throw new Error("The airline logo could not be prepared for the PDF.");
     context.drawImage(image, 0, 0);
     return {
       dataUrl: canvas.toDataURL("image/png"),
@@ -123,7 +167,13 @@ async function getLogoDataUrl(logoUrl) {
   }
 }
 
-function createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice, user) {
+function createBookingPdf(
+  booking,
+  invoiceLogo,
+  airlineLogo,
+  includePrice,
+  user,
+) {
   const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
   const details = booking.ticketDetails;
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -135,24 +185,30 @@ function createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice, user)
     const date = new Date(value);
     return Number.isNaN(date.getTime())
       ? "Not provided"
-      : date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+      : date.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
   };
   const dateTimeText = (value) => {
     const date = new Date(value);
     return Number.isNaN(date.getTime())
       ? "Not provided"
       : date.toLocaleString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
   };
   const money = (value) =>
     `${pdfText(details.currency || "SAR")} ${Number(value || 0).toLocaleString("en-US")}`;
   const colors = {
     blue: [0, 139, 190],
+    navy: [18, 48, 100],
+    orange: [255, 107, 53],
     paleBlue: [232, 247, 252],
     ink: [25, 31, 39],
     muted: [95, 103, 112],
@@ -169,32 +225,66 @@ function createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice, user)
       return positioned;
     });
   };
+  const splitCellLines = (value, width, fontSize = 9.5, fontStyle = "normal") =>
+    String(value ?? "")
+      .split(/\r?\n/)
+      .flatMap((line) => {
+        const text = pdfText(line);
+        let fittedFontSize = fontSize;
+        doc.setFont("helvetica", fontStyle);
+        doc.setFontSize(fittedFontSize);
+        while (doc.getTextWidth(text) > width && fittedFontSize > 7.5) {
+          fittedFontSize -= 0.5;
+          doc.setFontSize(fittedFontSize);
+        }
+        if (doc.getTextWidth(text) > width) {
+          return doc
+            .splitTextToSize(text, width)
+            .map((part) => ({ text: part, fontSize: fittedFontSize }));
+        }
+        return [{ text, fontSize: fittedFontSize }];
+      });
   const drawTableHeader = (tableColumns, y) => {
-    const fontSize = 8;
-    const lineHeight = 3.5;
+    const fontSize = 9;
+    const lineHeight = 4;
     const headerLines = tableColumns.map((column) =>
-      doc.splitTextToSize(column.label, column.width - 4)
+      splitCellLines(column.label, column.width - 4, fontSize, "bold"),
     );
-    const height = Math.max(8, ...headerLines.map((lines) => lines.length * lineHeight + 3));
+    const height = Math.max(
+      9,
+      ...headerLines.map((lines) => lines.length * lineHeight + 3),
+    );
     doc.setFillColor(...colors.blue);
     doc.rect(margin, y, contentWidth, height, "F");
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(fontSize);
     doc.setTextColor(...colors.white);
     tableColumns.forEach((column, index) => {
-      doc.text(headerLines[index], column.x + 2, y + 4.5);
+      headerLines[index].forEach((line, lineIndex) => {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(line.fontSize);
+        doc.text(line.text, column.x + 2, y + 5 + lineIndex * lineHeight);
+      });
     });
     return y + height;
   };
-  const drawTableRow = (tableColumns, values, y, alternate = false) => {
-    const fontSize = 8.5;
-    const lineHeight = 3.8;
+  const drawTableRow = (
+    tableColumns,
+    values,
+    y,
+    alternate = false,
+    firstCellLogo = null,
+  ) => {
+    const fontSize = 9.5;
+    const lineHeight = 4.2;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(fontSize);
-    const cellLines = values.map((value, index) =>
-      doc.splitTextToSize(pdfText(value), tableColumns[index].width - 4)
+    const cellLines = values.map((value, index) => {
+      const logoOffset = index === 0 && firstCellLogo ? 8 : 0;
+      return splitCellLines(value, tableColumns[index].width - 4 - logoOffset);
+    });
+    const height = Math.max(
+      10,
+      ...cellLines.map((lines) => lines.length * lineHeight + 4),
     );
-    const height = Math.max(9, ...cellLines.map((lines) => lines.length * lineHeight + 4));
     if (alternate) {
       doc.setFillColor(...colors.paleBlue);
       doc.rect(margin, y, contentWidth, height, "F");
@@ -204,7 +294,40 @@ function createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice, user)
     doc.rect(margin, y, contentWidth, height, "S");
     tableColumns.forEach((column, index) => {
       doc.setTextColor(...colors.ink);
-      doc.text(cellLines[index], column.x + 2, y + 4.5);
+      const hasLogo = index === 0 && firstCellLogo;
+      if (hasLogo) {
+        const scale = Math.min(
+          7 / firstCellLogo.width,
+          6 / firstCellLogo.height,
+        );
+        const logoWidth = firstCellLogo.width * scale;
+        const logoHeight = firstCellLogo.height * scale;
+        doc.addImage(
+          firstCellLogo.dataUrl,
+          "PNG",
+          column.x + 2,
+          y + (height - logoHeight) / 2,
+          logoWidth,
+          logoHeight,
+          undefined,
+          "FAST",
+        );
+      }
+      const textStartY = hasLogo
+        ? y +
+          height / 2 -
+          ((cellLines[index].length - 1) * lineHeight) / 2 +
+          1.5
+        : y + 5;
+      cellLines[index].forEach((line, lineIndex) => {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(line.fontSize);
+        doc.text(
+          line.text,
+          column.x + 2 + (hasLogo ? 8 : 0),
+          textStartY + lineIndex * lineHeight,
+        );
+      });
       if (index > 0) {
         doc.line(column.x, y, column.x, y + height);
       }
@@ -213,7 +336,7 @@ function createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice, user)
   };
   const drawSectionTitle = (label, y) => {
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
+    doc.setFontSize(11);
     doc.setTextColor(...colors.ink);
     doc.text(label, margin, y);
     doc.setDrawColor(...colors.border);
@@ -229,9 +352,12 @@ function createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice, user)
     doc.setFontSize(7.5);
     doc.setTextColor(...colors.muted);
     doc.text(`Booking reference: ${bookingReference}`, margin, pageHeight - 9);
-    doc.text("Travel itinerary", pageWidth - margin, pageHeight - 9, { align: "right" });
+    doc.text("Travel itinerary", pageWidth - margin, pageHeight - 9, {
+      align: "right",
+    });
   };
 
+  const segments = details.segments || [];
   doc.setFillColor(255, 255, 255);
   doc.rect(0, 0, pageWidth, pageHeight, "F");
   if (invoiceLogo) {
@@ -241,150 +367,243 @@ function createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice, user)
     doc.addImage(
       invoiceLogo.dataUrl,
       "PNG",
-      margin,
+      pageWidth - margin - logoWidth,
       7 + (22 - logoHeight) / 2,
       logoWidth,
       logoHeight,
       undefined,
-      "FAST"
+      "FAST",
     );
   }
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  setColor("muted");
-  doc.text("TRAVEL ITINERARY", pageWidth / 2, 34, { align: "center" });
+  doc.setDrawColor(...colors.border);
+  doc.setLineWidth(0.25);
+  doc.line(margin, 30, pageWidth - margin, 30);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(15);
-  setColor("ink");
-  doc.text(`Booking reference: ${bookingReference}`, pageWidth / 2, 41, { align: "center" });
-  drawBookingBarcode(doc, bookingReference, (pageWidth - 54) / 2, 45, 54, 7);
+  doc.setFontSize(20);
+  setColor("navy");
+  doc.text("Electronic Ticket Reservation", margin, 38);
+  const groupName = splitCellLines(
+    details.groupName || "",
+    contentWidth - 2,
+    8,
+    "normal",
+  )[0];
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
+  doc.setFontSize(groupName.fontSize);
   setColor("muted");
-  doc.text("Booking reference barcode", pageWidth / 2, 55, { align: "center" });
+  doc.text(groupName.text, margin, 42);
 
-  let y = 61;
-  let airlineLogoWidth = 0;
-  if (airlineLogo) {
-    const scale = Math.min(20 / airlineLogo.width, 10 / airlineLogo.height);
-    airlineLogoWidth = airlineLogo.width * scale;
-    const logoHeight = airlineLogo.height * scale;
-    doc.addImage(
-      airlineLogo.dataUrl,
-      "PNG",
-      margin,
-      y - 5 + (10 - logoHeight) / 2,
-      airlineLogoWidth,
-      logoHeight,
-      undefined,
-      "FAST"
-    );
-  }
-  const airlineTextX = margin + (airlineLogo ? airlineLogoWidth + 3 : 0);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  setColor("ink");
-  doc.text(pdfText(details.airline || "Airline"), airlineTextX, y + 1);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  setColor(booking.status === "confirmed" || booking.status === "completed" ? "blue" : "muted");
-  doc.text(`STATUS: ${pdfText(getStatusLabel(booking.status)).toUpperCase()}`, pageWidth - margin, y + 1, { align: "right" });
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
-  setColor("muted");
-  const groupNameLines = doc.splitTextToSize(pdfText(details.groupName || ""), contentWidth - 8);
-  if (groupNameLines[0]) doc.text(groupNameLines, airlineTextX, y + 5);
-
-  const segments = details.segments || [];
-  const firstSegment = segments[0];
-  const lastSegment = segments[segments.length - 1];
-  const routeLabel = segments.length
-    ? `${pdfText(firstSegment?.from || "Departure")} TO ${pdfText(lastSegment?.to || "Arrival")}`.toUpperCase()
-    : pdfText(details.groupName || details.airline || "Flight details").toUpperCase();
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  const routeLines = doc.splitTextToSize(routeLabel, contentWidth - 8);
-  const routeBarHeight = Math.max(9, routeLines.length * 4 + 3);
-  doc.setFillColor(...colors.blue);
-  const routeBarY = y + 8 + groupNameLines.length * 3;
-  doc.rect(margin, routeBarY, contentWidth, routeBarHeight, "F");
-  doc.setTextColor(...colors.white);
-  doc.text(routeLines, pageWidth / 2, routeBarY + (routeBarHeight - routeLines.length * 4) / 2 + 3, { align: "center" });
-  y = routeBarY + routeBarHeight + 5;
+  const cellWidth = contentWidth / 3;
+  const metadataRows = [
+    [
+      { label: "BOOKING REFERENCE (PNR)", value: bookingReference },
+      { label: "BOOKING ID", value: `BK-${bookingReference}` },
+      { label: "STATUS", value: getStatusLabel(booking.status) },
+    ],
+    [
+      { label: "ISSUED BY", value: "Foreign Air Travel" },
+      { label: "AGENT NAME", value: user?.name || "Not provided" },
+      {
+        label: "CONTACT",
+        value: user?.number || booking.contactPhone || "Not provided",
+      },
+    ],
+  ];
+  let y = 47;
+  const metadataRowHeights = [21, 18];
+  const metadataHeight = metadataRowHeights.reduce(
+    (total, height) => total + height,
+    0,
+  );
+  doc.setDrawColor(...colors.border);
+  doc.setLineWidth(0.45);
+  doc.roundedRect(margin, y, contentWidth, metadataHeight, 1.5, 1.5, "S");
+  doc.setFillColor(...colors.navy);
+  doc.roundedRect(margin, y, contentWidth, 3, 1.5, 1.5, "F");
+  doc.setFillColor(...colors.white);
+  doc.rect(margin + 0.25, y + 1.5, contentWidth - 0.5, 1.5, "F");
+  doc.setDrawColor(...colors.border);
+  doc.setLineWidth(0.45);
+  doc.line(margin, y + 1.5, margin, y + metadataHeight - 1.5);
+  doc.line(
+    pageWidth - margin,
+    y + 1.5,
+    pageWidth - margin,
+    y + metadataHeight - 1.5,
+  );
+  doc.line(
+    margin + 1.5,
+    y + metadataHeight,
+    pageWidth - margin - 1.5,
+    y + metadataHeight,
+  );
+  doc.setLineWidth(0.3);
+  doc.line(
+    margin + cellWidth,
+    y + 1.5,
+    margin + cellWidth,
+    y + metadataHeight - 1.5,
+  );
+  doc.line(
+    margin + cellWidth * 2,
+    y + 1.5,
+    margin + cellWidth * 2,
+    y + metadataHeight - 1.5,
+  );
+  doc.line(
+    margin,
+    y + metadataRowHeights[0],
+    pageWidth - margin,
+    y + metadataRowHeights[0],
+  );
+  metadataRows.forEach((row, rowIndex) => {
+    const rowHeight = metadataRowHeights[rowIndex];
+    row.forEach((item, columnIndex) => {
+      const x = margin + columnIndex * cellWidth;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      setColor("muted");
+      doc.text(item.label, x + 3, y + (rowIndex === 0 ? 7 : 5));
+      doc.setFont("helvetica", "bold");
+      let valueFontSize = 12;
+      const value = pdfText(item.value);
+      doc.setFontSize(valueFontSize);
+      while (doc.getTextWidth(value) > cellWidth - 6 && valueFontSize > 8.5) {
+        valueFontSize -= 0.5;
+        doc.setFontSize(valueFontSize);
+      }
+      setColor("navy");
+      doc.text(value, x + 3, y + (rowIndex === 0 ? 11.5 : 12));
+      if (rowIndex === 0 && columnIndex === 0) {
+        drawBookingBarcode(doc, bookingReference, x + 3, y + 14, 45, 5);
+      }
+    });
+    y += rowHeight;
+  });
+  y += 5;
 
   const flightColumns = columns([
-    { label: "DATE", width: 23 },
-    { label: "FLIGHT", width: 25 },
-    { label: "DEPARTURE", width: 43 },
-    { label: "ARRIVAL", width: 43 },
-    { label: "BAGGAGE", width: 33 },
-    { label: "MEAL", width: contentWidth - 167 },
+    { label: "AIRLINE", width: 40 },
+    { label: "FLIGHT #", width: 23 },
+    { label: "DEPARTURE", width: 40 },
+    { label: "ARRIVAL", width: 40 },
+    { label: "BAGGAGE", width: 23 },
+    { label: "MEAL", width: contentWidth - 166 },
   ]);
-  y = drawTableHeader(flightColumns, y);
   for (const [index, segment] of segments.entries()) {
     const flightRow = [
-      dateText(details.departureDate),
+      details.airline || "Airline",
       segment.flightNumber || "Not provided",
-      `${segment.from || "Not provided"}\n${segment.departureTime || "Time not provided"}`,
-      `${segment.to || "Not provided"}\n${segment.arrivalTime || "Time not provided"}`,
+      `${segment.departureTime || "Time not provided"}\n${segment.from || "Not provided"}\n${dateText(details.departureDate)}`,
+      `${segment.arrivalTime || "Time not provided"}\n${segment.to || "Not provided"}\n${dateText(details.departureDate)}`,
       details.baggage || "Not specified",
       details.mealAvailable ? "Yes" : "No",
     ];
-    let rowHeight;
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(8.5);
-    rowHeight = Math.max(
+    doc.setFontSize(9.5);
+    const rowHeight = Math.max(
       9,
-      ...flightRow.map((value, columnIndex) =>
-        doc.splitTextToSize(pdfText(value), flightColumns[columnIndex].width - 4).length * 3.8 + 4
-      )
+      ...flightRow.map((value, columnIndex) => {
+        const logoOffset = columnIndex === 0 && airlineLogo ? 8 : 0;
+        return (
+          splitCellLines(
+            value,
+            flightColumns[columnIndex].width - 4 - logoOffset,
+          ).length *
+            4.2 +
+          4
+        );
+      }),
     );
-    if (y + rowHeight > bottomLimit) {
+    const routeLabel = `Flight ${index + 1} - ${segment.from || "Departure"} to ${segment.to || "Arrival"}`;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    const routeLines = splitCellLines(routeLabel, contentWidth - 8, 11, "bold");
+    const routeBarHeight = Math.max(11, routeLines.length * 4.3 + 3);
+    if (y + routeBarHeight + 2 + 8 + rowHeight > bottomLimit) {
       drawFooter();
       doc.addPage();
       y = 18;
-      y = drawTableHeader(flightColumns, y);
     }
-    y = drawTableRow(flightColumns, flightRow, y, index % 2 === 1);
+    doc.setFillColor(...colors.orange);
+    doc.rect(margin, y, contentWidth, routeBarHeight, "F");
+    doc.setTextColor(...colors.white);
+    routeLines.forEach((line, lineIndex) => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(line.fontSize);
+      doc.text(
+        line.text,
+        margin + 4,
+        y +
+          (routeBarHeight - routeLines.length * 4.3) / 2 +
+          4 +
+          lineIndex * 4.3,
+      );
+    });
+    y += routeBarHeight + 2;
+    y = drawTableHeader(flightColumns, y);
+    y = drawTableRow(flightColumns, flightRow, y, index % 2 === 1, airlineLogo);
+    y += 4;
   }
 
-  y += 7;
+  y += 2;
+  if (y + 24 > bottomLimit) {
+    drawFooter();
+    doc.addPage();
+    y = 18;
+  }
   y = drawSectionTitle("PASSENGER DETAILS", y);
   const passengerColumns = includePrice
     ? columns([
-      { label: "PASSENGER NAME", width: 45 },
-      { label: "TYPE", width: 20 },
-      { label: "DATE OF BIRTH", width: 29 },
-      { label: "PASSPORT", width: 47 },
-      { label: "FARE", width: contentWidth - 141 },
-    ])
+        { label: "SR #", width: 11 },
+        { label: "PASSENGER NAME", width: 44 },
+        { label: "TYPE", width: 16 },
+        { label: "DATE OF BIRTH", width: 24 },
+        { label: "PASSPORT #", width: 42 },
+        { label: "MEAL", width: 18 },
+        { label: "FARE", width: contentWidth - 155 },
+      ])
     : columns([
-      { label: "PASSENGER NAME", width: 51 },
-      { label: "TYPE", width: 23 },
-      { label: "DATE OF BIRTH", width: 32 },
-      { label: "PASSPORT", width: contentWidth - 106 },
-    ]);
+        { label: "SR #", width: 11 },
+        { label: "PASSENGER NAME", width: 54 },
+        { label: "TYPE", width: 18 },
+        { label: "DATE OF BIRTH", width: 30 },
+        { label: "PASSPORT #", width: 48 },
+        { label: "MEAL", width: contentWidth - 161 },
+      ]);
   y = drawTableHeader(passengerColumns, y);
   booking.passengers.forEach((passenger, index) => {
     const values = [
+      String(index + 1),
       `${passenger.title} ${passenger.firstName} ${passenger.lastName}`,
-      passenger.type === "adult" ? "Adult" : passenger.type === "child" ? "Child" : "Infant",
+      passenger.type === "adult"
+        ? "Adult"
+        : passenger.type === "child"
+          ? "Child"
+          : "Infant",
       dateText(passenger.dateOfBirth),
       passenger.passportNumber || "Not provided",
+      details.mealAvailable ? "Yes" : "No",
       ...(includePrice
-        ? [passenger.type === "infant" && details.infantPriceOnCall
-          ? "On call"
-          : money(details[`${passenger.type}Fare`])]
+        ? [
+            passenger.type === "infant" && details.infantPriceOnCall
+              ? "On call"
+              : money(details[`${passenger.type}Fare`]),
+          ]
         : []),
     ];
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(8.5);
+    doc.setFontSize(9.5);
     const rowHeight = Math.max(
       9,
-      ...values.map((value, columnIndex) =>
-        doc.splitTextToSize(pdfText(value), passengerColumns[columnIndex].width - 4).length * 3.8 + 4
-      )
+      ...values.map(
+        (value, columnIndex) =>
+          splitCellLines(value, passengerColumns[columnIndex].width - 4)
+            .length *
+            4.2 +
+          4,
+      ),
     );
     if (y + rowHeight > bottomLimit) {
       drawFooter();
@@ -397,7 +616,17 @@ function createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice, user)
   });
 
   y += 7;
-  const bookingInfoHeight = 30 + (includePrice ? 7 : 0) + (booking.confirmedAt ? 4 : 0);
+  const leftInfo = [
+    `Passenger contact: ${pdfText(booking.contactPhone || "Not provided")}`,
+    `Email: ${pdfText(user?.email || "Not provided")}`,
+    `Address: ${pdfText(user?.city || "Not provided")}`,
+  ];
+  const rightInfo = [`Reserved at: ${dateTimeText(booking.createdAt)}`];
+  if (booking.confirmedAt)
+    rightInfo.push(`Confirmed at: ${dateTimeText(booking.confirmedAt)}`);
+  if (includePrice) rightInfo.push(`TOTAL: ${money(booking.totalPrice)}`);
+  const bookingInfoHeight =
+    22 + (includePrice ? 4 : 0) + (booking.confirmedAt ? 4 : 0);
   if (y + bookingInfoHeight > bottomLimit) {
     drawFooter();
     doc.addPage();
@@ -408,32 +637,46 @@ function createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice, user)
   const leftX = margin + 2;
   const rightX = pageWidth / 2 + 2;
   const infoColumnWidth = contentWidth / 2 - 5;
-  const leftInfo = [
-    pdfText(user?.agencyname || "Agency not provided"),
-    `Mobile: ${pdfText(user?.number || "Not provided")}`,
-    `Email: ${pdfText(user?.email || "Not provided")}`,
-    `Address: ${pdfText(user?.city || "Not provided")}`,
-  ];
-  const rightInfo = [
-    `Reserved at: ${dateTimeText(booking.createdAt)}`,
-  ];
-  if (booking.confirmedAt) rightInfo.push(`Confirmed at: ${dateTimeText(booking.confirmedAt)}`);
-  if (includePrice) rightInfo.push(`TOTAL: ${money(booking.totalPrice)}`);
-  const drawInfoLines = (lines, x, startY, boldFirst = false) => {
+  const drawInfoLines = (lines, x, startY) => {
     let lineY = startY;
-    lines.forEach((line, index) => {
-      doc.setFont("helvetica", boldFirst && index === 0 ? "bold" : "normal");
-      doc.setFontSize(boldFirst && index === 0 ? 9 : 8);
-      setColor("ink");
-      const textLines = doc.splitTextToSize(line, infoColumnWidth);
-      doc.text(textLines, x, lineY);
-      lineY += textLines.length * 3.7 + 1.5;
+    lines.forEach((line) => {
+      const textLines = splitCellLines(line, infoColumnWidth, 9);
+      textLines.forEach((textLine) => {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(textLine.fontSize);
+        setColor("ink");
+        doc.text(textLine.text, x, lineY);
+        lineY += 4.5;
+      });
     });
     return lineY;
   };
-  const leftBottom = drawInfoLines(leftInfo, leftX, infoY, true);
-  drawInfoLines(rightInfo, rightX, infoY);
-  y = Math.max(leftBottom, infoY + (includePrice ? 22 : 14)) + 2;
+  const leftBottom = drawInfoLines(leftInfo, leftX, infoY);
+  const rightBottom = drawInfoLines(rightInfo, rightX, infoY);
+  y = Math.max(leftBottom, rightBottom) + 2;
+
+  const terms = [
+    "1- PASSENGER SHOULD REPORT AT CHECK-IN COUNTER AT LEAST 04:00 HOURS PRIOR TO FLIGHT.",
+    "2- TICKETS ARE NON-REFUNDABLE AND NON-CHANGEABLE ANY TIME.",
+  ];
+  if (y + 20 > bottomLimit) {
+    drawFooter();
+    doc.addPage();
+    y = 18;
+  }
+  doc.setDrawColor(...colors.border);
+  doc.setLineWidth(0.25);
+  doc.line(margin, y, pageWidth - margin, y);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  setColor("blue");
+  doc.text("TERMS & CONDITIONS", pageWidth / 2, y + 5, { align: "center" });
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  setColor("ink");
+  doc.text(pdfText(terms[0]), margin, y + 11);
+  doc.text(pdfText(terms[1]), margin, y + 16);
+  y += 20;
 
   const pageCount = doc.getNumberOfPages();
   for (let page = 1; page <= pageCount; page += 1) {
@@ -443,7 +686,9 @@ function createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice, user)
       doc.setFont("helvetica", "normal");
       doc.setFontSize(7.5);
       setColor("muted");
-      doc.text(`Page ${page} of ${pageCount}`, pageWidth / 2, pageHeight - 9, { align: "center" });
+      doc.text(`Page ${page} of ${pageCount}`, pageWidth / 2, pageHeight - 9, {
+        align: "center",
+      });
     }
   }
 
@@ -454,16 +699,19 @@ function createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice, user)
 }
 
 function StatusBadge({ status }) {
-  const colorClass = status === "confirmed" || status === "completed"
-    ? "bg-emerald-50 text-emerald-700"
-    : status === "cancelled"
-      ? "bg-red-50 text-red-700"
-      : status === "on_hold"
-        ? "bg-amber-50 text-amber-800"
-        : "bg-blue-50 text-blue-700";
+  const colorClass =
+    status === "confirmed" || status === "completed"
+      ? "bg-emerald-50 text-emerald-700"
+      : status === "cancelled"
+        ? "bg-red-50 text-red-700"
+        : status === "on_hold"
+          ? "bg-amber-50 text-amber-800"
+          : "bg-blue-50 text-blue-700";
 
   return (
-    <span className={`inline-block max-w-full break-words rounded-full px-2 py-1.5 text-sm font-semibold leading-tight xl:px-1.5 xl:text-xs ${colorClass}`}>
+    <span
+      className={`inline-block max-w-full break-words rounded-full px-2 py-1.5 text-sm font-semibold leading-tight xl:px-1.5 xl:text-xs ${colorClass}`}
+    >
       {getStatusLabel(status)}
     </span>
   );
@@ -471,7 +719,8 @@ function StatusBadge({ status }) {
 
 function getConfirmedPassengerCounts(booking) {
   const counts = booking.passengerCounts || {};
-  const confirmed = booking.status === "confirmed" || booking.status === "completed";
+  const confirmed =
+    booking.status === "confirmed" || booking.status === "completed";
   const adults = confirmed ? Number(counts.adults || 0) : 0;
   const children = confirmed ? Number(counts.children || 0) : 0;
   const infants = confirmed ? Number(counts.infants || 0) : 0;
@@ -513,7 +762,9 @@ function BookingActions({ booking, openingPdfId, onView, onPreview }) {
             className="inline-flex min-h-10 w-full cursor-pointer items-center justify-center gap-1 rounded-lg bg-[#003366] px-2.5 py-2 text-sm font-semibold whitespace-nowrap text-white transition hover:bg-[#FF6B35] disabled:cursor-not-allowed disabled:opacity-60 2xl:w-fit"
           >
             <FiEye aria-hidden="true" />
-            {openingPdfId === `${booking._id}-with-price` ? "Preparing..." : "Invoice"}
+            {openingPdfId === `${booking._id}-with-price`
+              ? "Preparing..."
+              : "Invoice"}
           </button>
           <button
             type="button"
@@ -524,7 +775,9 @@ function BookingActions({ booking, openingPdfId, onView, onPreview }) {
             className="inline-flex min-h-10 w-full cursor-pointer items-center justify-center gap-1 rounded-lg border border-[#003366]/20 px-2.5 py-2 text-sm font-semibold whitespace-nowrap text-[#003366] transition hover:border-[#FF6B35] hover:text-[#FF6B35] disabled:cursor-not-allowed disabled:opacity-60 2xl:w-fit"
           >
             <FiEye aria-hidden="true" />
-            {openingPdfId === `${booking._id}-without-price` ? "Preparing..." : "No price"}
+            {openingPdfId === `${booking._id}-without-price`
+              ? "Preparing..."
+              : "No price"}
           </button>
         </>
       )}
@@ -533,7 +786,12 @@ function BookingActions({ booking, openingPdfId, onView, onPreview }) {
 }
 
 export default function BookingsPage() {
-  const { user, getMyGroupBookings, getGroupTicketCategories, updateMyGroupBookingStatus } = useApp();
+  const {
+    user,
+    getMyGroupBookings,
+    getGroupTicketCategories,
+    updateMyGroupBookingStatus,
+  } = useApp();
   const [bookings, setBookings] = useState([]);
   const [categories, setCategories] = useState([]);
   const [categoryLoadError, setCategoryLoadError] = useState("");
@@ -557,34 +815,45 @@ export default function BookingsPage() {
       getGroupTicketCategories(),
     ]);
     if (bookingResult.ok) setBookings(bookingResult.data.data);
-    else setLoadingError(bookingResult.data.message || "Your bookings could not be loaded.");
+    else
+      setLoadingError(
+        bookingResult.data.message || "Your bookings could not be loaded.",
+      );
     if (categoryResult.ok) {
       setCategories(categoryResult.data.data);
       setCategoryLoadError("");
     } else {
-      setCategoryLoadError(categoryResult.data.message || "Group categories could not be loaded.");
+      setCategoryLoadError(
+        categoryResult.data.message || "Group categories could not be loaded.",
+      );
     }
     setLoading(false);
   }, [getGroupTicketCategories, getMyGroupBookings]);
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => { void loadBookings(); });
+    const frame = window.requestAnimationFrame(() => {
+      void loadBookings();
+    });
     return () => window.cancelAnimationFrame(frame);
   }, [loadBookings]);
 
   const openBookingPdfPreview = async (booking, includePrice) => {
     setPdfError("");
-    setOpeningPdfId(`${booking._id}-${includePrice ? "with-price" : "without-price"}`);
+    setOpeningPdfId(
+      `${booking._id}-${includePrice ? "with-price" : "without-price"}`,
+    );
     const previewWindow = window.open("", "_blank");
     if (!previewWindow) {
-      setPdfError("Your browser blocked the new preview tab. Allow pop-ups for this website and try again.");
+      setPdfError(
+        "Your browser blocked the new preview tab. Allow pop-ups for this website and try again.",
+      );
       setOpeningPdfId("");
       return;
     }
 
     previewWindow.opener = null;
     previewWindow.document.write(
-      "<!doctype html><html><head><title>Preparing itinerary</title></head><body style=\"font:16px Arial,sans-serif;padding:32px;color:#12314e\">Preparing your itinerary preview...</body></html>"
+      '<!doctype html><html><head><title>Preparing itinerary</title></head><body style="font:16px Arial,sans-serif;padding:32px;color:#12314e">Preparing your itinerary preview...</body></html>',
     );
     previewWindow.document.close();
 
@@ -593,7 +862,13 @@ export default function BookingsPage() {
         getLogoDataUrl(booking.invoiceLogo || "/FOREIGN-AIR-TRAVEL.png"),
         getLogoDataUrl(booking.ticketDetails.airlineLogo),
       ]);
-      const { blob, filename } = createBookingPdf(booking, invoiceLogo, airlineLogo, includePrice, user);
+      const { blob, filename } = createBookingPdf(
+        booking,
+        invoiceLogo,
+        airlineLogo,
+        includePrice,
+        user,
+      );
       const previewUrl = URL.createObjectURL(blob);
       const safeFilename = filename.replace(/[^\w.-]/g, "_");
       previewWindow.document.open();
@@ -625,7 +900,11 @@ export default function BookingsPage() {
           </body>
         </html>`);
       previewWindow.document.close();
-      previewWindow.addEventListener("beforeunload", () => URL.revokeObjectURL(previewUrl), { once: true });
+      previewWindow.addEventListener(
+        "beforeunload",
+        () => URL.revokeObjectURL(previewUrl),
+        { once: true },
+      );
     } catch (error) {
       previewWindow.close();
       setPdfError(error.message || "The PDF preview could not be created.");
@@ -639,23 +918,29 @@ export default function BookingsPage() {
     setActionError("");
     const { ok, data } = await updateMyGroupBookingStatus(booking._id, status);
     if (ok) {
-      setBookings((current) => current.map((item) => (
-        item._id === booking._id ? { ...item, status } : item
-      )));
+      setBookings((current) =>
+        current.map((item) =>
+          item._id === booking._id ? { ...item, status } : item,
+        ),
+      );
     } else {
       setActionError(data.message || "Booking status could not be updated.");
     }
     setSavingId("");
   };
 
-  const categoryOptions = [...new Set([
-    ...categories.map((category) => category.name),
-    ...bookings.map((booking) => booking.ticketDetails.category),
-  ].filter(Boolean))]
-    .sort((first, second) => first.localeCompare(second));
+  const categoryOptions = [
+    ...new Set(
+      [
+        ...categories.map((category) => category.name),
+        ...bookings.map((booking) => booking.ticketDetails.category),
+      ].filter(Boolean),
+    ),
+  ].sort((first, second) => first.localeCompare(second));
   const visibleBookings = bookings.filter((booking) => {
     if (statusFilter && booking.status !== statusFilter) return false;
-    if (categoryFilter && booking.ticketDetails.category !== categoryFilter) return false;
+    if (categoryFilter && booking.ticketDetails.category !== categoryFilter)
+      return false;
     const createdAt = new Date(booking.createdAt);
     if (!Number.isNaN(createdAt.getTime())) {
       const bookingDate = [
@@ -678,9 +963,7 @@ export default function BookingsPage() {
       {/* <h1 className="text-2xl font-bold text-[#003366] sm:text-3xl">My Bookings</h1>
       <p className="mt-1 text-sm text-slate-600">Review and manage your group-ticket bookings.</p> */}
 
-      <div
-        className="mt-5 mb-6 grid gap-4 rounded-2xl bg-[#255f99] p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-4"
-      >
+      <div className="mt-5 mb-6 grid gap-4 rounded-2xl bg-[#255f99] p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-4">
         <label className="block text-sm font-semibold text-white">
           Booking Date From
           <input
@@ -708,9 +991,16 @@ export default function BookingsPage() {
               className="h-11 w-full cursor-pointer appearance-none rounded-lg border border-slate-200 bg-white px-3 pr-10 text-sm font-normal text-[#12314e] outline-none focus:border-[#FF6B35]"
             >
               <option value="">All categories</option>
-              {categoryOptions.map((category) => <option key={category} value={category}>{category}</option>)}
+              {categoryOptions.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
             </select>
-            <FiChevronDown aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#12314e]" />
+            <FiChevronDown
+              aria-hidden="true"
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#12314e]"
+            />
           </span>
         </label>
         <label className="block text-sm font-semibold text-white">
@@ -723,44 +1013,73 @@ export default function BookingsPage() {
             >
               <option value="">All statuses</option>
               {bookingStatuses.map((status) => (
-                <option key={status.value} value={status.value}>{status.label}</option>
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
               ))}
             </select>
-            <FiChevronDown aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#12314e]" />
+            <FiChevronDown
+              aria-hidden="true"
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#12314e]"
+            />
           </span>
         </label>
       </div>
       {categoryLoadError && (
-        <p role="alert" className="-mt-3 mb-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <p
+          role="alert"
+          className="-mt-3 mb-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900"
+        >
           {categoryLoadError}
         </p>
       )}
 
       {actionError && (
-        <p role="alert" className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-base text-red-700">
+        <p
+          role="alert"
+          className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-base text-red-700"
+        >
           {actionError}
         </p>
       )}
       {pdfError && (
-        <p role="alert" className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-base text-red-700">
+        <p
+          role="alert"
+          className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-base text-red-700"
+        >
           {pdfError}
         </p>
       )}
 
       {loading ? (
-        <div role="status" className="rounded-2xl bg-white p-6 text-base text-[#003366]/70 shadow-sm">
+        <div
+          role="status"
+          className="rounded-2xl bg-white p-6 text-base text-[#003366]/70 shadow-sm"
+        >
           Loading your bookings...
         </div>
       ) : loadingError ? (
-        <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-base text-red-700">{loadingError}</p>
+        <p
+          role="alert"
+          className="rounded-xl bg-red-50 px-4 py-3 text-base text-red-700"
+        >
+          {loadingError}
+        </p>
       ) : visibleBookings.length === 0 ? (
         <div className="rounded-2xl bg-white p-6 text-center shadow-sm">
-          <FiCalendar aria-hidden="true" className="mx-auto size-8 text-[#FF6B35]" />
+          <FiCalendar
+            aria-hidden="true"
+            className="mx-auto size-8 text-[#FF6B35]"
+          />
           <h2 className="mt-3 text-lg font-semibold text-[#003366]">
-            {bookings.length ? "No bookings match these filters" : "No bookings yet"}
+            {bookings.length
+              ? "No bookings match these filters"
+              : "No bookings yet"}
           </h2>
           <p className="mt-1 text-base text-slate-600">
-            {bookings.length ? "Change the selected filters to see your bookings." : "Your group-ticket bookings will appear here."}
+            {bookings.length
+              ? "Change the selected filters to see your bookings."
+              : "Your group-ticket bookings will appear here."}
           </p>
         </div>
       ) : (
@@ -770,22 +1089,40 @@ export default function BookingsPage() {
               <thead className="font-semibold text-white">
                 <tr>
                   <th className="w-[24%] rounded-tl-xl border border-[#255f99] border-b-4 border-b-[#FF6B35] bg-[#2f70b3] px-4 py-3">
-                    <span className="inline-flex items-center gap-2"><FiFileText aria-hidden="true" />Booking Details</span>
+                    <span className="inline-flex items-center gap-2">
+                      <FiFileText aria-hidden="true" />
+                      Booking Details
+                    </span>
                   </th>
                   <th className="w-[19%] border border-[#255f99] border-b-4 border-b-[#FF6B35] bg-[#2f70b3] px-4 py-3">
-                    <span className="inline-flex items-center gap-2"><FaPlane aria-hidden="true" />Group</span>
+                    <span className="inline-flex items-center gap-2">
+                      <FaPlane aria-hidden="true" />
+                      Group
+                    </span>
                   </th>
                   <th className="w-[26%] border border-[#255f99] border-b-4 border-b-[#FF6B35] bg-[#2f70b3] px-4 py-3">
-                    <span className="inline-flex items-center gap-2"><FiUsers aria-hidden="true" />Passengers</span>
+                    <span className="inline-flex items-center gap-2">
+                      <FiUsers aria-hidden="true" />
+                      Passengers
+                    </span>
                   </th>
                   <th className="w-[9%] border border-[#255f99] border-b-4 border-b-[#FF6B35] bg-[#2f70b3] px-3 py-3">
-                    <span className="inline-flex items-center gap-2"><FiDollarSign aria-hidden="true" />Price</span>
+                    <span className="inline-flex items-center gap-2">
+                      <FiDollarSign aria-hidden="true" />
+                      Price
+                    </span>
                   </th>
                   <th className="w-[13%] border border-[#255f99] border-b-4 border-b-[#FF6B35] bg-[#2f70b3] px-3 py-3">
-                    <span className="inline-flex items-center gap-2"><FiCheckCircle aria-hidden="true" />Status</span>
+                    <span className="inline-flex items-center gap-2">
+                      <FiCheckCircle aria-hidden="true" />
+                      Status
+                    </span>
                   </th>
                   <th className="w-[9%] rounded-tr-xl border border-[#255f99] border-b-4 border-b-[#FF6B35] bg-[#2f70b3] px-3 py-3">
-                    <span className="inline-flex items-center gap-2"><FiSettings aria-hidden="true" />Action</span>
+                    <span className="inline-flex items-center gap-2">
+                      <FiSettings aria-hidden="true" />
+                      Action
+                    </span>
                   </th>
                 </tr>
               </thead>
@@ -795,25 +1132,52 @@ export default function BookingsPage() {
                   const requested = booking.passengerCounts || {};
                   const confirmed = getConfirmedPassengerCounts(booking);
                   const autoCancelledAt = getAutoCancellationDate(booking);
-                  const passengerSummary = (booking.passengers || []).reduce((summary, passenger) => {
-                    const name = `${passenger.firstName} ${passenger.lastName}`.trim();
-                    const existing = summary.find((item) => item.name === name);
-                    if (existing) existing.count += 1;
-                    else summary.push({ name, count: 1 });
-                    return summary;
-                  }, []);
+                  const passengerSummary = (booking.passengers || []).reduce(
+                    (summary, passenger) => {
+                      const name =
+                        `${passenger.firstName} ${passenger.lastName}`.trim();
+                      const existing = summary.find(
+                        (item) => item.name === name,
+                      );
+                      if (existing) existing.count += 1;
+                      else summary.push({ name, count: 1 });
+                      return summary;
+                    },
+                    [],
+                  );
                   return (
                     <tr key={booking._id} className="align-top">
                       <td className="rounded-l-xl border-y border-l border-slate-200 bg-white px-4 py-4">
                         {/* <p><span className="font-bold text-[#2f70b3]">Sr #:</span> {index + 1}</p> */}
-                        <p className="mt-1 break-words"><span className="font-bold text-[#2f70b3]">Airline PNR #:</span> {details.segments.map((segment) => segment.flightNumber).filter(Boolean).join(", ") || "Not provided"}</p>
-                        <p className="mt-1 break-words"><span className="font-bold text-[#2f70b3]">Agency:</span> {user?.agencyname || "Not provided"}</p>
-                        <p className="mt-1 break-words"><span className="font-bold text-[#2f70b3]">BK#:</span> BK-{booking._id.slice(-8).toUpperCase()}</p>
+                        <p className="mt-1 break-words">
+                          <span className="font-bold text-[#2f70b3]">
+                            Airline PNR #:
+                          </span>{" "}
+                          {details.segments
+                            .map((segment) => segment.flightNumber)
+                            .filter(Boolean)
+                            .join(", ") || "Not provided"}
+                        </p>
+                        <p className="mt-1 break-words">
+                          <span className="font-bold text-[#2f70b3]">
+                            Agency:
+                          </span>{" "}
+                          {user?.agencyname || "Not provided"}
+                        </p>
+                        <p className="mt-1 break-words">
+                          <span className="font-bold text-[#2f70b3]">BK#:</span>{" "}
+                          BK-{booking._id.slice(-8).toUpperCase()}
+                        </p>
                         {/* <p className="mt-1 break-words"><span className="font-bold text-[#2f70b3]">Name:</span> {user?.name || "Not provided"}</p> */}
                         {/* <p className="mt-1 break-words"><span className="font-bold text-[#2f70b3]">Mobile:</span> {user?.number || "Not provided"}</p> */}
                         {/* <p className="mt-1 break-words"><span className="font-bold text-[#2f70b3]">Email:</span> {user?.email || "Not provided"}</p> */}
                         {/* <p className="mt-1 break-words"><span className="font-bold text-[#2f70b3]">City:</span> {user?.city || "Not provided"}</p> */}
-                        <p className="mt-1 text-sm text-slate-600"><span className="font-semibold text-[#2f70b3]">Created:</span> {formatDateTime(booking.createdAt)}</p>
+                        <p className="mt-1 text-sm text-slate-600">
+                          <span className="font-semibold text-[#2f70b3]">
+                            Created:
+                          </span>{" "}
+                          {formatDateTime(booking.createdAt)}
+                        </p>
                         {/* <p className="mt-2 inline-flex max-w-full rounded bg-[#eaf2fb] px-2 py-1 text-xs font-semibold text-[#2f70b3]">
                           {details.category || "Group ticket"}
                         </p> */}
@@ -823,7 +1187,9 @@ export default function BookingsPage() {
                           </p>
                         )}
                         {booking.status === "cancelled" && !autoCancelledAt && (
-                          <p className="mt-2 text-sm font-semibold text-red-700">Cancelled</p>
+                          <p className="mt-2 text-sm font-semibold text-red-700">
+                            Cancelled
+                          </p>
                         )}
                       </td>
                       <td className="break-words border-y border-l border-slate-200 bg-white px-4 py-4">
@@ -833,17 +1199,24 @@ export default function BookingsPage() {
                         </p> */}
                         <div className="mt-2 space-y-1">
                           {details.segments.map((segment, segmentIndex) => (
-                            <p key={`${segment.flightNumber}-${segmentIndex}`} className="break-words font-medium text-[#12314e]">
+                            <p
+                              key={`${segment.flightNumber}-${segmentIndex}`}
+                              className="break-words font-medium text-[#12314e]"
+                            >
                               {segment.from} → {segment.to}
                             </p>
                           ))}
                         </div>
                         <p className="mt-1 text-sm text-slate-700">
-                          {formatDate(details.departureDate)} · {details.segments[0]?.departureTime || "Time TBA"}
+                          {formatDate(details.departureDate)} ·{" "}
+                          {details.segments[0]?.departureTime || "Time TBA"}
                         </p>
                         <div className="mt-2 space-y-1">
                           {passengerSummary.map((passenger) => (
-                            <p key={passenger.name} className="break-words text-sm font-bold uppercase text-[#12314e]">
+                            <p
+                              key={passenger.name}
+                              className="break-words text-sm font-bold uppercase text-[#12314e]"
+                            >
                               {passenger.name} × {passenger.count}
                             </p>
                           ))}
@@ -852,44 +1225,99 @@ export default function BookingsPage() {
                       <td className="border-y border-l border-slate-200 bg-white px-3 py-4">
                         <div className="overflow-hidden rounded-lg border border-slate-300">
                           <table className="w-full table-fixed border-collapse text-sm">
-                          <thead className="bg-[#2f70b3] text-white">
-                            <tr>
-                              <th className="break-words border border-[#255f99] px-1.5 py-2 text-left">Status</th>
-                              <th className="border border-[#255f99] px-1 py-2">Adults</th>
-                              <th className="border border-[#255f99] px-1 py-2">Child</th>
-                              <th className="border border-[#255f99] px-1 py-2">Infant</th>
-                              <th className="border border-[#255f99] px-1 py-2">Total</th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white">
-                            <tr>
-                              <th className="border border-slate-300 px-1.5 py-2 text-left font-semibold text-red-700">Req</th>
-                              <td className="border border-slate-300 px-1 py-2">{Number(requested.adults || 0)}</td>
-                              <td className="border border-slate-300 px-1 py-2">{Number(requested.children || 0)}</td>
-                              <td className="border border-slate-300 px-1 py-2">{Number(requested.infants || 0)}</td>
-                              <td className="border border-slate-300 px-1 py-2">{Number(requested.adults || 0) + Number(requested.children || 0) + Number(requested.infants || 0)}</td>
-                            </tr>
-                            <tr className="bg-slate-100">
-                              <th className="border border-slate-300 px-1.5 py-2 text-left font-semibold text-emerald-700">Cnf</th>
-                              <td className="border border-slate-300 px-1 py-2">{confirmed.adults}</td>
-                              <td className="border border-slate-300 px-1 py-2">{confirmed.children}</td>
-                              <td className="border border-slate-300 px-1 py-2">{confirmed.infants}</td>
-                              <td className="border border-slate-300 px-1 py-2">{confirmed.total}</td>
-                            </tr>
-                          </tbody>
+                            <thead className="bg-[#2f70b3] text-white">
+                              <tr>
+                                <th className="break-words border border-[#255f99] px-1.5 py-2 text-left">
+                                  Status
+                                </th>
+                                <th className="border border-[#255f99] px-1 py-2">
+                                  Adults
+                                </th>
+                                <th className="border border-[#255f99] px-1 py-2">
+                                  Child
+                                </th>
+                                <th className="border border-[#255f99] px-1 py-2">
+                                  Infant
+                                </th>
+                                <th className="border border-[#255f99] px-1 py-2">
+                                  Total
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white">
+                              <tr>
+                                <th className="border border-slate-300 px-1.5 py-2 text-left font-semibold text-red-700">
+                                  Req
+                                </th>
+                                <td className="border border-slate-300 px-1 py-2">
+                                  {Number(requested.adults || 0)}
+                                </td>
+                                <td className="border border-slate-300 px-1 py-2">
+                                  {Number(requested.children || 0)}
+                                </td>
+                                <td className="border border-slate-300 px-1 py-2">
+                                  {Number(requested.infants || 0)}
+                                </td>
+                                <td className="border border-slate-300 px-1 py-2">
+                                  {Number(requested.adults || 0) +
+                                    Number(requested.children || 0) +
+                                    Number(requested.infants || 0)}
+                                </td>
+                              </tr>
+                              <tr className="bg-slate-100">
+                                <th className="border border-slate-300 px-1.5 py-2 text-left font-semibold text-emerald-700">
+                                  Cnf
+                                </th>
+                                <td className="border border-slate-300 px-1 py-2">
+                                  {confirmed.adults}
+                                </td>
+                                <td className="border border-slate-300 px-1 py-2">
+                                  {confirmed.children}
+                                </td>
+                                <td className="border border-slate-300 px-1 py-2">
+                                  {confirmed.infants}
+                                </td>
+                                <td className="border border-slate-300 px-1 py-2">
+                                  {confirmed.total}
+                                </td>
+                              </tr>
+                            </tbody>
                           </table>
                         </div>
                       </td>
                       <td className="break-words border-y border-l border-slate-200 bg-white px-3 py-4">
-                        <p className="flex justify-between gap-1"><span>T:</span><span className="font-semibold text-cyan-600">{Number(booking.totalPrice || 0).toLocaleString("en-US")}</span></p>
-                        <p className="flex justify-between gap-1"><span>P:</span><span className="font-semibold text-green-600">0</span></p>
-                        <p className="flex justify-between gap-1"><span>B:</span><span className="font-semibold text-red-600">{Number(booking.totalPrice || 0).toLocaleString("en-US")}</span></p>
-                        <p className="mt-2 font-semibold text-amber-500">Credit Given</p>
+                        <p className="flex justify-between gap-1">
+                          <span>T:</span>
+                          <span className="font-semibold text-cyan-600">
+                            {Number(booking.totalPrice || 0).toLocaleString(
+                              "en-US",
+                            )}
+                          </span>
+                        </p>
+                        <p className="flex justify-between gap-1">
+                          <span>P:</span>
+                          <span className="font-semibold text-green-600">
+                            0
+                          </span>
+                        </p>
+                        <p className="flex justify-between gap-1">
+                          <span>B:</span>
+                          <span className="font-semibold text-red-600">
+                            {Number(booking.totalPrice || 0).toLocaleString(
+                              "en-US",
+                            )}
+                          </span>
+                        </p>
+                        <p className="mt-2 font-semibold text-amber-500">
+                          Credit Given
+                        </p>
                       </td>
                       <td className="min-w-0 overflow-hidden border-y border-l border-slate-200 bg-white px-3 py-4">
                         <StatusBadge status={booking.status} />
                         {booking.confirmedAt && (
-                          <p className="mt-2 break-words text-sm text-slate-600">Confirmed: {formatDateTime(booking.confirmedAt)}</p>
+                          <p className="mt-2 break-words text-sm text-slate-600">
+                            Confirmed: {formatDateTime(booking.confirmedAt)}
+                          </p>
                         )}
                       </td>
                       <td className="rounded-r-xl border-y border-x border-slate-200 bg-white px-3 py-4">
@@ -913,77 +1341,160 @@ export default function BookingsPage() {
               const requested = booking.passengerCounts || {};
               const confirmed = getConfirmedPassengerCounts(booking);
               return (
-                <article key={booking._id} className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
+                <article
+                  key={booking._id}
+                  className="overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm"
+                >
                   <div className="flex items-start justify-between gap-3 bg-[#003366] px-4 py-3 text-white">
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-slate-300">Sr # {index + 1} · Booking No</p>
-                      <p className="mt-1 break-all text-base font-bold">BK-{booking._id.slice(-8).toUpperCase()}</p>
-                      <p className="mt-1 text-sm text-slate-200">Created: {formatDateTime(booking.createdAt)}</p>
+                      <p className="text-xs font-medium text-slate-300">
+                        Sr # {index + 1} · Booking No
+                      </p>
+                      <p className="mt-1 break-all text-base font-bold">
+                        BK-{booking._id.slice(-8).toUpperCase()}
+                      </p>
+                      <p className="mt-1 text-sm text-slate-200">
+                        Created: {formatDateTime(booking.createdAt)}
+                      </p>
                       <p className="mt-2 inline-flex max-w-full rounded bg-white px-2 py-1 text-xs font-semibold text-[#003366]">
                         {details.category || "Group ticket"}
                       </p>
                       {booking.autoCancelledAt && (
                         <p className="mt-2 break-words text-sm font-semibold text-red-200">
-                          Auto cancelled: {formatDateTime(booking.autoCancelledAt)}
+                          Auto cancelled:{" "}
+                          {formatDateTime(booking.autoCancelledAt)}
                         </p>
                       )}
-                      {booking.status === "cancelled" && !booking.autoCancelledAt && (
-                        <p className="mt-2 text-sm font-semibold text-red-200">Cancelled</p>
-                      )}
+                      {booking.status === "cancelled" &&
+                        !booking.autoCancelledAt && (
+                          <p className="mt-2 text-sm font-semibold text-red-200">
+                            Cancelled
+                          </p>
+                        )}
                       {booking.confirmedAt && (
-                        <p className="mt-2 break-words text-sm text-slate-200">Confirmed: {formatDateTime(booking.confirmedAt)}</p>
+                        <p className="mt-2 break-words text-sm text-slate-200">
+                          Confirmed: {formatDateTime(booking.confirmedAt)}
+                        </p>
                       )}
                     </div>
                     <StatusBadge status={booking.status} />
                   </div>
                   <dl className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2">
                     <div className="min-w-0">
-                      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Booked</dt>
-                      <dd className="mt-1 text-sm">{formatDate(booking.createdAt)}</dd>
+                      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Booked
+                      </dt>
+                      <dd className="mt-1 text-sm">
+                        {formatDate(booking.createdAt)}
+                      </dd>
                     </div>
                     <div className="min-w-0">
-                      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Group</dt>
-                      <dd className="mt-1 break-words text-sm font-semibold">{details.airline}</dd>
-                      <dd className="mt-1 break-words text-base font-bold">{details.groupName}</dd>
+                      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Group
+                      </dt>
+                      <dd className="mt-1 break-words text-sm font-semibold">
+                        {details.airline}
+                      </dd>
+                      <dd className="mt-1 break-words text-base font-bold">
+                        {details.groupName}
+                      </dd>
                       {details.segments.map((segment, segmentIndex) => (
-                        <dd key={`${segment.flightNumber}-${segmentIndex}`} className="mt-2 break-words rounded-lg border border-slate-200 bg-slate-50 p-2 text-sm">
-                          <span className="font-semibold">{segment.from} → {segment.to}</span>
-                          <span className="mt-1 block">Flight: {segment.flightNumber}</span>
-                          <span className="mt-1 block">Time: {segment.departureTime || "TBA"} – {segment.arrivalTime || "TBA"}</span>
+                        <dd
+                          key={`${segment.flightNumber}-${segmentIndex}`}
+                          className="mt-2 break-words rounded-lg border border-slate-200 bg-slate-50 p-2 text-sm"
+                        >
+                          <span className="font-semibold">
+                            {segment.from} → {segment.to}
+                          </span>
+                          <span className="mt-1 block">
+                            Flight: {segment.flightNumber}
+                          </span>
+                          <span className="mt-1 block">
+                            Time: {segment.departureTime || "TBA"} –{" "}
+                            {segment.arrivalTime || "TBA"}
+                          </span>
                         </dd>
                       ))}
-                      <dd className="mt-1 text-sm text-slate-600">Departure: {formatDate(details.departureDate)}</dd>
-                      <dd className="mt-1 break-words text-sm text-slate-600">Baggage: {details.baggage}</dd>
-                      <dd className="mt-1 break-words text-sm text-slate-600">Meal: {details.mealAvailable ? "Yes" : "No"}</dd>
-                      <dd className="mt-1 break-words text-sm text-slate-600">Contact: {booking.contactPhone}</dd>
+                      <dd className="mt-1 text-sm text-slate-600">
+                        Departure: {formatDate(details.departureDate)}
+                      </dd>
+                      <dd className="mt-1 break-words text-sm text-slate-600">
+                        Baggage: {details.baggage}
+                      </dd>
+                      <dd className="mt-1 break-words text-sm text-slate-600">
+                        Meal: {details.mealAvailable ? "Yes" : "No"}
+                      </dd>
+                      <dd className="mt-1 break-words text-sm text-slate-600">
+                        Contact: {booking.contactPhone}
+                      </dd>
                     </div>
                     <div className="sm:col-span-2">
-                      <dt className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Passenger</dt>
+                      <dt className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Passenger
+                      </dt>
                       <div className="grid grid-cols-5 rounded-lg border border-slate-300 text-center text-xs">
-                        <span className="bg-slate-100 p-2 text-left font-semibold">Status</span>
-                        <span className="bg-slate-100 p-2 font-semibold">Adults</span>
-                        <span className="bg-slate-100 p-2 font-semibold">Child</span>
-                        <span className="bg-slate-100 p-2 font-semibold">Infant</span>
-                        <span className="bg-slate-100 p-2 font-semibold">Total</span>
-                        <span className="border-t border-slate-200 p-2 text-left font-semibold text-red-700">Req</span>
-                        <span className="border-t border-slate-200 p-2">{Number(requested.adults || 0)}</span>
-                        <span className="border-t border-slate-200 p-2">{Number(requested.children || 0)}</span>
-                        <span className="border-t border-slate-200 p-2">{Number(requested.infants || 0)}</span>
-                        <span className="border-t border-slate-200 p-2">{Number(requested.adults || 0) + Number(requested.children || 0) + Number(requested.infants || 0)}</span>
-                        <span className="border-t border-slate-200 p-2 text-left font-semibold text-emerald-700">Cnf</span>
-                        <span className="border-t border-slate-200 p-2">{confirmed.adults}</span>
-                        <span className="border-t border-slate-200 p-2">{confirmed.children}</span>
-                        <span className="border-t border-slate-200 p-2">{confirmed.infants}</span>
-                        <span className="border-t border-slate-200 p-2">{confirmed.total}</span>
+                        <span className="bg-slate-100 p-2 text-left font-semibold">
+                          Status
+                        </span>
+                        <span className="bg-slate-100 p-2 font-semibold">
+                          Adults
+                        </span>
+                        <span className="bg-slate-100 p-2 font-semibold">
+                          Child
+                        </span>
+                        <span className="bg-slate-100 p-2 font-semibold">
+                          Infant
+                        </span>
+                        <span className="bg-slate-100 p-2 font-semibold">
+                          Total
+                        </span>
+                        <span className="border-t border-slate-200 p-2 text-left font-semibold text-red-700">
+                          Req
+                        </span>
+                        <span className="border-t border-slate-200 p-2">
+                          {Number(requested.adults || 0)}
+                        </span>
+                        <span className="border-t border-slate-200 p-2">
+                          {Number(requested.children || 0)}
+                        </span>
+                        <span className="border-t border-slate-200 p-2">
+                          {Number(requested.infants || 0)}
+                        </span>
+                        <span className="border-t border-slate-200 p-2">
+                          {Number(requested.adults || 0) +
+                            Number(requested.children || 0) +
+                            Number(requested.infants || 0)}
+                        </span>
+                        <span className="border-t border-slate-200 p-2 text-left font-semibold text-emerald-700">
+                          Cnf
+                        </span>
+                        <span className="border-t border-slate-200 p-2">
+                          {confirmed.adults}
+                        </span>
+                        <span className="border-t border-slate-200 p-2">
+                          {confirmed.children}
+                        </span>
+                        <span className="border-t border-slate-200 p-2">
+                          {confirmed.infants}
+                        </span>
+                        <span className="border-t border-slate-200 p-2">
+                          {confirmed.total}
+                        </span>
                       </div>
                     </div>
                     <div>
-                      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Price</dt>
-                      <dd className="mt-1 text-base font-semibold text-[#12314e]">{formatFare(details.currency, booking.totalPrice)}</dd>
+                      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Total Price
+                      </dt>
+                      <dd className="mt-1 text-base font-semibold text-[#12314e]">
+                        {formatFare(details.currency, booking.totalPrice)}
+                      </dd>
                     </div>
                   </dl>
                   <div className="border-t border-slate-200 p-4">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Action</p>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Action
+                    </p>
                     <BookingActions
                       booking={booking}
                       openingPdfId={openingPdfId}
@@ -1013,11 +1524,15 @@ export default function BookingsPage() {
           >
             <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[#003366]/10 px-4 py-4 sm:px-6 sm:py-5">
               <div className="min-w-0">
-                <h2 id="booking-passenger-title" className="truncate text-lg font-semibold text-[#003366] sm:text-xl">
+                <h2
+                  id="booking-passenger-title"
+                  className="truncate text-lg font-semibold text-[#003366] sm:text-xl"
+                >
                   Passenger details
                 </h2>
                 <p className="mt-1 truncate text-sm text-[#003366]/65">
-                  {viewingBooking.ticketDetails.groupName} · {viewingBooking.passengers.length} passenger(s)
+                  {viewingBooking.ticketDetails.groupName} ·{" "}
+                  {viewingBooking.passengers.length} passenger(s)
                 </p>
               </div>
               <button
@@ -1037,7 +1552,8 @@ export default function BookingsPage() {
                     className="rounded-xl border border-[#003366]/10 bg-white p-4 shadow-sm"
                   >
                     <h3 className="break-words text-base font-semibold text-[#003366]">
-                      {passenger.title} {passenger.firstName} {passenger.lastName}
+                      {passenger.title} {passenger.firstName}{" "}
+                      {passenger.lastName}
                       <span className="ml-1.5 text-sm font-medium capitalize text-[#003366]/55">
                         ({passenger.type})
                       </span>
@@ -1052,8 +1568,12 @@ export default function BookingsPage() {
                         ["Expiry date", formatDate(passenger.passportExpiry)],
                       ].map(([label, value]) => (
                         <div key={label} className="min-w-0">
-                          <dt className="inline-block rounded bg-[#003366] px-2 py-1 text-xs font-semibold text-white">{label}</dt>
-                          <dd className="mt-0.5 break-words text-sm font-medium leading-5 text-[#003366]">{value}</dd>
+                          <dt className="inline-block rounded bg-[#003366] px-2 py-1 text-xs font-semibold text-white">
+                            {label}
+                          </dt>
+                          <dd className="mt-0.5 break-words text-sm font-medium leading-5 text-[#003366]">
+                            {value}
+                          </dd>
                         </div>
                       ))}
                     </dl>
@@ -1064,45 +1584,72 @@ export default function BookingsPage() {
                 <table className="w-full table-fixed border-collapse text-left text-sm">
                   <thead className="border-b-2 border-[#FF6B35] bg-[#003366] text-xs uppercase tracking-wide text-white">
                     <tr>
-                      <th className="w-[22%] px-3 py-3 font-semibold">Passenger</th>
-                      <th className="w-[10%] px-3 py-3 font-semibold">Gender</th>
-                      <th className="w-[13%] px-3 py-3 font-semibold">Nationality</th>
-                      <th className="w-[15%] px-3 py-3 font-semibold">Passport</th>
-                      <th className="w-[14%] px-3 py-3 font-semibold">Date of birth</th>
-                      <th className="w-[13%] px-3 py-3 font-semibold">Issue date</th>
-                      <th className="w-[13%] px-3 py-3 font-semibold">Expiry date</th>
+                      <th className="w-[22%] px-3 py-3 font-semibold">
+                        Passenger
+                      </th>
+                      <th className="w-[10%] px-3 py-3 font-semibold">
+                        Gender
+                      </th>
+                      <th className="w-[13%] px-3 py-3 font-semibold">
+                        Nationality
+                      </th>
+                      <th className="w-[15%] px-3 py-3 font-semibold">
+                        Passport
+                      </th>
+                      <th className="w-[14%] px-3 py-3 font-semibold">
+                        Date of birth
+                      </th>
+                      <th className="w-[13%] px-3 py-3 font-semibold">
+                        Issue date
+                      </th>
+                      <th className="w-[13%] px-3 py-3 font-semibold">
+                        Expiry date
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#003366]/10 text-sm text-[#003366]/80">
                     {viewingBooking.passengers.map((passenger, index) => (
                       <tr key={`${passenger.type}-${index}`}>
                         <td className="break-words px-3 py-3 font-medium text-[#003366]">
-                          {passenger.title} {passenger.firstName} {passenger.lastName}
-                          <span className="ml-1 text-[#003366]/55">({passenger.type})</span>
+                          {passenger.title} {passenger.firstName}{" "}
+                          {passenger.lastName}
+                          <span className="ml-1 text-[#003366]/55">
+                            ({passenger.type})
+                          </span>
                         </td>
-                        <td className="break-words px-3 py-3">{passenger.gender}</td>
-                        <td className="break-words px-3 py-3">{passenger.nationality}</td>
-                        <td className="break-words px-3 py-3">{passenger.passportNumber}</td>
-                        <td className="break-words px-3 py-3">{formatDate(passenger.dateOfBirth)}</td>
-                        <td className="break-words px-3 py-3">{formatDate(passenger.passportIssueDate)}</td>
-                        <td className="break-words px-3 py-3">{formatDate(passenger.passportExpiry)}</td>
+                        <td className="break-words px-3 py-3">
+                          {passenger.gender}
+                        </td>
+                        <td className="break-words px-3 py-3">
+                          {passenger.nationality}
+                        </td>
+                        <td className="break-words px-3 py-3">
+                          {passenger.passportNumber}
+                        </td>
+                        <td className="break-words px-3 py-3">
+                          {formatDate(passenger.dateOfBirth)}
+                        </td>
+                        <td className="break-words px-3 py-3">
+                          {formatDate(passenger.passportIssueDate)}
+                        </td>
+                        <td className="break-words px-3 py-3">
+                          {formatDate(passenger.passportExpiry)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <p className="mt-4 text-sm text-slate-600">Submitted {formatDate(viewingBooking.createdAt)}</p>
+              <p className="mt-4 text-sm text-slate-600">
+                Submitted {formatDate(viewingBooking.createdAt)}
+              </p>
             </div>
           </section>
         </div>
       )}
-
     </div>
   );
 }
-
-
-
 
 // "use client";
 

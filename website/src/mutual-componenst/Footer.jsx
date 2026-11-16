@@ -123,15 +123,15 @@ const Footer = () => {
               href={user ? '/dashboard' : '/login'}
               onClick={handleLogoClick}
               aria-label="Foreign Air Travel account"
-              className="inline-flex rounded-2xl bg-white px-4 py-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+              
             >
               <Image
-                src="/FOREIGN-AIR-TRAVEL.png"
+                src="/FOREIGN-AIR-TRAVEL-white.png"
                 alt="Foreign Air Travel"
                 width={400}
                 height={120}
                 sizes="(min-width: 640px) 240px, 210px"
-                className="h-[48px] w-auto max-w-[210px] object-contain sm:h-[56px] sm:max-w-[240px]"
+                className="h-[70px] w-auto max-w-[210px] object-contain sm:h-[80px] sm:max-w-[280px]"
               />
             </Link>
 

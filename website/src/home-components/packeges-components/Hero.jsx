@@ -63,14 +63,15 @@ const Hero = () => {
           </div>
         </div>
 
-        <div className="relative mt-12 min-h-[320px] overflow-hidden rounded-t-[28px] border-x border-t border-white/15 bg-[#003366] shadow-[0_-18px_70px_rgba(0,0,0,0.18)] sm:mt-14 sm:min-h-[400px] sm:rounded-t-[36px] lg:min-h-[470px]">
+        <div className="relative mt-12 overflow-hidden rounded-t-[28px] border-x border-t border-white/15 bg-[#003366] shadow-[0_-18px_70px_rgba(0,0,0,0.18)] sm:mt-14 sm:rounded-t-[36px]">
           <Image
-            src="/hero-travel.jpg"
+            src="/Good-journeys-begin-with-the-right-plan.png"
             alt="A calm boat journey through a mountain lake"
-            fill
+            width={1672}
+            height={941}
             preload
             sizes="90vw"
-            className="object-cover object-center"
+            className="block h-auto w-full"
           />
 
           <div

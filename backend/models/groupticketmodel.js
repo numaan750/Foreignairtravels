@@ -37,11 +37,36 @@ const groupTicketSchema = new mongoose.Schema(
     infantPriceOnCall: { type: Boolean, default: false },
     currency: { type: String, default: 'SAR', trim: true, uppercase: true },
     bookingUrl: { type: String, default: '', trim: true },
+    sourceIntegration: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'TicketIntegration',
+      default: undefined,
+      index: true,
+    },
+    sourceTicketId: { type: String, default: undefined },
+    sourceFares: {
+      adultFare: { type: Number, default: 0 },
+      childFare: { type: Number, default: 0 },
+      infantFare: { type: Number, default: 0 },
+    },
+    sourceCurrency: { type: String, default: 'SAR' },
+    currencyOverride: { type: Boolean, default: false },
+    priceOverrides: {
+      adultFare: { type: Boolean, default: false },
+      childFare: { type: Boolean, default: false },
+      infantFare: { type: Boolean, default: false },
+    },
+    sourceAvailable: { type: Boolean, default: true },
     isActive: { type: Boolean, default: true },
     isAvailable: { type: Boolean, default: true, index: true },
     reservedBooking: { type: mongoose.Schema.Types.ObjectId, ref: 'GroupBooking', default: null },
   },
   { timestamps: true }
+);
+
+groupTicketSchema.index(
+  { sourceIntegration: 1, sourceTicketId: 1 },
+  { unique: true, partialFilterExpression: { sourceIntegration: { $type: 'objectId' } } }
 );
 
 export default mongoose.model('GroupTicket', groupTicketSchema);

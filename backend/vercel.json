@@ -16,6 +16,10 @@
     {
       "path": "/api/group-bookings/expire-pending",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/group-ticket-integrations/sync-due",
+      "schedule": "*/15 * * * *"
     }
   ]
 }

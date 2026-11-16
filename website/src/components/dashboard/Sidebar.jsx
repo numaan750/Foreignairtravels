@@ -57,10 +57,10 @@ export default function Sidebar({ open, onClose }) {
                 href="/dashboard"
                 onClick={onClose}
                 aria-label="Foreign Air Travel home"
-                className={`flex min-h-[72px] flex-1 items-center justify-center rounded-2xl bg-white px-4 shadow-[0_10px_26px_rgba(0,51,102,0.18)] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35] ${desktopExpanded ? '' : 'lg:min-h-11 lg:px-1'}`}
+                className={`flex min-h-[72px] flex-1 items-center justify-center px-4 shadow-[0_10px_26px_rgba(0,51,102,0.18)] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF6B35] ${desktopExpanded ? '' : 'lg:min-h-11 lg:px-1'}`}
               >
                 <Image
-                  src="/FOREIGN-AIR-TRAVEL.png"
+                  src="/FOREIGN-AIR-TRAVEL-white.png"
                   alt="Foreign Air Travel"
                   width={450}
                   height={200}

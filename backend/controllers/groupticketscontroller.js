@@ -22,7 +22,7 @@ const ticketFields = (body) => {
     'infantPriceOnCall',
     'currency',
   ].forEach((key) => {
-    if (body[key] !== undefined) fields[key] = body[key];
+    if (body[key] !== undefined && !(key === 'airlineId' && body[key] === '')) fields[key] = body[key];
   });
   return fields;
 };
@@ -47,8 +47,11 @@ export const getGroupTickets = async (req, res) => {
       filter.category = categoryItem._id;
     }
 
+    const projection = req.query.all === 'true'
+      ? '-reservedBooking'
+      : '-reservedBooking -sourceIntegration -sourceTicketId -sourceFares -priceOverrides -sourceAvailable';
     const tickets = await GroupTicket.find(filter)
-      .select('-reservedBooking')
+      .select(projection)
       .populate('category', 'name slug logo tagline')
       .populate('airlineId', 'name logo network')
       .sort({ departureDate: 1, createdAt: -1 });
@@ -93,7 +96,20 @@ export const updateGroupTicket = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid ticket id' });
     }
 
+    const existing = await GroupTicket.findById(id);
+    if (!existing) return res.status(404).json({ success: false, message: 'Group ticket not found' });
+
     const updates = ticketFields(req.body);
+    if (existing.sourceIntegration) {
+      for (const field of ['adultFare', 'childFare', 'infantFare']) {
+        if (updates[field] === undefined || Number(updates[field]) === Number(existing[field])) continue;
+        updates[`priceOverrides.${field}`] =
+          Number(updates[field]) !== Number(existing.sourceFares?.[field] ?? existing[field]);
+      }
+      if (updates.currency !== undefined && updates.currency !== existing.currency) {
+        updates.currencyOverride = updates.currency !== existing.sourceCurrency;
+      }
+    }
     if (updates.category && !mongoose.isValidObjectId(updates.category)) {
       return res.status(400).json({ success: false, message: 'Select a valid category' });
     }

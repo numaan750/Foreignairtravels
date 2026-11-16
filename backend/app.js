@@ -16,6 +16,7 @@ import popupImageRoutes from './routers/popupimagesrouters.js';
 import groupTicketCategoryRoutes from './routers/groupticketcategoriesroutes.js';
 import groupTicketRoutes from './routers/groupticketsroutes.js';
 import groupBookingRoutes from './routers/groupbookingsroutes.js';
+import ticketIntegrationRoutes from './routers/ticketintegrationsroutes.js';
 
 const app = express();
 app.use(cors());
@@ -36,16 +37,17 @@ app.use('/api/announcements', announcementRoutes);
 app.use('/api/popup-images', popupImageRoutes);
 app.use('/api/group-ticket-categories', groupTicketCategoryRoutes);
 app.use('/api/group-tickets', groupTicketRoutes);
+app.use('/api/group-ticket-integrations', ticketIntegrationRoutes);
 app.use('/api/group-bookings', groupBookingRoutes);
 
 
-app.get("/", (req, res) => {
-    res.send("API is running...");
-});
-
-// const port = process.env.PORT || 5000;
-// app.listen(port, () => {
-//     console.log(`Server is running on port ${port}`);
+// app.get("/", (req, res) => {
+//     res.send("API is running...");
 // });
+
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
 
 export default app;

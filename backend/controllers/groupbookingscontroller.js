@@ -157,10 +157,17 @@ export const createGroupBooking = async (req, res) => {
     });
   } catch (error) {
     if (reservedTicketId && bookingId && !bookingCreated) {
-      await GroupTicket.updateOne(
-        { _id: reservedTicketId, reservedBooking: bookingId },
-        { $set: { isAvailable: true }, $unset: { reservedBooking: 1 } }
-      );
+      const reservedTicket = await GroupTicket.findOne({
+        _id: reservedTicketId,
+        reservedBooking: bookingId,
+      });
+      if (reservedTicket) {
+        reservedTicket.isAvailable = reservedTicket.sourceIntegration
+          ? reservedTicket.sourceAvailable && reservedTicket.isActive
+          : true;
+        reservedTicket.reservedBooking = null;
+        await reservedTicket.save();
+      }
     }
     res.status(400).json({ success: false, message: error.message });
   }
@@ -267,10 +274,17 @@ export const updateAdminGroupBookingStatus = async (req, res) => {
       return res.status(409).json({ success: false, message: 'This booking status changed. Refresh and try again.' });
     }
     if (status === 'cancelled') {
-      await GroupTicket.updateOne(
-        { _id: booking.ticket, reservedBooking: booking._id },
-        { $set: { isAvailable: true }, $unset: { reservedBooking: 1 } }
-      );
+      const reservedTicket = await GroupTicket.findOne({
+        _id: booking.ticket,
+        reservedBooking: booking._id,
+      });
+      if (reservedTicket) {
+        reservedTicket.isAvailable = reservedTicket.sourceIntegration
+          ? reservedTicket.sourceAvailable && reservedTicket.isActive
+          : true;
+        reservedTicket.reservedBooking = null;
+        await reservedTicket.save();
+      }
     }
     res.json({ success: true, message: 'Booking status updated.', data: booking });
   } catch (error) {
