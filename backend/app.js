@@ -41,6 +41,7 @@ app.use('/api/group-ticket-integrations', ticketIntegrationRoutes);
 app.use('/api/group-bookings', groupBookingRoutes);
 
 
+
 app.get("/", (req, res) => {
     res.send("API is running...");
 });
