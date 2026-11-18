@@ -1,20 +1,32 @@
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import mongoose from 'mongoose';
 import Airline from '../models/airlinesmodel.js';
 import GroupTicket from '../models/groupticketmodel.js';
 import GroupTicketCategory from '../models/groupticketcategorymodel.js';
-import { TicketIntegration, TicketIntegrationKey } from '../models/ticketintegrationmodel.js';
+import { TicketIntegration, TicketIntegrationAccess } from '../models/ticketintegrationmodel.js';
 import {
   decryptIntegrationKey,
   encryptIntegrationKey,
+  fetchAlHaiderTickets,
   fetchIntegrationTickets,
+  loginAlHaider,
+  logoutAlHaider,
   normalizeIntegrationBaseUrl,
 } from '../utils/ticketIntegration.js';
 
 const syncIntervalMs = 15 * 60 * 1000;
 const syncLockMs = 2 * 60 * 1000;
 const fareFields = ['adultFare', 'childFare', 'infantFare'];
-const keyHash = (value) => createHash('sha256').update(value).digest('hex');
+const normalizeEmail = (value) => {
+  const email = String(value ?? '').trim().toLowerCase();
+  return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : '';
+};
+// Words ignored when matching a source category (e.g. "KSA ONEWAY") to a local one (e.g. "PAK TO KSA").
+const genericCategoryWords = new Set([
+  'pak', 'pakistan', 'to', 'from', 'and', 'the', 'group', 'groups', 'ticket', 'tickets',
+  'flight', 'flights', 'oneway', 'one', 'way', 'return',
+]);
+const categoryWords = (value) => String(value || '').toLowerCase().split(/[^a-z0-9]+/)
+  .filter((word) => word && !genericCategoryWords.has(word));
 
 const safeIntegration = (integration) => ({
   _id: integration._id,
@@ -23,7 +35,9 @@ const safeIntegration = (integration) => ({
   category: integration.category,
   sourceCategorySlug: integration.sourceCategorySlug || '',
   isActive: integration.isActive,
-  hasApiKey: Boolean(integration.apiKeyEncrypted),
+  accessEmail: integration.accessEmail || '',
+  provider: integration.provider || 'foreignairtravel',
+  loginExpiresAt: integration.sourceTokenExpiresAt || null,
   lastSyncAt: integration.lastSyncAt,
   lastSyncError: integration.lastSyncError,
   lastSyncCount: integration.lastSyncCount,
@@ -38,8 +52,18 @@ const applySourceTickets = async (integration, tickets) => {
     throw new Error('The local ticket category for this connection no longer exists.');
   }
   const existingBySourceId = new Map(existing.map((ticket) => [ticket.sourceTicketId, ticket]));
-  const categories = await GroupTicketCategory.find().select('slug').lean();
+  const categories = await GroupTicketCategory.find().select('name slug').lean();
   const categoryIdsBySlug = new Map(categories.map((category) => [category.slug.toLowerCase(), category._id]));
+  const categoryWordSets = categories.map((category) => ({
+    _id: category._id,
+    words: new Set(categoryWords(`${category.slug} ${category.name}`)),
+  }));
+  const matchCategory = (slug) => {
+    if (categoryIdsBySlug.has(slug)) return categoryIdsBySlug.get(slug);
+    const words = categoryWords(slug);
+    const matches = categoryWordSets.filter((category) => words.some((word) => category.words.has(word)));
+    return matches.length === 1 ? matches[0]._id : integration.category;
+  };
   const airlines = await Airline.find().select('name').lean();
   const airlineIds = new Map(airlines.map((airline) => [airline.name.trim().toLowerCase(), airline._id]));
   const receivedIds = new Set(tickets.map((ticket) => ticket.sourceId));
@@ -54,7 +78,7 @@ const applySourceTickets = async (integration, tickets) => {
     const set = {
       sourceIntegration: integration._id,
       sourceTicketId: ticket.sourceId,
-      category: categoryIdsBySlug.get(ticket.sourceCategorySlug.toLowerCase()) || integration.category,
+      category: matchCategory(ticket.sourceCategorySlug.toLowerCase()),
       airline: ticket.airline,
       airlineLogo: ticket.airlineLogo,
       ...(airlineId ? { airlineId } : {}),
@@ -111,11 +135,25 @@ const claimSyncLock = (id) => TicketIntegration.findOneAndUpdate(
 );
 
 const runIntegrationSync = async (integration) => {
-  const tickets = await fetchIntegrationTickets(
-    integration.baseUrl,
-    decryptIntegrationKey(integration.apiKeyEncrypted),
-    integration.sourceCategorySlug || ''
-  );
+  let tickets;
+  if (integration.provider === 'alhaider') {
+    if (!integration.sourceTokenEncrypted) throw new Error('Edit this connection and enter the account password again.');
+    let token;
+    try {
+      token = decryptIntegrationKey(integration.sourceTokenEncrypted);
+    } catch {
+      // Happens when this server's JWT_SECRET differs from the one that saved the login.
+      throw new Error('The saved login cannot be read on this server. Edit this connection and enter the account password again.');
+    }
+    tickets = await fetchAlHaiderTickets(integration.baseUrl, token, integration.sourceCategorySlug || '');
+  } else {
+    if (!integration.accessEmail) throw new Error('Edit this connection and add the access email.');
+    tickets = await fetchIntegrationTickets(
+      integration.baseUrl,
+      integration.accessEmail,
+      integration.sourceCategorySlug || ''
+    );
+  }
   const result = await applySourceTickets(integration, tickets.tickets);
   await TicketIntegration.updateOne(
     { _id: integration._id },
@@ -149,13 +187,13 @@ const syncWithLock = async (id) => {
   }
 };
 
-export const getTicketIntegrationKeys = async (_req, res) => {
+export const getTicketAccessEmails = async (_req, res) => {
   try {
-    const keys = await TicketIntegrationKey.find().sort({ createdAt: -1 }).lean();
+    const items = await TicketIntegrationAccess.find().sort({ createdAt: -1 }).lean();
     res.json({
       success: true,
-      data: keys.map(({ _id, name, keyPrefix, isActive, lastUsedAt, createdAt }) => ({
-        _id, name, keyPrefix, isActive, lastUsedAt, createdAt,
+      data: items.map(({ _id, email, isActive, lastUsedAt, createdAt }) => ({
+        _id, email, isActive, lastUsedAt, createdAt,
       })),
     });
   } catch (error) {
@@ -163,37 +201,36 @@ export const getTicketIntegrationKeys = async (_req, res) => {
   }
 };
 
-export const createTicketIntegrationKey = async (req, res) => {
+export const grantTicketAccessEmail = async (req, res) => {
   try {
-    const name = String(req.body.name || '').trim();
-    if (!name || name.length > 80) {
-      return res.status(400).json({ success: false, message: 'Enter a key name up to 80 characters.' });
+    const email = normalizeEmail(req.body.email);
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Enter a valid email address.' });
     }
-    const secret = randomBytes(32).toString('base64url');
-    const key = await TicketIntegrationKey.create({
-      name,
-      keyHash: keyHash(secret),
-      keyPrefix: secret.slice(0, 12),
-    });
+    const access = await TicketIntegrationAccess.findOneAndUpdate(
+      { email },
+      { $set: { isActive: true } },
+      { upsert: true, returnDocument: 'after' }
+    );
     res.status(201).json({
       success: true,
-      message: 'Copy this API key now. It cannot be shown again.',
-      data: { _id: key._id, name: key.name, key: secret, keyPrefix: key.keyPrefix },
+      message: `Ticket access given to ${email}.`,
+      data: { _id: access._id, email: access.email, isActive: access.isActive },
     });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
 
-export const revokeTicketIntegrationKey = async (req, res) => {
+export const revokeTicketAccessEmail = async (req, res) => {
   try {
-    const key = await TicketIntegrationKey.findByIdAndUpdate(
+    const access = await TicketIntegrationAccess.findByIdAndUpdate(
       req.params.id,
       { $set: { isActive: false } },
-      { new: true }
+      { returnDocument: 'after' }
     );
-    if (!key) return res.status(404).json({ success: false, message: 'API key not found.' });
-    res.json({ success: true, message: 'API key revoked.' });
+    if (!access) return res.status(404).json({ success: false, message: 'Access email not found.' });
+    res.json({ success: true, message: `Ticket access removed for ${access.email}.` });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -201,19 +238,15 @@ export const revokeTicketIntegrationKey = async (req, res) => {
 
 export const exportGroupTickets = async (req, res) => {
   try {
-    const authorization = req.get('authorization') || '';
-    const providedKey = authorization.startsWith('Bearer ') ? authorization.slice(7).trim() : '';
-    if (!providedKey) return res.status(401).json({ success: false, message: 'A valid API key is required.' });
-    const prefix = providedKey.slice(0, 12);
-    const candidates = await TicketIntegrationKey.find({ keyPrefix: prefix, isActive: true });
-    const providedHash = Buffer.from(keyHash(providedKey), 'hex');
-    const key = candidates.find((candidate) => {
-      const savedHash = Buffer.from(candidate.keyHash, 'hex');
-      return savedHash.length === providedHash.length && timingSafeEqual(savedHash, providedHash);
-    });
-    if (!key) return res.status(401).json({ success: false, message: 'A valid API key is required.' });
-    key.lastUsedAt = new Date();
-    await key.save();
+    const email = normalizeEmail(req.get('x-access-email'));
+    if (!email) return res.status(401).json({ success: false, message: 'An email with ticket access is required.' });
+    const access = await TicketIntegrationAccess.updateOne(
+      { email, isActive: true },
+      { $set: { lastUsedAt: new Date() } }
+    );
+    if (!access.matchedCount) {
+      return res.status(403).json({ success: false, message: 'This email does not have ticket access.' });
+    }
 
     const categories = await GroupTicketCategory.find().select('name slug').sort({ name: 1 }).lean();
     const categoriesOnly = req.query.categoriesOnly === 'true';
@@ -264,11 +297,11 @@ export const exportGroupTickets = async (req, res) => {
 export const previewTicketIntegration = async (req, res) => {
   try {
     const baseUrl = String(req.body.baseUrl || '').trim().replace(/\/+$/, '');
-    const apiKey = String(req.body.apiKey || '').trim();
-    if (!apiKey || apiKey.length > 512) {
-      return res.status(400).json({ success: false, message: 'Enter the source API key to load its categories.' });
+    const accessEmail = normalizeEmail(req.body.accessEmail);
+    if (!accessEmail) {
+      return res.status(400).json({ success: false, message: 'Enter the access email to load source categories.' });
     }
-    const result = await fetchIntegrationTickets(baseUrl, apiKey, '', true);
+    const result = await fetchIntegrationTickets(baseUrl, accessEmail, '', true);
     res.json({ success: true, data: result.categories });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -288,24 +321,48 @@ export const createTicketIntegration = async (req, res) => {
   try {
     const name = String(req.body.name || '').trim();
     const baseUrl = String(req.body.baseUrl || '').trim().replace(/\/+$/, '');
-    const apiKey = String(req.body.apiKey || '').trim();
+    const accessEmail = normalizeEmail(req.body.accessEmail);
     const categoryId = String(req.body.category || '');
     if (!name || name.length > 80) {
       return res.status(400).json({ success: false, message: 'Enter a website name up to 80 characters.' });
     }
-    if (!apiKey || apiKey.length > 512) {
-      return res.status(400).json({ success: false, message: 'Enter a valid source API key.' });
+    if (!accessEmail) {
+      return res.status(400).json({ success: false, message: 'Enter the email that has ticket access on the source website.' });
     }
     if (!mongoose.isValidObjectId(categoryId)
       || !(await GroupTicketCategory.exists({ _id: categoryId }))) {
       return res.status(400).json({ success: false, message: 'Select a valid local ticket category.' });
     }
+    const password = String(req.body.password || '');
+    if (password) {
+      // Login websites (Al Haider): log in once, keep only the encrypted token, never the password.
+      if (password.length > 200) return res.status(400).json({ success: false, message: 'Enter a valid password.' });
+      const login = await loginAlHaider(baseUrl, accessEmail, password);
+      const integration = await TicketIntegration.create({
+        name,
+        baseUrl,
+        accessEmail,
+        category: categoryId,
+        provider: 'alhaider',
+        sourceTokenEncrypted: encryptIntegrationKey(login.token),
+        sourceTokenExpiresAt: login.expiresAt,
+      });
+      let message;
+      try {
+        const result = await syncWithLock(integration._id);
+        message = `${result.imported} ticket(s) synced from ${name}.`;
+      } catch (error) {
+        message = `${name} connected, but the first sync failed: ${error.message}`;
+      }
+      const saved = await TicketIntegration.findById(integration._id).populate('category', 'name');
+      return res.status(201).json({ success: true, message, data: safeIntegration(saved) });
+    }
     const sourceCategorySlug = String(req.body.sourceCategorySlug || '').trim().toLowerCase();
-    const source = await fetchIntegrationTickets(baseUrl, apiKey, sourceCategorySlug);
+    const source = await fetchIntegrationTickets(baseUrl, accessEmail, sourceCategorySlug);
     const integration = await TicketIntegration.create({
       name,
       baseUrl,
-      apiKeyEncrypted: encryptIntegrationKey(apiKey),
+      accessEmail,
       category: categoryId,
       sourceCategorySlug,
     });
@@ -356,13 +413,33 @@ export const updateTicketIntegration = async (req, res) => {
       }
       integration.sourceCategorySlug = sourceCategorySlug;
     }
-    if (req.body.apiKey !== undefined) {
-      const apiKey = String(req.body.apiKey).trim();
-      if (!apiKey || apiKey.length > 512) return res.status(400).json({ success: false, message: 'Enter a valid source API key.' });
-      integration.apiKeyEncrypted = encryptIntegrationKey(apiKey);
+    if (req.body.accessEmail !== undefined) {
+      const accessEmail = normalizeEmail(req.body.accessEmail);
+      if (!accessEmail) return res.status(400).json({ success: false, message: 'Enter a valid access email.' });
+      integration.accessEmail = accessEmail;
+    }
+    const password = String(req.body.password || '');
+    let oldToken = '';
+    if (password) {
+      if (password.length > 200) return res.status(400).json({ success: false, message: 'Enter a valid password.' });
+      const login = await loginAlHaider(integration.baseUrl, integration.accessEmail, password);
+      if (integration.provider === 'alhaider') oldToken = integration.sourceTokenEncrypted || '';
+      integration.provider = 'alhaider';
+      integration.sourceTokenEncrypted = encryptIntegrationKey(login.token);
+      integration.sourceTokenExpiresAt = login.expiresAt;
+    } else if (integration.provider === 'alhaider' && integration.isModified('accessEmail')) {
+      return res.status(400).json({ success: false, message: 'Enter the account password again to change the login email.' });
     }
     if (req.body.isActive !== undefined) integration.isActive = Boolean(req.body.isActive);
     await integration.save();
+    if (oldToken) {
+      try {
+        // Free the old token slot on the source website (best effort, after the new login is saved).
+        await logoutAlHaider(integration.baseUrl, decryptIntegrationKey(oldToken));
+      } catch {
+        // An old token that cannot be revoked is not fatal.
+      }
+    }
     const populated = await integration.populate('category', 'name');
     res.json({ success: true, data: safeIntegration(populated) });
   } catch (error) {

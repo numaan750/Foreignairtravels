@@ -2,13 +2,13 @@ import express from 'express';
 import { protectAdmin } from '../middleware/adminAuth.js';
 import {
   createTicketIntegration,
-  createTicketIntegrationKey,
   deleteTicketIntegration,
   exportGroupTickets,
-  getTicketIntegrationKeys,
+  getTicketAccessEmails,
   getTicketIntegrations,
+  grantTicketAccessEmail,
   previewTicketIntegration,
-  revokeTicketIntegrationKey,
+  revokeTicketAccessEmail,
   syncDueTicketIntegrations,
   syncDueTicketIntegrationsCronAuth,
   syncTicketIntegration,
@@ -21,9 +21,9 @@ router.get('/export', exportGroupTickets);
 router.get('/sync-due', syncDueTicketIntegrationsCronAuth, syncDueTicketIntegrations);
 router.use(protectAdmin);
 
-router.get('/keys', getTicketIntegrationKeys);
-router.post('/keys', createTicketIntegrationKey);
-router.delete('/keys/:id', revokeTicketIntegrationKey);
+router.get('/access', getTicketAccessEmails);
+router.post('/access', grantTicketAccessEmail);
+router.delete('/access/:id', revokeTicketAccessEmail);
 router.get('/', getTicketIntegrations);
 router.post('/preview', previewTicketIntegration);
 router.post('/', createTicketIntegration);

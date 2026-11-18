@@ -5,7 +5,7 @@ import { request as httpsRequest } from 'node:https';
 
 const apiPath = '/api/group-ticket-integrations/export';
 const maxResponseBytes = 5 * 1024 * 1024;
-const maxTicketCount = 500;
+const maxTicketCount = 2000;
 
 const getEncryptionKey = () => {
   if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET is required to encrypt ticket integration credentials.');
@@ -179,22 +179,25 @@ export const normalizeIntegrationPayload = (payload, selectedCategorySlug = '') 
   };
 };
 
-export const fetchIntegrationTickets = async (
-  baseUrl,
-  apiKey,
-  selectedCategorySlug = '',
-  categoriesOnly = false
-) => {
+const redirectStatuses = new Set([301, 302, 303, 307, 308]);
+const withoutWww = (hostname) => hostname.replace(/^www\./, '');
+
+// One HTTPS request to a public source website. Returns { status, data } where data is parsed JSON or null.
+// Only www <-> non-www redirects are followed, so credentials are never sent to another domain.
+const requestSource = async (baseUrl, path, { method = 'GET', headers = {}, query = {}, form } = {}, redirectsLeft = 3) => {
   const { url, addresses } = await normalizeIntegrationBaseUrl(baseUrl);
-  url.pathname = apiPath;
-  if (selectedCategorySlug) url.searchParams.set('category', selectedCategorySlug);
-  if (categoriesOnly) url.searchParams.set('categoriesOnly', 'true');
-  const responseBody = await new Promise((resolve, reject) => {
+  url.pathname = path;
+  Object.entries(query).forEach(([key, value]) => {
+    if (value) url.searchParams.set(key, value);
+  });
+  const body = form ? new URLSearchParams(form).toString() : '';
+  const response = await new Promise((resolve, reject) => {
     const request = httpsRequest(url, {
-      method: 'GET',
+      method,
       headers: {
         Accept: 'application/json',
-        Authorization: `Bearer ${apiKey}`,
+        ...headers,
+        ...(body ? { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(body) } : {}),
       },
       lookup: (_hostname, options, callback) => {
         if (options?.all) callback(null, addresses);
@@ -203,10 +206,18 @@ export const fetchIntegrationTickets = async (
       timeout: 15000,
     }, (incoming) => {
       incoming.on('error', reject);
-      if (incoming.statusCode !== 200) {
-        incoming.resume();
-        reject(new Error(`Source website returned HTTP ${incoming.statusCode || 'error'}.`));
-        return;
+      if (redirectStatuses.has(incoming.statusCode) && redirectsLeft > 0) {
+        let next = null;
+        try {
+          next = new URL(incoming.headers.location || '', url);
+        } catch {
+          next = null;
+        }
+        if (next && next.origin !== url.origin && withoutWww(next.hostname) === withoutWww(url.hostname)) {
+          incoming.resume();
+          resolve({ redirectTo: next.origin });
+          return;
+        }
       }
       const chunks = [];
       let totalBytes = 0;
@@ -218,18 +229,136 @@ export const fetchIntegrationTickets = async (
         }
         chunks.push(chunk);
       });
-      incoming.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+      incoming.on('end', () => {
+        let data = null;
+        try {
+          data = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+        } catch {
+          data = null;
+        }
+        resolve({ status: incoming.statusCode, data });
+      });
     });
     request.on('timeout', () => request.destroy(new Error('Source website request timed out.')));
     request.on('error', reject);
-    request.end();
+    request.end(body || undefined);
   });
+  return response.redirectTo
+    ? requestSource(response.redirectTo, path, { method, headers, query, form }, redirectsLeft - 1)
+    : response;
+};
 
-  let payload;
-  try {
-    payload = JSON.parse(responseBody);
-  } catch {
-    throw new Error('Source website returned invalid JSON.');
+export const fetchIntegrationTickets = async (
+  baseUrl,
+  accessEmail,
+  selectedCategorySlug = '',
+  categoriesOnly = false
+) => {
+  const { status, data } = await requestSource(baseUrl, apiPath, {
+    headers: { 'X-Access-Email': accessEmail },
+    query: { category: selectedCategorySlug, categoriesOnly: categoriesOnly ? 'true' : '' },
+  });
+  if (status === 401 || status === 403) throw new Error('The source website has not given ticket access to this email.');
+  if (status === 404) {
+    throw new Error('Ticket sync was not found on this website (HTTP 404). For login websites like Al Haider, also enter the account password.');
   }
-  return normalizeIntegrationPayload(payload, selectedCategorySlug);
+  if (status !== 200) throw new Error(`Source website returned HTTP ${status || 'error'}.`);
+  if (!data) throw new Error('Source website returned invalid JSON.');
+  return normalizeIntegrationPayload(data, selectedCategorySlug);
+};
+
+// ---------- Al Haider style websites (login with email + password, then Bearer token) ----------
+const sourceMessage = (status, data) => String(data?.message || `HTTP ${status || 'error'}`).replace(/\.+$/, '').slice(0, 200);
+const sourceNumber = (value) => Number(String(value ?? '').replace(/,/g, '').trim());
+const sourceTime = (value) => String(value || '').trim().replace(/^(\d{1,2}:\d{2}):\d{2}$/, '$1');
+const sourceAirlineName = (airline) => String(airline?.airline_name || '')
+  .trim()
+  .replace(/^\d+\.\s*/, '')
+  .replace(/\s+[A-Z]{3}(?:-[A-Z]{3})+$/, '')
+  .trim() || String(airline?.short_name || '').trim();
+
+export const loginAlHaider = async (baseUrl, email, password) => {
+  const { status, data } = await requestSource(baseUrl, '/api/login', { method: 'POST', form: { email, password } });
+  const token = data?.token || data?.data?.token;
+  if (status !== 200 || typeof token !== 'string' || !token) {
+    throw new Error(`Login failed on the source website: ${sourceMessage(status, data)}.`);
+  }
+  const expiresAt = Number(data.expires_at ?? data.data?.expires_at);
+  return {
+    token,
+    expiresAt: expiresAt > 0 ? new Date(expiresAt < 1e12 ? expiresAt * 1000 : expiresAt) : null,
+  };
+};
+
+export const logoutAlHaider = (baseUrl, token) => requestSource(baseUrl, '/api/logout', {
+  method: 'POST',
+  headers: { Authorization: `Bearer ${token}` },
+});
+
+export const fetchAlHaiderTickets = async (baseUrl, token, selectedCategorySlug = '') => {
+  const headers = { Authorization: `Bearer ${token}` };
+  const [airlinesResponse, groupsResponse] = await Promise.all([
+    requestSource(baseUrl, '/api/available/airlines', { headers }),
+    requestSource(baseUrl, '/api/available/groups', { headers }),
+  ]);
+  for (const { status, data } of [airlinesResponse, groupsResponse]) {
+    if (status === 401) throw new Error('The saved login has expired. Edit this connection and enter the password again.');
+    if (status !== 200 || !data) throw new Error(`Source website error: ${sourceMessage(status, data)}.`);
+  }
+  if (!Array.isArray(groupsResponse.data.groups)) throw new Error('Source website did not return a groups list.');
+  const airlines = new Map(
+    (Array.isArray(airlinesResponse.data.airlines) ? airlinesResponse.data.airlines : [])
+      .map((airline) => [String(airline?.id), airline])
+  );
+  const categories = new Map();
+  const data = [];
+  for (const group of groupsResponse.data.groups) {
+    const details = (Array.isArray(group?.details) ? group.details : [])
+      .filter((detail) => detail?.origin && detail?.destination && detail?.flight_no)
+      .sort((first, second) => Number(first.sr) - Number(second.sr));
+    const airline = group?.airline || airlines.get(String(group?.airline_id));
+    const airlineName = sourceAirlineName(airline).slice(0, 120);
+    const price = sourceNumber(group?.price);
+    if (
+      !group?.id
+      || Number.isNaN(new Date(group.dept_date).getTime())
+      || !details.length
+      || !airlineName
+      || !(price > 0)
+    ) continue;
+    const type = String(group.type || '').trim().slice(0, 120);
+    const categorySlug = type.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    if (categorySlug && !categories.has(categorySlug)) categories.set(categorySlug, { slug: categorySlug, name: type });
+    const baggage = String(group.baggage || '').trim().slice(0, 190);
+    data.push({
+      sourceId: String(group.id),
+      categorySlug,
+      airline: airlineName,
+      airlineLogo: String(airline?.logo_url || ''),
+      groupName: ([group.sector, type].filter(Boolean).join(' · ') || `Group ${group.id}`).slice(0, 200),
+      departureDate: group.dept_date,
+      segments: details.map((detail) => ({
+        from: detail.origin,
+        to: detail.destination,
+        flightNumber: detail.flight_no,
+        departureTime: [detail.flight_date !== group.dept_date ? detail.flight_date : '', sourceTime(detail.dept_time)]
+          .filter(Boolean).join(' '),
+        arrivalTime: sourceTime(detail.arv_time),
+      })),
+      baggage: !baggage ? 'N/A' : /[a-z]/i.test(baggage) ? baggage : `${baggage} KG`,
+      mealAvailable: /^y/i.test(String(group.meal || '').trim()),
+      adultFare: price,
+      childFare: price,
+      infantFare: 0,
+      infantPriceOnCall: true,
+      currency: 'PKR',
+      // Every group from /api/available/groups is bookable; a group that sells out leaves that list
+      // and the next sync hides it. (Seats in the list can be empty, which must not mean "sold out".)
+      isAvailable: true,
+    });
+  }
+  return normalizeIntegrationPayload(
+    { success: true, complete: true, categories: [...categories.values()], data },
+    selectedCategorySlug
+  );
 };

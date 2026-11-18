@@ -4,7 +4,10 @@ const ticketIntegrationSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     baseUrl: { type: String, required: true, trim: true },
-    apiKeyEncrypted: { type: String, required: true },
+    accessEmail: { type: String, default: '', trim: true, lowercase: true },
+    provider: { type: String, enum: ['foreignairtravel', 'alhaider'], default: 'foreignairtravel' },
+    sourceTokenEncrypted: { type: String, default: '' },
+    sourceTokenExpiresAt: { type: Date, default: null },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'GroupTicketCategory',
@@ -20,11 +23,9 @@ const ticketIntegrationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const ticketIntegrationKeySchema = new mongoose.Schema(
+const ticketIntegrationAccessSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, trim: true },
-    keyHash: { type: String, required: true, unique: true },
-    keyPrefix: { type: String, required: true },
+    email: { type: String, required: true, unique: true, trim: true, lowercase: true },
     isActive: { type: Boolean, default: true, index: true },
     lastUsedAt: { type: Date, default: null },
   },
@@ -32,4 +33,4 @@ const ticketIntegrationKeySchema = new mongoose.Schema(
 );
 
 export const TicketIntegration = mongoose.model('TicketIntegration', ticketIntegrationSchema);
-export const TicketIntegrationKey = mongoose.model('TicketIntegrationKey', ticketIntegrationKeySchema);
+export const TicketIntegrationAccess = mongoose.model('TicketIntegrationAccess', ticketIntegrationAccessSchema);
