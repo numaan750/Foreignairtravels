@@ -753,34 +753,30 @@ function BookingActions({ booking, openingPdfId, onView, onPreview }) {
         <FiEye aria-hidden="true" />
         View
       </button>
-      {booking.status === "confirmed" && (
-        <>
-          <button
-            type="button"
-            onClick={() => onPreview(booking, true)}
-            disabled={openingPdfId === `${booking._id}-with-price`}
-            className="inline-flex min-h-10 w-full cursor-pointer items-center justify-center gap-1 rounded-lg bg-[#003366] px-2.5 py-2 text-sm font-semibold whitespace-nowrap text-white transition hover:bg-[#FF6B35] disabled:cursor-not-allowed disabled:opacity-60 2xl:w-fit"
-          >
-            <FiEye aria-hidden="true" />
-            {openingPdfId === `${booking._id}-with-price`
-              ? "Preparing..."
-              : "Invoice"}
-          </button>
-          <button
-            type="button"
-            onClick={() => onPreview(booking, false)}
-            disabled={openingPdfId === `${booking._id}-without-price`}
-            aria-label="Preview invoice without price"
-            title="Invoice without price"
-            className="inline-flex min-h-10 w-full cursor-pointer items-center justify-center gap-1 rounded-lg border border-[#003366]/20 px-2.5 py-2 text-sm font-semibold whitespace-nowrap text-[#003366] transition hover:border-[#FF6B35] hover:text-[#FF6B35] disabled:cursor-not-allowed disabled:opacity-60 2xl:w-fit"
-          >
-            <FiEye aria-hidden="true" />
-            {openingPdfId === `${booking._id}-without-price`
-              ? "Preparing..."
-              : "No price"}
-          </button>
-        </>
-      )}
+      <button
+        type="button"
+        onClick={() => onPreview(booking, true)}
+        disabled={openingPdfId === `${booking._id}-with-price`}
+        className="inline-flex min-h-10 w-full cursor-pointer items-center justify-center gap-1 rounded-lg bg-[#003366] px-2.5 py-2 text-sm font-semibold whitespace-nowrap text-white transition hover:bg-[#FF6B35] disabled:cursor-not-allowed disabled:opacity-60 2xl:w-fit"
+      >
+        <FiEye aria-hidden="true" />
+        {openingPdfId === `${booking._id}-with-price`
+          ? "Preparing..."
+          : "Invoice"}
+      </button>
+      <button
+        type="button"
+        onClick={() => onPreview(booking, false)}
+        disabled={openingPdfId === `${booking._id}-without-price`}
+        aria-label="Preview invoice without price"
+        title="Invoice without price"
+        className="inline-flex min-h-10 w-full cursor-pointer items-center justify-center gap-1 rounded-lg border border-[#003366]/20 px-2.5 py-2 text-sm font-semibold whitespace-nowrap text-[#003366] transition hover:border-[#FF6B35] hover:text-[#FF6B35] disabled:cursor-not-allowed disabled:opacity-60 2xl:w-fit"
+      >
+        <FiEye aria-hidden="true" />
+        {openingPdfId === `${booking._id}-without-price`
+          ? "Preparing..."
+          : "No price"}
+      </button>
     </div>
   );
 }
